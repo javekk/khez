@@ -14,9 +14,14 @@ class Board {
     void setupInitialPosition();
     std::string toString() const;
     char getPieceAt(int square) const;
+    bool movePiece(int from, int to);
 
     static int notationToSquare(const std::string& notation);
 
    private:
     Bitboard pieces_[2][6];  // [color][piece_type]
+
+    bool isSquareEmpty(int square) const;
+    bool isValidMove(int from, int to) const;
+    bool isValidPawnMove(int from, int to, bool isWhite) const;
 };

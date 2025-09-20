@@ -94,12 +94,48 @@ void test_notation_to_square() {
     std::cout << "\t\tNotation to square tests passed!\n";
 }
 
+void test_pawn_moves() {
+    std::cout << "\t\tTesting pawn moves...\n";
+
+    Board board;
+    board.setupInitialPosition();
+
+    // Test valid white pawn moves
+    assert(board.movePiece(Board::notationToSquare("e2"), Board::notationToSquare("e3")) == true);
+    assert(board.getPieceAt(Board::notationToSquare("e2")) == '.');
+    assert(board.getPieceAt(Board::notationToSquare("e3")) == 'P');
+
+    // Test valid black pawn move
+    assert(board.movePiece(Board::notationToSquare("d7"), Board::notationToSquare("d6")) == true);
+    assert(board.getPieceAt(Board::notationToSquare("d7")) == '.');
+    assert(board.getPieceAt(Board::notationToSquare("d6")) == 'p');
+
+    // Test invalid moves
+    Board board2;
+    board2.setupInitialPosition();
+
+    // Can't move pawn backwards
+    assert(board2.movePiece(Board::notationToSquare("e2"), Board::notationToSquare("e1")) == false);
+
+    // Can't move pawn sideways
+    assert(board2.movePiece(Board::notationToSquare("e2"), Board::notationToSquare("f2")) == false);
+
+    // Can't move pawn two squares (not implemented yet)
+    assert(board2.movePiece(Board::notationToSquare("e2"), Board::notationToSquare("e4")) == false);
+
+    // Can't move to occupied square
+    assert(board2.movePiece(Board::notationToSquare("e2"), Board::notationToSquare("e7")) == false);
+
+    std::cout << "\t\tPawn move tests passed!\n";
+}
+
 int run_board_tests() {
     try {
         test_board_initialization();
         test_to_string();
         test_initial_position();
         test_notation_to_square();
+        test_pawn_moves();
 
         std::cout << "\tAll board tests passed!\n";
         return 0;

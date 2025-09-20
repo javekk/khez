@@ -88,3 +88,68 @@ int Board::notationToSquare(const std::string& notation) {
 
     return rank_index * 8 + file_index;
 }
+
+bool Board::movePiece(int from, int to) {
+    // Basic validation
+    if (from < 0 || from >= 64 || to < 0 || to >= 64) {
+        return false;
+    }
+
+    // Check if there's a piece at the from square
+    if (isSquareEmpty(from)) {
+        return false;
+    }
+
+    // Get piece info at from square
+    if (!isValidMove(from, to)) {
+        return false;
+    }
+
+    for (int color = 0; color < 2; ++color) {
+        for (int piece_idx = 0; piece_idx < 6; ++piece_idx) {
+            if (pieces_[color][piece_idx].getBit(from)) {
+                pieces_[color][piece_idx].clearBit(from);
+                pieces_[color][piece_idx].setBit(to);
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Board::isSquareEmpty(int square) const {
+    if (square < 0 || square >= 64) {
+        return false;
+    }
+
+    // Combine all piece bitboards to get occupied squares
+    Bitboard occupied;
+    for (int color = 0; color < 2; ++color) {
+        for (int piece = 0; piece < 6; ++piece) {
+            occupied = occupied | pieces_[color][piece];
+        }
+    }
+    return !occupied.getBit(square);
+}
+
+bool Board::isValidMove(int from, int to) const {
+    char piece = getPieceAt(from);
+    bool isWhite = (piece >= 'A' && piece <= 'Z');
+    char pieceType = isWhite ? piece : (piece - 32);
+
+    // Only pawns for now
+    if (pieceType != 'P') return false;
+
+    return isValidPawnMove(from, to, isWhite);
+}
+
+bool Board::isValidPawnMove(int from, int to, bool isWhite) const {
+    int rankDiff = (to / 8) - (from / 8);
+    int fileDiff = (to % 8) - (from % 8);
+
+    // Pawn one square forward: same file, correct direction, target empty
+    return fileDiff == 0 &&
+           rankDiff == (isWhite ? 1 : -1) &&
+           isSquareEmpty(to);
+}
