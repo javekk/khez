@@ -13,8 +13,10 @@ class Board {
     Board();
     void setupInitialPosition();
     std::string toString() const;
+    char getPieceAt(std::string square) const;
     char getPieceAt(int square) const;
     bool movePiece(int from, int to);
+    bool movePiece(std::string from, std::string to);
 
     static int notationToSquare(const std::string& notation);
 

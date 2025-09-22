@@ -44,30 +44,30 @@ void test_initial_position() {
     board.setupInitialPosition();
 
     // Test white pieces on rank 1
-    assert(board.getPieceAt(Board::notationToSquare("a1")) == 'R');
-    assert(board.getPieceAt(Board::notationToSquare("b1")) == 'N');
-    assert(board.getPieceAt(Board::notationToSquare("c1")) == 'B');
-    assert(board.getPieceAt(Board::notationToSquare("d1")) == 'Q');
-    assert(board.getPieceAt(Board::notationToSquare("e1")) == 'K');
-    assert(board.getPieceAt(Board::notationToSquare("f1")) == 'B');
-    assert(board.getPieceAt(Board::notationToSquare("g1")) == 'N');
-    assert(board.getPieceAt(Board::notationToSquare("h1")) == 'R');
+    assert(board.getPieceAt("a1") == 'R');
+    assert(board.getPieceAt("b1") == 'N');
+    assert(board.getPieceAt("c1") == 'B');
+    assert(board.getPieceAt("d1") == 'Q');
+    assert(board.getPieceAt("e1") == 'K');
+    assert(board.getPieceAt("f1") == 'B');
+    assert(board.getPieceAt("g1") == 'N');
+    assert(board.getPieceAt("h1") == 'R');
 
     // Test white pawns on rank 2
-    assert(board.getPieceAt(Board::notationToSquare("a2")) == 'P');
-    assert(board.getPieceAt(Board::notationToSquare("h2")) == 'P');
+    assert(board.getPieceAt("a2") == 'P');
+    assert(board.getPieceAt("h2") == 'P');
 
     // Test black pieces on rank 8
-    assert(board.getPieceAt(Board::notationToSquare("a8")) == 'r');
-    assert(board.getPieceAt(Board::notationToSquare("e8")) == 'k');
+    assert(board.getPieceAt("a8") == 'r');
+    assert(board.getPieceAt("e8") == 'k');
 
     // Test black pawns on rank 7
-    assert(board.getPieceAt(Board::notationToSquare("a7")) == 'p');
-    assert(board.getPieceAt(Board::notationToSquare("h7")) == 'p');
+    assert(board.getPieceAt("a7") == 'p');
+    assert(board.getPieceAt("h7") == 'p');
 
     // Test empty squares
-    assert(board.getPieceAt(Board::notationToSquare("e4")) == '.');
-    assert(board.getPieceAt(Board::notationToSquare("d5")) == '.');
+    assert(board.getPieceAt("e4") == '.');
+    assert(board.getPieceAt("d5") == '.');
 
     std::cout << "\t\tInitial position tests passed!\n";
 }
@@ -101,32 +101,95 @@ void test_pawn_moves() {
     board.setupInitialPosition();
 
     // Test valid white pawn moves
-    assert(board.movePiece(Board::notationToSquare("e2"), Board::notationToSquare("e3")) == true);
-    assert(board.getPieceAt(Board::notationToSquare("e2")) == '.');
-    assert(board.getPieceAt(Board::notationToSquare("e3")) == 'P');
+    assert(board.movePiece("e2", "e3") == true);
+    assert(board.getPieceAt("e2") == '.');
+    assert(board.getPieceAt("e3") == 'P');
 
     // Test valid black pawn move
-    assert(board.movePiece(Board::notationToSquare("d7"), Board::notationToSquare("d6")) == true);
-    assert(board.getPieceAt(Board::notationToSquare("d7")) == '.');
-    assert(board.getPieceAt(Board::notationToSquare("d6")) == 'p');
+    assert(board.movePiece("d7", "d6") == true);
+    assert(board.getPieceAt("d7") == '.');
+    assert(board.getPieceAt("d6") == 'p');
 
     // Test invalid moves
     Board board2;
     board2.setupInitialPosition();
 
     // Can't move pawn backwards
-    assert(board2.movePiece(Board::notationToSquare("e2"), Board::notationToSquare("e1")) == false);
+    assert(board2.movePiece("e2", "e1") == false);
 
     // Can't move pawn sideways
-    assert(board2.movePiece(Board::notationToSquare("e2"), Board::notationToSquare("f2")) == false);
+    assert(board2.movePiece("e2", "f2") == false);
 
-    // Can't move pawn two squares (not implemented yet)
-    assert(board2.movePiece(Board::notationToSquare("e2"), Board::notationToSquare("e4")) == false);
+    // Test valid two-square pawn moves from starting position
+    assert(board2.movePiece("e2", "e4") == true);
+    assert(board2.getPieceAt("e2") == '.');
+    assert(board2.getPieceAt("e4") == 'P');
+
+    // Test valid two-square black pawn move from starting position
+    assert(board2.movePiece("f7", "f5") == true);
+    assert(board2.getPieceAt("f7") == '.');
+    assert(board2.getPieceAt("f5") == 'p');
+
+    // Test that two-square moves are not allowed after pawn has moved
+    Board board3;
+    board3.setupInitialPosition();
+    board3.movePiece("d2", "d3");  // Move pawn one square
+    assert(board3.movePiece("d3", "d5") ==
+           false);  // Can't move two squares now
+
+    // Test that two-square moves are blocked by pieces
+    Board board_blocked;
+    board_blocked.setupInitialPosition();
+    board_blocked.movePiece("e2", "e3");  // Move white pawn to e3
+    board_blocked.movePiece("e3", "e4");  // Move white pawn to e4
+    // Now try to move d2 pawn two squares, but e3 is occupied by our pawn
+    // Wait, that's not right - let me fix this test
+
+    Board board_blocked2;
+    board_blocked2.setupInitialPosition();
+    board_blocked2.movePiece("d7", "d6");  // Move black pawn down
+    board_blocked2.movePiece("d6", "d5");  // Move black pawn to d5
+    board_blocked2.movePiece("d5", "d4");  // Move black pawn to d4
+    board_blocked2.movePiece(
+        "d4", "d3");  // Move black pawn to d3, blocking white d2 pawn
+    assert(board_blocked2.movePiece("d2", "d4") ==
+           false);  // Can't jump over piece at d3
 
     // Can't move to occupied square
-    assert(board2.movePiece(Board::notationToSquare("e2"), Board::notationToSquare("e7")) == false);
+    assert(board2.movePiece("e2", "e7") == false);
 
-    std::cout << "\t\tPawn move tests passed!\n";
+    std::cout << "\t\tPawn moves tests passed!\n";
+}
+
+void test_pawn_captures() {
+    std::cout << "\t\tTesting Pawn captures...\n";
+
+    Board board;
+    board.setupInitialPosition();
+
+    // Move pawns to create capture opportunity
+    board.movePiece("e2", "e4");  // White pawn to e4
+    board.movePiece("d7", "d5");  // Black pawn to d5
+
+    // Test valid capture
+    assert(board.movePiece("e4", "d5") == true);  // White captures black
+    assert(board.getPieceAt("e4") == '.');        // Original square empty
+    assert(board.getPieceAt("d5") == 'P');  // White pawn on capture square
+
+    // Test invalid diagonal move without capture
+    Board board2;
+    board2.setupInitialPosition();
+    assert(board2.movePiece("e2", "f3") ==
+           false);  // Can't move diagonally to empty square
+
+    // Test can't capture own pieces
+    Board board3;
+    board3.setupInitialPosition();
+    board3.movePiece("e2", "e3");                   // Move white pawn
+    board3.movePiece("d2", "d4");                   // Move another white pawn
+    assert(board3.movePiece("e3", "d4") == false);  // Can't capture own piece
+
+    std::cout << "\t\tPawn captures tests passed!\n";
 }
 
 int run_board_tests() {
@@ -136,6 +199,7 @@ int run_board_tests() {
         test_initial_position();
         test_notation_to_square();
         test_pawn_moves();
+        test_pawn_captures();
 
         std::cout << "\tAll board tests passed!\n";
         return 0;

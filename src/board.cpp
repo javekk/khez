@@ -42,6 +42,10 @@ void Board::setupInitialPosition() {
     pieces_[Color::BLACK][PieceType::KING].setBit(60);    // e8
 }
 
+char Board::getPieceAt(std::string square) const {
+    return getPieceAt(Board::notationToSquare(square));
+}
+
 char Board::getPieceAt(int square) const {
     for (int color = 0; color < 2; ++color) {
         for (int piece = 0; piece < 6; ++piece) {
@@ -89,22 +93,37 @@ int Board::notationToSquare(const std::string& notation) {
     return rank_index * 8 + file_index;
 }
 
+bool Board::movePiece(std::string from, std::string to) {
+    return movePiece(Board::notationToSquare(from),
+                     Board::notationToSquare(to));
+}
+
 bool Board::movePiece(int from, int to) {
-    // Basic validation
     if (from < 0 || from >= 64 || to < 0 || to >= 64) {
         return false;
     }
 
-    // Check if there's a piece at the from square
     if (isSquareEmpty(from)) {
         return false;
     }
 
-    // Get piece info at from square
     if (!isValidMove(from, to)) {
         return false;
     }
 
+    // Remove captured piece if any
+    if (!isSquareEmpty(to)) {
+        for (int color = 0; color < 2; ++color) {
+            for (int piece_idx = 0; piece_idx < 6; ++piece_idx) {
+                if (pieces_[color][piece_idx].getBit(to)) {
+                    pieces_[color][piece_idx].clearBit(to);
+                    break;
+                }
+            }
+        }
+    }
+
+    // Move the piece
     for (int color = 0; color < 2; ++color) {
         for (int piece_idx = 0; piece_idx < 6; ++piece_idx) {
             if (pieces_[color][piece_idx].getBit(from)) {
@@ -147,9 +166,45 @@ bool Board::isValidMove(int from, int to) const {
 bool Board::isValidPawnMove(int from, int to, bool isWhite) const {
     int rankDiff = (to / 8) - (from / 8);
     int fileDiff = (to % 8) - (from % 8);
+    int expectedDirection = isWhite ? 1 : -1;
 
-    // Pawn one square forward: same file, correct direction, target empty
-    return fileDiff == 0 &&
-           rankDiff == (isWhite ? 1 : -1) &&
-           isSquareEmpty(to);
+    // Forward moves (same file)
+    if (fileDiff == 0) {
+        // Must move in correct direction
+        if (rankDiff != expectedDirection && rankDiff != 2 * expectedDirection) {
+            return false;
+        }
+
+        // Target square must be empty for forward moves
+        if (!isSquareEmpty(to)) return false;
+
+        // One square forward is always valid (if target is empty)
+        if (rankDiff == expectedDirection) {
+            return true;
+        }
+
+        // Two squares forward: only valid from starting position and path is clear
+        if (rankDiff == 2 * expectedDirection) {
+            int startingRank = isWhite ? 1 : 6;
+            if ((from / 8) == startingRank) {
+                // Check that the square in front is also empty
+                int middleSquare = from + expectedDirection * 8;
+                return isSquareEmpty(middleSquare);
+            }
+        }
+    }
+    // Diagonal captures
+    else if (abs(fileDiff) == 1 && rankDiff == expectedDirection) {
+        // Must have an enemy piece to capture
+        if (isSquareEmpty(to)) return false;
+
+        // Check if target piece is enemy
+        char targetPiece = getPieceAt(to);
+        bool targetIsWhite = (targetPiece >= 'A' && targetPiece <= 'Z');
+
+        // Can only capture enemy pieces
+        return isWhite != targetIsWhite;
+    }
+
+    return false;
 }
