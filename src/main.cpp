@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "bitboard.h"
-#include "board.h"
+#include "chess_board.h"
 
 int main() {
     std::cout << "Khez Chess Engine - Bitboard Demo\n";
@@ -10,7 +10,7 @@ int main() {
 
     Bitboard bb;
 
-    Board board;
+    ChessBoard board;
     board.setupInitialPosition();
     std::cout << board.toString() << "\n";
 

@@ -1,6 +1,7 @@
 #include "bitboard.h"
-#include <sstream>
+
 #include <iomanip>
+#include <sstream>
 
 Bitboard::Bitboard() : board_(0ULL) {}
 
@@ -8,38 +9,30 @@ Bitboard::Bitboard(uint64_t board) : board_(board) {}
 
 void Bitboard::setBit(int square) {
     if (square >= 0 && square < 64) {
-        board_ |= (1ULL << square);
+        board_ |= (1ULL << (63 - square));
     }
 }
 
 void Bitboard::clearBit(int square) {
     if (square >= 0 && square < 64) {
-        board_ &= ~(1ULL << square);
+        board_ &= ~(1ULL << (63 - square));
     }
 }
 
 bool Bitboard::getBit(int square) const {
     if (square >= 0 && square < 64) {
-        return (board_ & (1ULL << square)) != 0;
+        return (board_ & (1ULL << (63 - square))) != 0;
     }
     return false;
 }
 
-void Bitboard::clear() {
-    board_ = 0ULL;
-}
+void Bitboard::clear() { board_ = 0ULL; }
 
-bool Bitboard::isEmpty() const {
-    return board_ == 0ULL;
-}
+bool Bitboard::isEmpty() const { return board_ == 0ULL; }
 
-int Bitboard::popCount() const {
-    return __builtin_popcountll(board_);
-}
+int Bitboard::popCount() const { return __builtin_popcountll(board_); }
 
-uint64_t Bitboard::getValue() const {
-    return board_;
-}
+uint64_t Bitboard::getValue() const { return board_; }
 
 std::string Bitboard::toString() const {
     std::ostringstream oss;
@@ -69,9 +62,7 @@ Bitboard Bitboard::operator^(const Bitboard& other) const {
     return Bitboard(board_ ^ other.board_);
 }
 
-Bitboard Bitboard::operator~() const {
-    return Bitboard(~board_);
-}
+Bitboard Bitboard::operator~() const { return Bitboard(~board_); }
 
 bool Bitboard::operator==(const Bitboard& other) const {
     return board_ == other.board_;

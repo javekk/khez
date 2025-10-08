@@ -1,0 +1,60 @@
+#include "chess_board.h"
+
+#include <sstream>
+
+ChessBoard::ChessBoard() {
+    boards_[WHITE_PAWNS] = Bitboard();
+    boards_[BLACK_PAWNS] = Bitboard();
+    boards_[WHITE_ROOKS] = Bitboard();
+    boards_[BLACK_ROOKS] = Bitboard();
+    boards_[WHITE_KNIGHTS] = Bitboard();
+    boards_[BLACK_KNIGHTS] = Bitboard();
+    boards_[WHITE_BISHOPS] = Bitboard();
+    boards_[BLACK_BISHOPS] = Bitboard();
+    boards_[WHITE_QUEEN] = Bitboard();
+    boards_[BLACK_QUEEN] = Bitboard();
+    boards_[WHITE_KING] = Bitboard();
+    boards_[BLACK_KING] = Bitboard();
+}
+
+void ChessBoard::setupInitialPosition() {
+    boards_[WHITE_PAWNS] = Bitboard(0x00FF000000000000);
+    boards_[BLACK_PAWNS] = Bitboard(0x000000000000FF00);
+    boards_[WHITE_ROOKS] = Bitboard(0x8100000000000000);
+    boards_[BLACK_ROOKS] = Bitboard(0x0000000000000081);
+    boards_[WHITE_KNIGHTS] = Bitboard(0x4200000000000000);
+    boards_[BLACK_KNIGHTS] = Bitboard(0x0000000000000042);
+    boards_[WHITE_BISHOPS] = Bitboard(0x2400000000000000);
+    boards_[BLACK_BISHOPS] = Bitboard(0x0000000000000024);
+    boards_[WHITE_QUEEN] = Bitboard(0x1000000000000000);
+    boards_[BLACK_QUEEN] = Bitboard(0x0000000000000010);
+    boards_[WHITE_KING] = Bitboard(0x0800000000000000);
+    boards_[BLACK_KING] = Bitboard(0x0000000000000008);
+}
+
+char ChessBoard::getPieceAt(int square) const {
+    for (int boards_index = 0; boards_index < 12; boards_index++) {
+        if (boards_[boards_index].getBit(square)) {
+            return piece_names[boards_index];
+        }
+    }
+    return '.';
+}
+
+std::string ChessBoard::toString() const {
+    std::ostringstream oss;
+
+    for (int rank = 7; rank >= 0; rank--) {
+        oss << (rank + 1) << " | ";
+        for (int file = 0; file < 8; ++file) {
+            int square = rank * 8 + file;
+            oss << getPieceAt(square) << " ";
+        }
+        oss << "\n";
+    }
+
+    oss << "    ---------------\n";
+    oss << "    a b c d e f g h\n";
+
+    return oss.str();
+}
