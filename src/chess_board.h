@@ -3,6 +3,7 @@
 #include <string>
 
 #include "bitboard.h"
+#include "masks.h"
 
 enum Square {
     a1,
@@ -97,10 +98,14 @@ class ChessBoard {
     void setupInitialPosition();
     std::string toString() const;
     char getPieceAt(int square) const;
+    Bitboard generateSingleKnightMaskAttacks(int square);
 
    private:
-    Bitboard boards_[12];  // All the bitboard pieces defined in PieceBoard
+    Bitboard boards_[15];
 
-    char piece_names[12] = {'P', 'p', 'R', 'r', 'N', 'n',
+    char pieceNames_[12] = {'P', 'p', 'R', 'r', 'N', 'n',
                             'B', 'b', 'Q', 'q', 'K', 'k'};
+
+    void updateAllBoards();
+    void generateKnightMaskAttacks();
 };

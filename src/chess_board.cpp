@@ -17,9 +17,21 @@ ChessBoard::ChessBoard() {
     boards_[BLACK_KING] = Bitboard();
 }
 
+void ChessBoard::updateAllBoards() {
+    boards_[WHITE_ALL] = boards_[WHITE_PAWNS] | boards_[WHITE_ROOKS] |
+                         boards_[WHITE_KNIGHTS] | boards_[WHITE_BISHOPS] |
+                         boards_[WHITE_QUEEN] | boards_[WHITE_KING];
+
+    boards_[BLACK_ALL] = boards_[BLACK_PAWNS] | boards_[BLACK_ROOKS] |
+                         boards_[BLACK_KNIGHTS] | boards_[BLACK_BISHOPS] |
+                         boards_[BLACK_QUEEN] | boards_[BLACK_KING];
+
+    boards_[ALL] = boards_[WHITE_ALL] | boards_[BLACK_ALL];
+}
+
 void ChessBoard::setupInitialPosition() {
-    boards_[WHITE_PAWNS] = Bitboard(0x00FF000000000000);
-    boards_[BLACK_PAWNS] = Bitboard(0x000000000000FF00);
+    boards_[WHITE_PAWNS] = Bitboard(0x00ff000000000000);
+    boards_[BLACK_PAWNS] = Bitboard(0x000000000000ff00);
     boards_[WHITE_ROOKS] = Bitboard(0x8100000000000000);
     boards_[BLACK_ROOKS] = Bitboard(0x0000000000000081);
     boards_[WHITE_KNIGHTS] = Bitboard(0x4200000000000000);
@@ -30,12 +42,14 @@ void ChessBoard::setupInitialPosition() {
     boards_[BLACK_QUEEN] = Bitboard(0x0000000000000010);
     boards_[WHITE_KING] = Bitboard(0x0800000000000000);
     boards_[BLACK_KING] = Bitboard(0x0000000000000008);
+
+    updateAllBoards();
 }
 
 char ChessBoard::getPieceAt(int square) const {
-    for (int boards_index = 0; boards_index < 12; boards_index++) {
-        if (boards_[boards_index].getBit(square)) {
-            return piece_names[boards_index];
+    for (int boardsIndex = 0; boardsIndex < 12; boardsIndex++) {
+        if (boards_[boardsIndex].getBit(square)) {
+            return pieceNames_[boardsIndex];
         }
     }
     return '.';
@@ -58,3 +72,42 @@ std::string ChessBoard::toString() const {
 
     return oss.str();
 }
+
+// section: knights
+
+Bitboard knightNoNoEa(Bitboard knight) { return (knight & notHFile) >> 17; }
+Bitboard knightNoEaEa(Bitboard knight) { return (knight & notGHFile) >> 10; }
+Bitboard knightSoEaEa(Bitboard knight) { return (knight & notGHFile) << 6; }
+Bitboard knightSoSoEa(Bitboard knight) { return (knight & notHFile) << 15; }
+Bitboard knightNoNoWe(Bitboard knight) { return (knight & notAFile) >> 15; }
+Bitboard knightNoWeWe(Bitboard knight) { return (knight & notABFile) >> 6; }
+Bitboard knightSoWeWe(Bitboard knight) { return (knight & notABFile) << 10; }
+Bitboard knightSoSoWe(Bitboard knight) { return (knight & notAFile) << 17; }
+
+Bitboard ChessBoard::generateSingleKnightMaskAttacks(int square) {
+    Bitboard squareBitboard;
+    squareBitboard.setBit(square);
+
+    Bitboard squareAttacks;
+
+    squareAttacks |= knightNoNoEa(squareBitboard);
+    squareAttacks |= knightNoEaEa(squareBitboard);
+    squareAttacks |= knightSoEaEa(squareBitboard);
+    squareAttacks |= knightSoSoEa(squareBitboard);
+    squareAttacks |= knightNoNoWe(squareBitboard);
+    squareAttacks |= knightNoWeWe(squareBitboard);
+    squareAttacks |= knightSoWeWe(squareBitboard);
+    squareAttacks |= knightSoSoWe(squareBitboard);
+
+    return squareAttacks;
+}
+
+void ChessBoard::generateKnightMaskAttacks() {
+    Bitboard knightMoveMasks[64];
+
+    for (int square = 0; square < 64; square++) {
+        knightMoveMasks[square] = generateSingleKnightMaskAttacks(square);
+    }
+}
+
+// endsection

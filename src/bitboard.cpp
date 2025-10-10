@@ -64,6 +64,24 @@ Bitboard Bitboard::operator^(const Bitboard& other) const {
 
 Bitboard Bitboard::operator~() const { return Bitboard(~board_); }
 
+Bitboard Bitboard::operator>>(const int shift) const {
+    return Bitboard(board_ >> shift);
+}
+
+Bitboard Bitboard::operator<<(const int shift) const {
+    return Bitboard(board_ << shift);
+}
+
+Bitboard& Bitboard::operator|=(const Bitboard& other) {
+    board_ |= other.board_;
+    return *this;
+}
+
+Bitboard& Bitboard::operator&=(const Bitboard& other) {
+    board_ &= other.board_;
+    return *this;
+}
+
 bool Bitboard::operator==(const Bitboard& other) const {
     return board_ == other.board_;
 }
