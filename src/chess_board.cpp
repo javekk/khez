@@ -73,7 +73,43 @@ std::string ChessBoard::toString() const {
     return oss.str();
 }
 
-// section: knights
+// section: pawn attacks
+
+Bitboard whitePawnWestAttack(Bitboard pawn) { return (pawn & notAFile) >> 7; }
+Bitboard whitePawnEastAttack(Bitboard pawn) { return (pawn & notHFile) >> 9; }
+
+Bitboard blackPawnWestAttack(Bitboard pawn) { return (pawn & notAFile) << 9; }
+Bitboard blackPawnEastAttack(Bitboard pawn) { return (pawn & notHFile) << 7; }
+
+Bitboard ChessBoard::generateSinglePawnMaskAttacks(int square, int color) {
+    Bitboard squareBitboard;
+    squareBitboard.setBit(square);
+
+    Bitboard attacks;
+
+    if (color == WHITE) {
+        attacks |= whitePawnWestAttack(squareBitboard);
+        attacks |= whitePawnEastAttack(squareBitboard);
+    } else {
+        attacks |= blackPawnWestAttack(squareBitboard);
+        attacks |= blackPawnEastAttack(squareBitboard);
+    }
+
+    return attacks;
+}
+
+void ChessBoard::generatePawnMaskAttacks() {
+    for (int square = 0; square < 64; square++) {
+        pawnMoveMasks[WHITE][square] =
+            generateSinglePawnMaskAttacks(square, WHITE);
+        pawnMoveMasks[BLACK][square] =
+            generateSinglePawnMaskAttacks(square, BLACK);
+    }
+}
+
+// endsection
+
+// section: knights attacks
 
 Bitboard knightNoNoEa(Bitboard knight) { return (knight & notHFile) >> 17; }
 Bitboard knightNoEaEa(Bitboard knight) { return (knight & notGHFile) >> 10; }
@@ -88,23 +124,21 @@ Bitboard ChessBoard::generateSingleKnightMaskAttacks(int square) {
     Bitboard squareBitboard;
     squareBitboard.setBit(square);
 
-    Bitboard squareAttacks;
+    Bitboard attacks;
 
-    squareAttacks |= knightNoNoEa(squareBitboard);
-    squareAttacks |= knightNoEaEa(squareBitboard);
-    squareAttacks |= knightSoEaEa(squareBitboard);
-    squareAttacks |= knightSoSoEa(squareBitboard);
-    squareAttacks |= knightNoNoWe(squareBitboard);
-    squareAttacks |= knightNoWeWe(squareBitboard);
-    squareAttacks |= knightSoWeWe(squareBitboard);
-    squareAttacks |= knightSoSoWe(squareBitboard);
+    attacks |= knightNoNoEa(squareBitboard);
+    attacks |= knightNoEaEa(squareBitboard);
+    attacks |= knightSoEaEa(squareBitboard);
+    attacks |= knightSoSoEa(squareBitboard);
+    attacks |= knightNoNoWe(squareBitboard);
+    attacks |= knightNoWeWe(squareBitboard);
+    attacks |= knightSoWeWe(squareBitboard);
+    attacks |= knightSoSoWe(squareBitboard);
 
-    return squareAttacks;
+    return attacks;
 }
 
 void ChessBoard::generateKnightMaskAttacks() {
-    Bitboard knightMoveMasks[64];
-
     for (int square = 0; square < 64; square++) {
         knightMoveMasks[square] = generateSingleKnightMaskAttacks(square);
     }

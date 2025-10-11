@@ -72,11 +72,39 @@ void test_initial_position() {
     std::cout << "\t\tInitial position tests passed!\n";
 }
 
+void test_pawn_attacks_generation() {
+    std::cout << "\t\tTesting pawn attacks generations...\n";
+    ChessBoard board;
+
+    std::cout << "\t\t\tTesting pawn attacks on e4 for white...\n";
+    Bitboard whiteE4Attacks = board.generateSinglePawnMaskAttacks(e4, WHITE);
+    assert(whiteE4Attacks.getBit(d5));
+    assert(whiteE4Attacks.getBit(f5));
+    assert(whiteE4Attacks.popCount() == 2);
+
+    std::cout << "\t\t\tTesting pawn attacks on e4 for black...\n";
+    Bitboard blackE4Attacks = board.generateSinglePawnMaskAttacks(e4, BLACK);
+    assert(blackE4Attacks.getBit(d3));
+    assert(blackE4Attacks.getBit(f3));
+    assert(blackE4Attacks.popCount() == 2);
+
+    std::cout << "\t\t\tTesting pawn attacks on a4 for white...\n";
+    Bitboard whiteA4Attacks = board.generateSinglePawnMaskAttacks(a4, WHITE);
+    assert(whiteA4Attacks.getBit(b5));
+    assert(whiteA4Attacks.popCount() == 1);
+
+    std::cout << "\t\t\tTesting pawn attacks on h4 for black...\n";
+    Bitboard blackH4Attacks = board.generateSinglePawnMaskAttacks(h4, BLACK);
+    assert(blackH4Attacks.getBit(g3));
+    assert(blackH4Attacks.popCount() == 1);
+
+    std::cout << "\t\tPawn attacks generations tests passed...\n";
+}
+
 void test_knight_attacks_generation() {
     std::cout << "\t\tTesting knight attacks generations...\n";
 
     std::cout << "\t\t\tTesting knight attacks on e4...\n";
-
     ChessBoard board;
     Bitboard e4Attacks = board.generateSingleKnightMaskAttacks(e4);
     assert(e4Attacks.getBit(f6));
@@ -90,14 +118,12 @@ void test_knight_attacks_generation() {
     assert(e4Attacks.popCount() == 8);
 
     std::cout << "\t\t\tTesting knight attacks on a1...\n";
-
     Bitboard a1Attacks = board.generateSingleKnightMaskAttacks(a1);
     assert(a1Attacks.getBit(c2));
     assert(a1Attacks.getBit(b3));
     assert(a1Attacks.popCount() == 2);
 
     std::cout << "\t\t\tTesting knight attacks on a2...\n";
-
     Bitboard a2Attacks = board.generateSingleKnightMaskAttacks(a2);
     assert(a2Attacks.getBit(b4));
     assert(a2Attacks.getBit(c3));
@@ -105,7 +131,6 @@ void test_knight_attacks_generation() {
     assert(a2Attacks.popCount() == 3);
 
     std::cout << "\t\t\tTesting knight attacks on g7...\n";
-
     Bitboard g7Attacks = board.generateSingleKnightMaskAttacks(g7);
     assert(g7Attacks.getBit(h5));
     assert(g7Attacks.getBit(f5));
@@ -114,7 +139,6 @@ void test_knight_attacks_generation() {
     assert(g7Attacks.popCount() == 4);
 
     std::cout << "\t\t\tTesting knight attacks on g3...\n";
-
     Bitboard g3Attacks = board.generateSingleKnightMaskAttacks(g3);
     assert(g3Attacks.getBit(h5));
     assert(g3Attacks.getBit(h1));
@@ -133,6 +157,7 @@ int run_chess_board_tests() {
         test_to_string();
         test_initial_position();
 
+        test_pawn_attacks_generation();
         test_knight_attacks_generation();
 
         std::cout << "\tAll board tests passed!\n";

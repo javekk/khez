@@ -12,14 +12,22 @@ int main() {
     // board.setupInitialPosition();
     // std::cout << board.toString() << "\n";
 
-    int knightSquare = b2;
+    // int knightSquare = b2;
+    //
+    // Bitboard knight;
+    // knight.setBit(knightSquare);
+    //
+    // Bitboard attacks = board.generateSingleKnightMaskAttacks(knightSquare);
+    //
+    // std::cout << (knight | attacks).toString() << std::endl;
 
-    Bitboard knight;
-    knight.setBit(knightSquare);
+    int pawnSquare = e3;
+    Bitboard pawn;
+    pawn.setBit(pawnSquare);
 
-    Bitboard attacks = board.generateSingleKnightMaskAttacks(knightSquare);
+    Bitboard attacks = board.generateSinglePawnMaskAttacks(pawnSquare, BLACK);
 
-    std::cout << (knight | attacks).toString() << std::endl;
+    std::cout << (pawn | attacks).toString() << std::endl;
 
     return 0;
 }

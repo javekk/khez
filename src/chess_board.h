@@ -72,6 +72,8 @@ enum Square {
     h8,
 };
 
+enum Color { WHITE, BLACK };
+
 enum PieceBoard {
     WHITE_PAWNS,
     BLACK_PAWNS,
@@ -98,6 +100,8 @@ class ChessBoard {
     void setupInitialPosition();
     std::string toString() const;
     char getPieceAt(int square) const;
+
+    Bitboard generateSinglePawnMaskAttacks(int square, int color);
     Bitboard generateSingleKnightMaskAttacks(int square);
 
    private:
@@ -107,5 +111,10 @@ class ChessBoard {
                             'B', 'b', 'Q', 'q', 'K', 'k'};
 
     void updateAllBoards();
+
+    Bitboard pawnMoveMasks[2][64];
+    Bitboard knightMoveMasks[64];
+
+    void generatePawnMaskAttacks();
     void generateKnightMaskAttacks();
 };
