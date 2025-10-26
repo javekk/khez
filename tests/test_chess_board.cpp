@@ -101,12 +101,12 @@ void test_pawn_attacks_generation() {
     std::cout << "\t\tPawn attacks generations tests passed...\n";
 }
 
-void test_knight_attacks_generation() {
-    std::cout << "\t\tTesting knight attacks generations...\n";
+void test_knight_moves_generation() {
+    std::cout << "\t\tTesting knight move generations...\n";
 
-    std::cout << "\t\t\tTesting knight attacks on e4...\n";
+    std::cout << "\t\t\tTesting knight possible moves on e4...\n";
     ChessBoard board;
-    Bitboard e4Attacks = board.generateSingleKnightMaskAttacks(e4);
+    Bitboard e4Attacks = board.generateSingleKnightMaskMoves(e4);
     assert(e4Attacks.getBit(f6));
     assert(e4Attacks.getBit(g5));
     assert(e4Attacks.getBit(g3));
@@ -117,29 +117,29 @@ void test_knight_attacks_generation() {
     assert(e4Attacks.getBit(d6));
     assert(e4Attacks.popCount() == 8);
 
-    std::cout << "\t\t\tTesting knight attacks on a1...\n";
-    Bitboard a1Attacks = board.generateSingleKnightMaskAttacks(a1);
+    std::cout << "\t\t\tTesting knight possible moves on a1...\n";
+    Bitboard a1Attacks = board.generateSingleKnightMaskMoves(a1);
     assert(a1Attacks.getBit(c2));
     assert(a1Attacks.getBit(b3));
     assert(a1Attacks.popCount() == 2);
 
-    std::cout << "\t\t\tTesting knight attacks on a2...\n";
-    Bitboard a2Attacks = board.generateSingleKnightMaskAttacks(a2);
+    std::cout << "\t\t\tTesting knight possible moves on a2...\n";
+    Bitboard a2Attacks = board.generateSingleKnightMaskMoves(a2);
     assert(a2Attacks.getBit(b4));
     assert(a2Attacks.getBit(c3));
     assert(a2Attacks.getBit(c1));
     assert(a2Attacks.popCount() == 3);
 
-    std::cout << "\t\t\tTesting knight attacks on g7...\n";
-    Bitboard g7Attacks = board.generateSingleKnightMaskAttacks(g7);
+    std::cout << "\t\t\tTesting knight possible moves on g7...\n";
+    Bitboard g7Attacks = board.generateSingleKnightMaskMoves(g7);
     assert(g7Attacks.getBit(h5));
     assert(g7Attacks.getBit(f5));
     assert(g7Attacks.getBit(e6));
     assert(g7Attacks.getBit(e8));
     assert(g7Attacks.popCount() == 4);
 
-    std::cout << "\t\t\tTesting knight attacks on g3...\n";
-    Bitboard g3Attacks = board.generateSingleKnightMaskAttacks(g3);
+    std::cout << "\t\t\tTesting knight possible moves on g3...\n";
+    Bitboard g3Attacks = board.generateSingleKnightMaskMoves(g3);
     assert(g3Attacks.getBit(h5));
     assert(g3Attacks.getBit(h1));
     assert(g3Attacks.getBit(f1));
@@ -148,7 +148,63 @@ void test_knight_attacks_generation() {
     assert(g3Attacks.getBit(f5));
     assert(g3Attacks.popCount() == 6);
 
-    std::cout << "\t\tKnight attacks generations tests passed...\n";
+    std::cout << "\t\tKnight possible moves generations tests passed...\n";
+}
+
+void test_king_moves_generation() {
+    std::cout << "\t\tTesting king move generations...\n";
+
+    std::cout << "\t\t\tTesting king possible moves on e4...\n";
+    ChessBoard board;
+    Bitboard e4moves = board.generateSingleKingMaskMoves(e4);
+    assert(e4moves.getBit(d5));
+    assert(e4moves.getBit(e5));
+    assert(e4moves.getBit(f5));
+    assert(e4moves.getBit(f4));
+    assert(e4moves.getBit(f3));
+    assert(e4moves.getBit(e3));
+    assert(e4moves.getBit(d3));
+    assert(e4moves.getBit(d4));
+    assert(e4moves.popCount() == 8);
+
+    std::cout << "\t\t\tTesting king possible moves on a1...\n";
+    Bitboard a1moves = board.generateSingleKingMaskMoves(a1);
+    assert(a1moves.getBit(a2));
+    assert(a1moves.getBit(b2));
+    assert(a1moves.getBit(b1));
+    assert(a1moves.popCount() == 3);
+
+    std::cout << "\t\t\tTesting king possible moves on a8...\n";
+    Bitboard a8Moves = board.generateSingleKingMaskMoves(a8);
+    assert(a8Moves.getBit(b8));
+    assert(a8Moves.getBit(b7));
+    assert(a8Moves.getBit(a7));
+    assert(a8Moves.popCount() == 3);
+
+    std::cout << "\t\t\tTesting king possible moves on h8...\n";
+    Bitboard h8Moves = board.generateSingleKingMaskMoves(h8);
+    assert(h8Moves.getBit(g8));
+    assert(h8Moves.getBit(h7));
+    assert(h8Moves.getBit(g7));
+    assert(h8Moves.popCount() == 3);
+
+    std::cout << "\t\t\tTesting king possible moves on h1...\n";
+    Bitboard h1Moves = board.generateSingleKingMaskMoves(h1);
+    assert(h1Moves.getBit(h2));
+    assert(h1Moves.getBit(g2));
+    assert(h1Moves.getBit(g1));
+    assert(h1Moves.popCount() == 3);
+
+    std::cout << "\t\t\tTesting king possible moves on d8...\n";
+    Bitboard d8Moves = board.generateSingleKingMaskMoves(d8);
+    assert(d8Moves.getBit(c8));
+    assert(d8Moves.getBit(e8));
+    assert(d8Moves.getBit(c7));
+    assert(d8Moves.getBit(d7));
+    assert(d8Moves.getBit(e7));
+    assert(d8Moves.popCount() == 5);
+
+    std::cout << "\t\tKing possible moves generations tests passed...\n";
 }
 
 int run_chess_board_tests() {
@@ -158,11 +214,12 @@ int run_chess_board_tests() {
         test_initial_position();
 
         test_pawn_attacks_generation();
-        test_knight_attacks_generation();
+        test_knight_moves_generation();
+        test_king_moves_generation();
 
         std::cout << "\tAll board tests passed!\n";
         return 0;
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         std::cerr << "\tBoard test failed: " << e.what() << "\n";
         return 1;
     }

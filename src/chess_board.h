@@ -102,7 +102,8 @@ class ChessBoard {
     char getPieceAt(int square) const;
 
     Bitboard generateSinglePawnMaskAttacks(int square, int color);
-    Bitboard generateSingleKnightMaskAttacks(int square);
+    Bitboard generateSingleKnightMaskMoves(int square);
+    Bitboard generateSingleKingMaskMoves(int square);
 
    private:
     Bitboard boards_[15];
@@ -114,7 +115,9 @@ class ChessBoard {
 
     Bitboard pawnMoveMasks[2][64];
     Bitboard knightMoveMasks[64];
+    Bitboard kingMoveMasks[64];
 
     void generatePawnMaskAttacks();
-    void generateKnightMaskAttacks();
+    void generateKnightMaskMoves();
+    void generateKingMaskMoves();
 };

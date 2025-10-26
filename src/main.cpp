@@ -21,13 +21,13 @@ int main() {
     //
     // std::cout << (knight | attacks).toString() << std::endl;
 
-    int pawnSquare = e3;
-    Bitboard pawn;
-    pawn.setBit(pawnSquare);
+    int pieceSquare = a8;
+    Bitboard piece;
+    piece.setBit(pieceSquare);
 
-    Bitboard attacks = board.generateSinglePawnMaskAttacks(pawnSquare, BLACK);
+    Bitboard attacks_or_moves = board.generateSingleKingMaskMoves(pieceSquare);
 
-    std::cout << (pawn | attacks).toString() << std::endl;
+    std::cout << (piece | attacks_or_moves).toString() << std::endl;
 
     return 0;
 }
