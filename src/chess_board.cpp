@@ -147,6 +147,7 @@ void ChessBoard::generateKnightMaskMoves() {
 // endsection
 
 // section: King
+
 Bitboard kingNoWe(Bitboard king) { return (king & notAFile) >> 7; }
 Bitboard kingNo(Bitboard king) { return king >> 8; }
 Bitboard KingNoEa(Bitboard king) { return (king & notHFile) >> 9; }
@@ -176,6 +177,54 @@ Bitboard ChessBoard::generateSingleKingMaskMoves(int square) {
 void ChessBoard::generateKingMaskMoves() {
     for (int square = 0; square < 64; square++) {
         kingMoveMasks[square] = generateSingleKingMaskMoves(square);
+    }
+}
+
+// endsection
+
+// section: Bishops
+
+Bitboard ChessBoard::generateSingleBishopRelevantOccupanciesMask(int square) {
+    Bitboard mask;
+
+    int targetRank = square / 8;
+    int targetFile = square % 8;
+
+    for (int rank = targetRank + 1, file = targetFile + 1;
+         rank <= 6 && file <= 6; rank++, file++) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + file);
+        mask |= tMask;
+    }
+
+    for (int rank = targetRank - 1, file = targetFile + 1;
+         rank >= 1 && file <= 6; rank--, file++) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + file);
+        mask |= tMask;
+    }
+
+    for (int rank = targetRank + 1, file = targetFile - 1;
+         rank <= 6 && file >= 1; rank++, file--) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + file);
+        mask |= tMask;
+    }
+
+    for (int rank = targetRank - 1, file = targetFile - 1;
+         rank >= 1 && file >= 1; rank--, file--) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + file);
+        mask |= tMask;
+    }
+
+    return mask;
+};
+
+void ChessBoard::generateBishopRelevantOccupancies() {
+    for (int square = 0; square < 64; square++) {
+        bishopRelevantOccupanciesMasks[square] =
+            generateSingleBishopRelevantOccupanciesMask(square);
     }
 }
 

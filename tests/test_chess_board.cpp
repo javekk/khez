@@ -207,6 +207,56 @@ void test_king_moves_generation() {
     std::cout << "\t\tKing possible moves generations tests passed...\n";
 }
 
+void test_bishop_relevant_occupancies_moves_generation() {
+    std::cout << "\t\tTesting bishop relavant occupancies generations...\n";
+
+    ChessBoard board;
+
+    std::cout << "\t\t\tTesting bishop relavant occupancies on e4...\n";
+    Bitboard bInE4 = board.generateSingleBishopRelevantOccupanciesMask(e4);
+    assert(bInE4.getBit(c2));
+    assert(bInE4.getBit(g2));
+    assert(bInE4.getBit(d3));
+    assert(bInE4.getBit(f3));
+    assert(bInE4.getBit(d5));
+    assert(bInE4.getBit(f5));
+    assert(bInE4.getBit(c6));
+    assert(bInE4.getBit(g6));
+    assert(bInE4.getBit(b7));
+    assert(bInE4.popCount() == 9);
+
+    std::cout << "\t\t\tTesting bishop relavant occupancies on e1...\n";
+    Bitboard bInE1 = board.generateSingleBishopRelevantOccupanciesMask(e1);
+    assert(bInE1.getBit(d2));
+    assert(bInE1.getBit(f2));
+    assert(bInE1.getBit(c3));
+    assert(bInE1.getBit(g3));
+    assert(bInE1.getBit(b4));
+    assert(bInE1.popCount() == 5);
+
+    std::cout << "\t\t\tTesting bishop relavant occupancies on h7...\n";
+    Bitboard bInH7 = board.generateSingleBishopRelevantOccupanciesMask(h7);
+    assert(bInH7.getBit(g6));
+    assert(bInH7.getBit(f5));
+    assert(bInH7.getBit(e4));
+    assert(bInH7.getBit(d3));
+    assert(bInH7.getBit(c2));
+    assert(bInH7.popCount() == 5);
+
+    std::cout << "\t\t\tTesting bishop relavant occupancies on a8...\n";
+    Bitboard bInA8 = board.generateSingleBishopRelevantOccupanciesMask(a8);
+    assert(bInA8.getBit(b7));
+    assert(bInA8.getBit(c6));
+    assert(bInA8.getBit(d5));
+    assert(bInA8.getBit(e4));
+    assert(bInA8.getBit(f3));
+    assert(bInA8.getBit(g2));
+    assert(bInA8.popCount() == 6);
+
+    std::cout
+        << "\t\tBishop relavant occupancies generations tests passed...\n";
+}
+
 int run_chess_board_tests() {
     try {
         test_board_initialization();
@@ -216,6 +266,8 @@ int run_chess_board_tests() {
         test_pawn_attacks_generation();
         test_knight_moves_generation();
         test_king_moves_generation();
+
+        test_bishop_relevant_occupancies_moves_generation();
 
         std::cout << "\tAll board tests passed!\n";
         return 0;

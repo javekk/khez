@@ -25,7 +25,8 @@ int main() {
     Bitboard piece;
     piece.setBit(pieceSquare);
 
-    Bitboard attacks_or_moves = board.generateSingleKingMaskMoves(pieceSquare);
+    Bitboard attacks_or_moves =
+        board.generateSingleBishopRelevantOccupanciesMask(pieceSquare);
 
     std::cout << (piece | attacks_or_moves).toString() << std::endl;
 
