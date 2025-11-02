@@ -184,7 +184,87 @@ void ChessBoard::generateKingMaskMoves() {
 
 // section: Bishops
 
+Bitboard northEastRelevantOccupancies(int square) {
+    Bitboard mask;
+
+    int targetRank = square / 8;
+    int targetFile = square % 8;
+
+    for (int rank = targetRank + 1, file = targetFile + 1;
+         rank <= 6 && file <= 6; rank++, file++) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + file);
+        mask |= tMask;
+    }
+    return mask;
+}
+
+Bitboard southEastRelevantOccupancies(int square) {
+    Bitboard mask;
+
+    int targetRank = square / 8;
+    int targetFile = square % 8;
+
+    for (int rank = targetRank - 1, file = targetFile + 1;
+         rank >= 1 && file <= 6; rank--, file++) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + file);
+        mask |= tMask;
+    }
+    return mask;
+}
+
+Bitboard northWestRelevantOccupancies(int square) {
+    Bitboard mask;
+
+    int targetRank = square / 8;
+    int targetFile = square % 8;
+
+    for (int rank = targetRank + 1, file = targetFile - 1;
+         rank <= 6 && file >= 1; rank++, file--) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + file);
+        mask |= tMask;
+    }
+    return mask;
+}
+
+Bitboard southWestRelevantOccupancies(int square) {
+    Bitboard mask;
+
+    int targetRank = square / 8;
+    int targetFile = square % 8;
+
+    for (int rank = targetRank - 1, file = targetFile - 1;
+         rank >= 1 && file >= 1; rank--, file--) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + file);
+        mask |= tMask;
+    }
+    return mask;
+}
+
 Bitboard ChessBoard::generateSingleBishopRelevantOccupanciesMask(int square) {
+    Bitboard mask;
+    mask |= northEastRelevantOccupancies(square);
+    mask |= southEastRelevantOccupancies(square);
+    mask |= northWestRelevantOccupancies(square);
+    mask |= southWestRelevantOccupancies(square);
+
+    return mask;
+};
+
+void ChessBoard::generateBishopRelevantOccupancies() {
+    for (int square = 0; square < 64; square++) {
+        bishopRelevantOccupanciesMasks[square] =
+            generateSingleBishopRelevantOccupanciesMask(square);
+    }
+}
+
+// endsection
+
+// section: Rook
+Bitboard ChessBoard::generateSingleRookRelevantOccupanciesMask(int square) {
     Bitboard mask;
 
     int targetRank = square / 8;
@@ -197,34 +277,13 @@ Bitboard ChessBoard::generateSingleBishopRelevantOccupanciesMask(int square) {
         mask |= tMask;
     }
 
-    for (int rank = targetRank - 1, file = targetFile + 1;
-         rank >= 1 && file <= 6; rank--, file++) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + file);
-        mask |= tMask;
-    }
-
-    for (int rank = targetRank + 1, file = targetFile - 1;
-         rank <= 6 && file >= 1; rank++, file--) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + file);
-        mask |= tMask;
-    }
-
-    for (int rank = targetRank - 1, file = targetFile - 1;
-         rank >= 1 && file >= 1; rank--, file--) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + file);
-        mask |= tMask;
-    }
-
     return mask;
 };
 
-void ChessBoard::generateBishopRelevantOccupancies() {
+void ChessBoard::generateRookRelevantOccupancies() {
     for (int square = 0; square < 64; square++) {
         bishopRelevantOccupanciesMasks[square] =
-            generateSingleBishopRelevantOccupanciesMask(square);
+            generateSingleRookRelevantOccupanciesMask(square);
     }
 }
 

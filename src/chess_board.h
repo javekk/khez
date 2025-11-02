@@ -105,6 +105,7 @@ class ChessBoard {
     Bitboard generateSingleKnightMaskMoves(int square);
     Bitboard generateSingleKingMaskMoves(int square);
     Bitboard generateSingleBishopRelevantOccupanciesMask(int square);
+    Bitboard generateSingleRookRelevantOccupanciesMask(int square);
 
    private:
     Bitboard boards_[15];
@@ -118,10 +119,12 @@ class ChessBoard {
     Bitboard knightMoveMasks[64];
     Bitboard kingMoveMasks[64];
     Bitboard bishopRelevantOccupanciesMasks[64];
+    Bitboard rookRelevantOccupanciesMasks[64];
 
     void generatePawnMaskAttacks();
     void generateKnightMaskMoves();
     void generateKingMaskMoves();
 
     void generateBishopRelevantOccupancies();
+    void generateRookRelevantOccupancies();
 };

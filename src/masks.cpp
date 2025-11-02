@@ -34,3 +34,6 @@ const Bitboard notHFile = Bitboard(0xfefefefefefefefe);
 
 const Bitboard notABFile = Bitboard(0x3f3f3f3f3f3f3f3f);
 const Bitboard notGHFile = Bitboard(0xfcfcfcfcfcfcfcfc);
+
+const Bitboard firstRank = Bitboard(0xFF00000000000000);
+const Bitboard eighthRank = Bitboard(0x00000000000000FF);

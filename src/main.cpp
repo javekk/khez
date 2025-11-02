@@ -21,14 +21,17 @@ int main() {
     //
     // std::cout << (knight | attacks).toString() << std::endl;
 
-    int pieceSquare = a8;
+    int pieceSquare = e4;
     Bitboard piece;
     piece.setBit(pieceSquare);
 
     Bitboard attacks_or_moves =
         board.generateSingleBishopRelevantOccupanciesMask(pieceSquare);
 
-    std::cout << (piece | attacks_or_moves).toString() << std::endl;
+    std::cout << (attacks_or_moves).toString() << std::endl;
+
+    // std::cout << Bitboard(0x00000000000000FF).toString() << std::endl;
+    // std::cout << notAFile.toString() << std::endl;
 
     return 0;
 }

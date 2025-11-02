@@ -20,3 +20,6 @@ extern const Bitboard notHFile;
 
 extern const Bitboard notABFile;
 extern const Bitboard notGHFile;
+
+extern const Bitboard firstRank;
+extern const Bitboard eighthRank;
