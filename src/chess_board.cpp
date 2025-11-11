@@ -252,13 +252,100 @@ Bitboard ChessBoard::generateSingleBishopRelevantOccupanciesMask(int square) {
     mask |= southWestRelevantOccupancies(square);
 
     return mask;
-};
+}
 
 void ChessBoard::generateBishopRelevantOccupancies() {
     for (int square = 0; square < 64; square++) {
         bishopRelevantOccupanciesMasks[square] =
             generateSingleBishopRelevantOccupanciesMask(square);
     }
+}
+
+Bitboard bishopNorthEastAttacks(int square, Bitboard blocks) {
+    Bitboard mask;
+
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
+
+    for (int rank = pieceRank + 1, file = pieceFile + 1; rank < 8 && file < 8;
+         rank++, file++) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + file);
+        mask |= tMask;
+
+        if (!(blocks & tMask).isEmpty()) {
+            break;
+        }
+    }
+    return mask;
+}
+
+Bitboard bishopSouthEastAttacks(int square, Bitboard blocks) {
+    Bitboard mask;
+
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
+
+    for (int rank = pieceRank - 1, file = pieceFile + 1; rank >= 0 && file < 8;
+         rank--, file++) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + file);
+        mask |= tMask;
+
+        if (!(blocks & tMask).isEmpty()) {
+            break;
+        }
+    }
+
+    return mask;
+}
+
+Bitboard bishopNorthWestAttacks(int square, Bitboard blocks) {
+    Bitboard mask;
+
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
+
+    for (int rank = pieceRank + 1, file = pieceFile - 1; rank < 8 && file >= 0;
+         rank++, file--) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + file);
+        mask |= tMask;
+
+        if (!(blocks & tMask).isEmpty()) {
+            break;
+        }
+    }
+    return mask;
+}
+
+Bitboard bishopSouthWestAttacks(int square, Bitboard blocks) {
+    Bitboard mask;
+
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
+
+    for (int rank = pieceRank - 1, file = pieceFile - 1; rank >= 0 && file >= 0;
+         rank--, file--) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + file);
+        mask |= tMask;
+
+        if (!(blocks & tMask).isEmpty()) {
+            break;
+        }
+    }
+    return mask;
+}
+
+Bitboard ChessBoard::generateSingleBishopAttacks(int square, Bitboard blocks) {
+    Bitboard mask;
+    mask |= bishopNorthEastAttacks(square, blocks);
+    mask |= bishopSouthEastAttacks(square, blocks);
+    mask |= bishopNorthWestAttacks(square, blocks);
+    mask |= bishopSouthWestAttacks(square, blocks);
+
+    return mask;
 }
 
 // endsection

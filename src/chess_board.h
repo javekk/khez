@@ -105,6 +105,7 @@ class ChessBoard {
     Bitboard generateSingleKnightMaskMoves(int square);
     Bitboard generateSingleKingMaskMoves(int square);
     Bitboard generateSingleBishopRelevantOccupanciesMask(int square);
+    Bitboard generateSingleBishopAttacks(int square, Bitboard blocks);
     Bitboard generateSingleRookRelevantOccupanciesMask(int square);
 
    private:

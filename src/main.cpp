@@ -12,21 +12,15 @@ int main() {
     // board.setupInitialPosition();
     // std::cout << board.toString() << "\n";
 
-    // int knightSquare = b2;
-    //
-    // Bitboard knight;
-    // knight.setBit(knightSquare);
-    //
-    // Bitboard attacks = board.generateSingleKnightMaskAttacks(knightSquare);
-    //
-    // std::cout << (knight | attacks).toString() << std::endl;
-
-    int pieceSquare = b8;
+    int pieceSquare = a5;
     Bitboard piece;
     piece.setBit(pieceSquare);
 
+    Bitboard blocks;
+    blocks.setBit(b6);
+
     Bitboard attacks_or_moves =
-        board.generateSingleRookRelevantOccupanciesMask(pieceSquare);
+        board.generateSingleBishopAttacks(pieceSquare, blocks);
 
     std::cout << (attacks_or_moves).toString() << std::endl;
 

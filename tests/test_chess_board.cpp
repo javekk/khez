@@ -213,45 +213,45 @@ void test_bishop_relevant_occupancies_moves_generation() {
     ChessBoard board;
 
     std::cout << "\t\t\tTesting bishop relavant occupancies on e4...\n";
-    Bitboard bInE4 = board.generateSingleBishopRelevantOccupanciesMask(e4);
-    assert(bInE4.getBit(c2));
-    assert(bInE4.getBit(g2));
-    assert(bInE4.getBit(d3));
-    assert(bInE4.getBit(f3));
-    assert(bInE4.getBit(d5));
-    assert(bInE4.getBit(f5));
-    assert(bInE4.getBit(c6));
-    assert(bInE4.getBit(g6));
-    assert(bInE4.getBit(b7));
-    assert(bInE4.popCount() == 9);
+    Bitboard bOnE4 = board.generateSingleBishopRelevantOccupanciesMask(e4);
+    assert(bOnE4.getBit(c2));
+    assert(bOnE4.getBit(g2));
+    assert(bOnE4.getBit(d3));
+    assert(bOnE4.getBit(f3));
+    assert(bOnE4.getBit(d5));
+    assert(bOnE4.getBit(f5));
+    assert(bOnE4.getBit(c6));
+    assert(bOnE4.getBit(g6));
+    assert(bOnE4.getBit(b7));
+    assert(bOnE4.popCount() == 9);
 
     std::cout << "\t\t\tTesting bishop relavant occupancies on e1...\n";
-    Bitboard bInE1 = board.generateSingleBishopRelevantOccupanciesMask(e1);
-    assert(bInE1.getBit(d2));
-    assert(bInE1.getBit(f2));
-    assert(bInE1.getBit(c3));
-    assert(bInE1.getBit(g3));
-    assert(bInE1.getBit(b4));
-    assert(bInE1.popCount() == 5);
+    Bitboard bOnE1 = board.generateSingleBishopRelevantOccupanciesMask(e1);
+    assert(bOnE1.getBit(d2));
+    assert(bOnE1.getBit(f2));
+    assert(bOnE1.getBit(c3));
+    assert(bOnE1.getBit(g3));
+    assert(bOnE1.getBit(b4));
+    assert(bOnE1.popCount() == 5);
 
     std::cout << "\t\t\tTesting bishop relavant occupancies on h7...\n";
-    Bitboard bInH7 = board.generateSingleBishopRelevantOccupanciesMask(h7);
-    assert(bInH7.getBit(g6));
-    assert(bInH7.getBit(f5));
-    assert(bInH7.getBit(e4));
-    assert(bInH7.getBit(d3));
-    assert(bInH7.getBit(c2));
-    assert(bInH7.popCount() == 5);
+    Bitboard bOnH7 = board.generateSingleBishopRelevantOccupanciesMask(h7);
+    assert(bOnH7.getBit(g6));
+    assert(bOnH7.getBit(f5));
+    assert(bOnH7.getBit(e4));
+    assert(bOnH7.getBit(d3));
+    assert(bOnH7.getBit(c2));
+    assert(bOnH7.popCount() == 5);
 
     std::cout << "\t\t\tTesting bishop relavant occupancies on a8...\n";
-    Bitboard bInA8 = board.generateSingleBishopRelevantOccupanciesMask(a8);
-    assert(bInA8.getBit(b7));
-    assert(bInA8.getBit(c6));
-    assert(bInA8.getBit(d5));
-    assert(bInA8.getBit(e4));
-    assert(bInA8.getBit(f3));
-    assert(bInA8.getBit(g2));
-    assert(bInA8.popCount() == 6);
+    Bitboard bOnA8 = board.generateSingleBishopRelevantOccupanciesMask(a8);
+    assert(bOnA8.getBit(b7));
+    assert(bOnA8.getBit(c6));
+    assert(bOnA8.getBit(d5));
+    assert(bOnA8.getBit(e4));
+    assert(bOnA8.getBit(f3));
+    assert(bOnA8.getBit(g2));
+    assert(bOnA8.popCount() == 6);
 
     std::cout
         << "\t\tBishop relavant occupancies generations tests passed...\n";
@@ -326,6 +326,67 @@ void test_rook_relevant_occupancies_moves_generation() {
     std::cout << "\t\tRook relavant occupancies generations tests passed...\n";
 }
 
+void test_bishop_attacks_generation() {
+    std::cout << "\t\tTesting bishop attacks generations...\n";
+    ChessBoard board;
+
+    Bitboard blocks;
+
+    std::cout << "\t\t\tTesting bishop attacks on e4 with no blockers ...\n";
+
+    Bitboard bOnE4 = board.generateSingleBishopAttacks(e4, blocks);
+    assert(bOnE4.getBit(b1));
+    assert(bOnE4.getBit(h1));
+    assert(bOnE4.getBit(c2));
+    assert(bOnE4.getBit(g2));
+    assert(bOnE4.getBit(d3));
+    assert(bOnE4.getBit(f3));
+    assert(bOnE4.getBit(d5));
+    assert(bOnE4.getBit(f5));
+    assert(bOnE4.getBit(c6));
+    assert(bOnE4.getBit(g6));
+    assert(bOnE4.getBit(b7));
+    assert(bOnE4.getBit(a8));
+    assert(bOnE4.getBit(h7));
+    assert(bOnE4.popCount() == 13);
+
+    std::cout << "\t\t\tTesting bishop attacks on d5 with blockers b3, c6, g8, "
+                 "g2...\n";
+    blocks.clear();
+    blocks.setBit(b3);
+    blocks.setBit(c6);
+    blocks.setBit(g8);
+    blocks.setBit(g2);
+    blocks.setBit(g1);  // not a real blocker
+
+    Bitboard b0nD5 = board.generateSingleBishopAttacks(d5, blocks);
+    assert(b0nD5.getBit(c6));
+    assert(b0nD5.getBit(b3));
+    assert(b0nD5.getBit(c4));
+    assert(b0nD5.getBit(e6));
+    assert(b0nD5.getBit(e4));
+    assert(b0nD5.getBit(f7));
+    assert(b0nD5.getBit(f3));
+    assert(b0nD5.getBit(g2));
+    assert(b0nD5.getBit(g8));
+    assert(b0nD5.popCount() == 9);
+
+    std::cout << "\t\t\tTesting bishop attacks on a5 with blockers b6...\n";
+    blocks.clear();
+    blocks.setBit(b6);
+    blocks.setBit(g4);  // not a real blocker
+
+    Bitboard b0nA5 = board.generateSingleBishopAttacks(a5, blocks);
+    assert(b0nA5.getBit(b6));
+    assert(b0nA5.getBit(b4));
+    assert(b0nA5.getBit(c3));
+    assert(b0nA5.getBit(d2));
+    assert(b0nA5.getBit(e1));
+    assert(b0nA5.popCount() == 5);
+
+    std::cout << "\t\tBishop attacks generations tests passed...\n";
+}
+
 int run_chess_board_tests() {
     try {
         test_board_initialization();
@@ -338,6 +399,8 @@ int run_chess_board_tests() {
 
         test_bishop_relevant_occupancies_moves_generation();
         test_rook_relevant_occupancies_moves_generation();
+
+        test_bishop_attacks_generation();
 
         std::cout << "\tAll board tests passed!\n";
         return 0;
