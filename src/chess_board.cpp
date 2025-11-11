@@ -187,11 +187,11 @@ void ChessBoard::generateKingMaskMoves() {
 Bitboard northEastRelevantOccupancies(int square) {
     Bitboard mask;
 
-    int targetRank = square / 8;
-    int targetFile = square % 8;
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
 
-    for (int rank = targetRank + 1, file = targetFile + 1;
-         rank <= 6 && file <= 6; rank++, file++) {
+    for (int rank = pieceRank + 1, file = pieceFile + 1; rank <= 6 && file <= 6;
+         rank++, file++) {
         Bitboard tMask;
         tMask.setBit(rank * 8 + file);
         mask |= tMask;
@@ -202,11 +202,11 @@ Bitboard northEastRelevantOccupancies(int square) {
 Bitboard southEastRelevantOccupancies(int square) {
     Bitboard mask;
 
-    int targetRank = square / 8;
-    int targetFile = square % 8;
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
 
-    for (int rank = targetRank - 1, file = targetFile + 1;
-         rank >= 1 && file <= 6; rank--, file++) {
+    for (int rank = pieceRank - 1, file = pieceFile + 1; rank >= 1 && file <= 6;
+         rank--, file++) {
         Bitboard tMask;
         tMask.setBit(rank * 8 + file);
         mask |= tMask;
@@ -217,11 +217,11 @@ Bitboard southEastRelevantOccupancies(int square) {
 Bitboard northWestRelevantOccupancies(int square) {
     Bitboard mask;
 
-    int targetRank = square / 8;
-    int targetFile = square % 8;
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
 
-    for (int rank = targetRank + 1, file = targetFile - 1;
-         rank <= 6 && file >= 1; rank++, file--) {
+    for (int rank = pieceRank + 1, file = pieceFile - 1; rank <= 6 && file >= 1;
+         rank++, file--) {
         Bitboard tMask;
         tMask.setBit(rank * 8 + file);
         mask |= tMask;
@@ -232,11 +232,11 @@ Bitboard northWestRelevantOccupancies(int square) {
 Bitboard southWestRelevantOccupancies(int square) {
     Bitboard mask;
 
-    int targetRank = square / 8;
-    int targetFile = square % 8;
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
 
-    for (int rank = targetRank - 1, file = targetFile - 1;
-         rank >= 1 && file >= 1; rank--, file--) {
+    for (int rank = pieceRank - 1, file = pieceFile - 1; rank >= 1 && file >= 1;
+         rank--, file--) {
         Bitboard tMask;
         tMask.setBit(rank * 8 + file);
         mask |= tMask;
@@ -264,18 +264,69 @@ void ChessBoard::generateBishopRelevantOccupancies() {
 // endsection
 
 // section: Rook
-Bitboard ChessBoard::generateSingleRookRelevantOccupanciesMask(int square) {
+
+Bitboard northRelevantOccupancies(int square) {
     Bitboard mask;
 
-    int targetRank = square / 8;
-    int targetFile = square % 8;
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
 
-    for (int rank = targetRank + 1, file = targetFile + 1;
-         rank <= 6 && file <= 6; rank++, file++) {
+    for (int rank = pieceRank + 1; rank < 7; rank++) {
         Bitboard tMask;
-        tMask.setBit(rank * 8 + file);
+        tMask.setBit(rank * 8 + pieceFile);
         mask |= tMask;
     }
+    return mask;
+}
+
+Bitboard southRelevantOccupancies(int square) {
+    Bitboard mask;
+
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
+
+    for (int rank = pieceRank - 1; rank > 0; rank--) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + pieceFile);
+        mask |= tMask;
+    }
+    return mask;
+}
+
+Bitboard westRelevantOccupancies(int square) {
+    Bitboard mask;
+
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
+
+    for (int file = pieceFile - 1; file > 0; file--) {
+        Bitboard tMask;
+        tMask.setBit(pieceRank * 8 + file);
+        mask |= tMask;
+    }
+    return mask;
+}
+
+Bitboard eastRelevantOccupancies(int square) {
+    Bitboard mask;
+
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
+
+    for (int file = pieceFile + 1; file < 7; file++) {
+        Bitboard tMask;
+        tMask.setBit(pieceRank * 8 + file);
+        mask |= tMask;
+    }
+    return mask;
+}
+
+Bitboard ChessBoard::generateSingleRookRelevantOccupanciesMask(int square) {
+    Bitboard mask;
+    mask |= northRelevantOccupancies(square);
+    mask |= southRelevantOccupancies(square);
+    mask |= westRelevantOccupancies(square);
+    mask |= eastRelevantOccupancies(square);
 
     return mask;
 };

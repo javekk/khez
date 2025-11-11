@@ -257,6 +257,75 @@ void test_bishop_relevant_occupancies_moves_generation() {
         << "\t\tBishop relavant occupancies generations tests passed...\n";
 }
 
+void test_rook_relevant_occupancies_moves_generation() {
+    std::cout << "\t\tTesting rook relavant occupancies generations...\n";
+
+    ChessBoard board;
+
+    std::cout << "\t\t\tTesting rook relavant occupancies on e4...\n";
+    Bitboard rInE4 = board.generateSingleRookRelevantOccupanciesMask(e4);
+    assert(rInE4.getBit(e2));
+    assert(rInE4.getBit(e3));
+    assert(rInE4.getBit(e5));
+    assert(rInE4.getBit(e6));
+    assert(rInE4.getBit(e7));
+    assert(rInE4.getBit(b4));
+    assert(rInE4.getBit(c4));
+    assert(rInE4.getBit(d4));
+    assert(rInE4.getBit(f4));
+    assert(rInE4.getBit(g4));
+    assert(rInE4.popCount() == 10);
+
+    std::cout << "\t\t\tTesting rook relavant occupancies on a1...\n";
+    Bitboard rInA1 = board.generateSingleRookRelevantOccupanciesMask(a1);
+    assert(rInA1.getBit(a2));
+    assert(rInA1.getBit(a3));
+    assert(rInA1.getBit(a4));
+    assert(rInA1.getBit(a5));
+    assert(rInA1.getBit(a6));
+    assert(rInA1.getBit(a7));
+    assert(rInA1.getBit(b1));
+    assert(rInA1.getBit(c1));
+    assert(rInA1.getBit(d1));
+    assert(rInA1.getBit(e1));
+    assert(rInA1.getBit(f1));
+    assert(rInA1.getBit(g1));
+    assert(rInA1.popCount() == 12);
+
+    std::cout << "\t\t\tTesting rook relavant occupancies on h8...\n";
+    Bitboard rInH8 = board.generateSingleRookRelevantOccupanciesMask(h8);
+    assert(rInH8.getBit(h7));
+    assert(rInH8.getBit(h6));
+    assert(rInH8.getBit(h5));
+    assert(rInH8.getBit(h4));
+    assert(rInH8.getBit(h3));
+    assert(rInH8.getBit(h2));
+    assert(rInH8.getBit(g8));
+    assert(rInH8.getBit(f8));
+    assert(rInH8.getBit(e8));
+    assert(rInH8.getBit(d8));
+    assert(rInH8.getBit(c8));
+    assert(rInH8.getBit(b8));
+    assert(rInH8.popCount() == 12);
+
+    std::cout << "\t\t\tTesting rook relavant occupancies on c1...\n";
+    Bitboard rInC1 = board.generateSingleRookRelevantOccupanciesMask(c1);
+    assert(rInC1.getBit(b1));
+    assert(rInC1.getBit(d1));
+    assert(rInC1.getBit(e1));
+    assert(rInC1.getBit(f1));
+    assert(rInC1.getBit(g1));
+    assert(rInC1.getBit(c2));
+    assert(rInC1.getBit(c3));
+    assert(rInC1.getBit(c4));
+    assert(rInC1.getBit(c5));
+    assert(rInC1.getBit(c6));
+    assert(rInC1.getBit(c7));
+    assert(rInC1.popCount() == 11);
+
+    std::cout << "\t\tRook relavant occupancies generations tests passed...\n";
+}
+
 int run_chess_board_tests() {
     try {
         test_board_initialization();
@@ -268,6 +337,7 @@ int run_chess_board_tests() {
         test_king_moves_generation();
 
         test_bishop_relevant_occupancies_moves_generation();
+        test_rook_relevant_occupancies_moves_generation();
 
         std::cout << "\tAll board tests passed!\n";
         return 0;

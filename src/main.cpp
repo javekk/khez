@@ -21,12 +21,12 @@ int main() {
     //
     // std::cout << (knight | attacks).toString() << std::endl;
 
-    int pieceSquare = e4;
+    int pieceSquare = b8;
     Bitboard piece;
     piece.setBit(pieceSquare);
 
     Bitboard attacks_or_moves =
-        board.generateSingleBishopRelevantOccupanciesMask(pieceSquare);
+        board.generateSingleRookRelevantOccupanciesMask(pieceSquare);
 
     std::cout << (attacks_or_moves).toString() << std::endl;
 
