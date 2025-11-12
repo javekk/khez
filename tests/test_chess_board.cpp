@@ -387,6 +387,73 @@ void test_bishop_attacks_generation() {
     std::cout << "\t\tBishop attacks generations tests passed...\n";
 }
 
+void test_rook_attacks_generation() {
+    std::cout << "\t\tTesting Rook attacks generations...\n";
+    ChessBoard board;
+
+    Bitboard blocks;
+
+    std::cout << "\t\t\tTesting Rook attacks on d5 with no blockers ...\n";
+
+    Bitboard rOnD5 = board.generateSingleRookAttacks(d5, blocks);
+    assert(rOnD5.getBit(d1));
+    assert(rOnD5.getBit(d2));
+    assert(rOnD5.getBit(d3));
+    assert(rOnD5.getBit(d4));
+    assert(rOnD5.getBit(d6));
+    assert(rOnD5.getBit(d7));
+    assert(rOnD5.getBit(d8));
+    assert(rOnD5.getBit(a5));
+    assert(rOnD5.getBit(b5));
+    assert(rOnD5.getBit(c5));
+    assert(rOnD5.getBit(e5));
+    assert(rOnD5.getBit(f5));
+    assert(rOnD5.getBit(g5));
+    assert(rOnD5.getBit(h5));
+    assert(rOnD5.popCount() == 14);
+
+    std::cout
+        << "\t\t\tTesting Rook attacks on e4 with blockers e7, e3, b4, g4...\n";
+    blocks.clear();
+    blocks.setBit(e7);
+    blocks.setBit(e3);
+    blocks.setBit(b4);
+    blocks.setBit(g4);
+    blocks.setBit(g1);  // not a real blocker
+
+    Bitboard r0nE4 = board.generateSingleRookAttacks(e4, blocks);
+    assert(r0nE4.getBit(e3));
+    assert(r0nE4.getBit(e5));
+    assert(r0nE4.getBit(e6));
+    assert(r0nE4.getBit(e7));
+    assert(r0nE4.getBit(b4));
+    assert(r0nE4.getBit(c4));
+    assert(r0nE4.getBit(d4));
+    assert(r0nE4.getBit(f4));
+    assert(r0nE4.getBit(g4));
+    assert(r0nE4.popCount() == 9);
+
+    std::cout << "\t\t\tTesting Rook attacks on b6 with blockers b4...\n";
+    blocks.clear();
+    blocks.setBit(b4);
+    blocks.setBit(g2);  // not a real blocker
+
+    Bitboard r0nB6 = board.generateSingleRookAttacks(b6, blocks);
+    assert(r0nB6.getBit(b8));
+    assert(r0nB6.getBit(b7));
+    assert(r0nB6.getBit(b5));
+    assert(r0nB6.getBit(b4));
+    assert(r0nB6.getBit(a6));
+    assert(r0nB6.getBit(c6));
+    assert(r0nB6.getBit(d6));
+    assert(r0nB6.getBit(e6));
+    assert(r0nB6.getBit(f6));
+    assert(r0nB6.getBit(g6));
+    assert(r0nB6.popCount() == 11);
+
+    std::cout << "\t\tRook attacks generations tests passed...\n";
+}
+
 int run_chess_board_tests() {
     try {
         test_board_initialization();
@@ -401,6 +468,7 @@ int run_chess_board_tests() {
         test_rook_relevant_occupancies_moves_generation();
 
         test_bishop_attacks_generation();
+        test_rook_attacks_generation();
 
         std::cout << "\tAll board tests passed!\n";
         return 0;

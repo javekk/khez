@@ -107,6 +107,7 @@ class ChessBoard {
     Bitboard generateSingleBishopRelevantOccupanciesMask(int square);
     Bitboard generateSingleBishopAttacks(int square, Bitboard blocks);
     Bitboard generateSingleRookRelevantOccupanciesMask(int square);
+    Bitboard generateSingleRookAttacks(int square, Bitboard blocks);
 
    private:
     Bitboard boards_[15];

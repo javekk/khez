@@ -339,13 +339,13 @@ Bitboard bishopSouthWestAttacks(int square, Bitboard blocks) {
 }
 
 Bitboard ChessBoard::generateSingleBishopAttacks(int square, Bitboard blocks) {
-    Bitboard mask;
-    mask |= bishopNorthEastAttacks(square, blocks);
-    mask |= bishopSouthEastAttacks(square, blocks);
-    mask |= bishopNorthWestAttacks(square, blocks);
-    mask |= bishopSouthWestAttacks(square, blocks);
+    Bitboard attacks;
+    attacks |= bishopNorthEastAttacks(square, blocks);
+    attacks |= bishopSouthEastAttacks(square, blocks);
+    attacks |= bishopNorthWestAttacks(square, blocks);
+    attacks |= bishopSouthWestAttacks(square, blocks);
 
-    return mask;
+    return attacks;
 }
 
 // endsection
@@ -416,7 +416,7 @@ Bitboard ChessBoard::generateSingleRookRelevantOccupanciesMask(int square) {
     mask |= eastRelevantOccupancies(square);
 
     return mask;
-};
+}
 
 void ChessBoard::generateRookRelevantOccupancies() {
     for (int square = 0; square < 64; square++) {
@@ -424,5 +424,87 @@ void ChessBoard::generateRookRelevantOccupancies() {
             generateSingleRookRelevantOccupanciesMask(square);
     }
 }
+
+Bitboard rookNorthAttacks(int square, Bitboard blocks) {
+    Bitboard mask;
+
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
+
+    for (int rank = pieceRank + 1; rank < 8; rank++) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + pieceFile);
+        mask |= tMask;
+
+        if (!(blocks & tMask).isEmpty()) {
+            break;
+        }
+    }
+    return mask;
+}
+
+Bitboard rookSouthAttacks(int square, Bitboard blocks) {
+    Bitboard mask;
+
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
+
+    for (int rank = pieceRank - 1; rank >= 0; rank--) {
+        Bitboard tMask;
+        tMask.setBit(rank * 8 + pieceFile);
+        mask |= tMask;
+
+        if (!(blocks & tMask).isEmpty()) {
+            break;
+        }
+    }
+    return mask;
+}
+
+Bitboard rookWestAttacks(int square, Bitboard blocks) {
+    Bitboard mask;
+
+    int pieceRank = square / 8;
+    int pieceFile = square % 8;
+
+    for (int file = pieceFile - 1; file >= 0; file--) {
+        Bitboard tMask;
+        tMask.setBit(pieceRank * 8 + file);
+        mask |= tMask;
+
+        if (!(blocks & tMask).isEmpty()) {
+            break;
+        }
+    }
+    return mask;
+}
+
+Bitboard rookEastAttacks(int square, Bitboard blocks) {
+    Bitboard mask;
+
+    int pieceFile = square % 8;
+    int pieceRank = square / 8;
+
+    for (int file = pieceFile + 1; file < 8; file++) {
+        Bitboard tMask;
+        tMask.setBit(pieceRank * 8 + file);
+        mask |= tMask;
+
+        if (!(blocks & tMask).isEmpty()) {
+            break;
+        }
+    }
+    return mask;
+}
+
+Bitboard ChessBoard::generateSingleRookAttacks(int square, Bitboard blocks) {
+    Bitboard attacks;
+    attacks |= rookNorthAttacks(square, blocks);
+    attacks |= rookSouthAttacks(square, blocks);
+    attacks |= rookWestAttacks(square, blocks);
+    attacks |= rookEastAttacks(square, blocks);
+
+    return attacks;
+};
 
 // endsection

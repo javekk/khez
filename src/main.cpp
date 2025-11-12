@@ -12,15 +12,18 @@ int main() {
     // board.setupInitialPosition();
     // std::cout << board.toString() << "\n";
 
-    int pieceSquare = a5;
+    int pieceSquare = b6;
     Bitboard piece;
     piece.setBit(pieceSquare);
 
     Bitboard blocks;
-    blocks.setBit(b6);
+    blocks.setBit(e7);
+    blocks.setBit(e3);
+    blocks.setBit(b4);
+    blocks.setBit(g4);
 
     Bitboard attacks_or_moves =
-        board.generateSingleBishopAttacks(pieceSquare, blocks);
+        board.generateSingleRookAttacks(pieceSquare, blocks);
 
     std::cout << (attacks_or_moves).toString() << std::endl;
 
