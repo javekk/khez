@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <string>
 
 #include "bitboard.h"
@@ -71,6 +72,8 @@ enum Square {
     g8,
     h8,
 };
+
+extern const std::map<Square, std::string> squareMap;
 
 enum Color { WHITE, BLACK };
 

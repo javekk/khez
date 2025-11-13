@@ -32,6 +32,13 @@ bool Bitboard::isEmpty() const { return board_ == 0ULL; }
 
 int Bitboard::popCount() const { return __builtin_popcountll(board_); }
 
+int Bitboard::leastSignificantBeatIndex() const {
+    if (board_ == 0) {
+        return -1;
+    }
+    return __builtin_clzll(board_);
+}
+
 uint64_t Bitboard::getValue() const { return board_; }
 
 std::string Bitboard::toString() const {

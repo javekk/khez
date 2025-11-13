@@ -15,6 +15,7 @@ class Bitboard {
     void clear();
     bool isEmpty() const;
     int popCount() const;
+    int leastSignificantBeatIndex() const;
 
     uint64_t getValue() const;
     std::string toString() const;
