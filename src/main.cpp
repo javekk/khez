@@ -1,8 +1,9 @@
 #include <bitset>
 #include <iostream>
 
-#include "bitboard.h"
-#include "chess_board.h"
+#include "bitboard/bitboard.h"
+#include "chessboard/chessboard.h"
+#include "lib/square.h"
 
 int main() {
     std::cout << "Khez Chess Engine - Bitboard Demo\n";

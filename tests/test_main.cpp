@@ -2,18 +2,17 @@
 
 // Forward declarations of test functions
 int run_bitboard_tests();
-int run_chess_board_tests();
+int run_chessboard_tests();
+int run_engine_tests();
 
 int main() {
     std::cout << "♟️ Khez Chess Engine - Test Suite ♟️\n";
 
     int result = 0;
 
-    std::cout << "\tRunning Bitboard Tests...\n";
     result += run_bitboard_tests();
-
-    std::cout << "\tRunning Chess Board Tests...\n";
-    result += run_chess_board_tests();
+    result += run_chessboard_tests();
+    result += run_engine_tests();
 
     if (result == 0) {
         std::cout << "🎉 All tests passed!\n";

@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "../src/bitboard.h"
+#include "../src/bitboard/bitboard.h"
 
 void test_basic_operations() {
     std::cout << "\t\tTesting basic operations...\n";
@@ -69,16 +69,12 @@ void test_equality() {
 }
 
 int run_bitboard_tests() {
-    try {
-        test_basic_operations();
-        test_bitwise_operations();
-        test_popcount();
-        test_equality();
+    std::cout << "\tTesting bitboard...\n";
+    test_basic_operations();
+    test_bitwise_operations();
+    test_popcount();
+    test_equality();
 
-        std::cout << "\tAll bitboard tests passed!\n";
-        return 0;
-    } catch (const std::exception& e) {
-        std::cerr << "\tBitboard test failed: " << e.what() << "\n";
-        return 1;
-    }
+    std::cout << "\tAll bitboard tests passed!\n";
+    return 0;
 }

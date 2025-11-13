@@ -1,0 +1,84 @@
+#include <cassert>
+#include <iostream>
+
+#include "../src/chessboard/chessboard.h"
+#include "../src/lib/square.h"
+
+void test_board_initialization() {
+    std::cout << "\t\tTesting board initialization...\n";
+
+    ChessBoard board;
+    bool has_pieces = false;
+    for (int i = 0; i < 64; i++) {
+        char c = board.getPieceAt(0);
+        if (c >= 'A' && c <= 'Z') {
+            has_pieces = true;
+            break;
+        }
+        if (c >= 'a' && c <= 'z') {
+            has_pieces = true;
+            break;
+        }
+    }
+
+    assert(!has_pieces);
+
+    std::cout << "\t\tBoard initialization tests passed!\n";
+}
+
+void test_to_string() {
+    std::cout << "\t\tTesting toString() returning the board...\n";
+
+    ChessBoard board;
+
+    std::string board_str = board.toString();
+    assert(!board_str.empty());
+    assert(board_str.length() > 50);  // Should be a reasonable size
+
+    std::cout << "\t\tPiece placement tests passed!\n";
+}
+
+void test_initial_position() {
+    std::cout << "\t\tTesting initial position setup...\n";
+
+    ChessBoard board;
+    board.setupInitialPosition();
+
+    std::cout << "\t\t\tTesting white pieces on rank 1...\n";
+    assert(board.getPieceAt(a1) == 'R');
+    assert(board.getPieceAt(b1) == 'N');
+    assert(board.getPieceAt(c1) == 'B');
+    assert(board.getPieceAt(d1) == 'Q');
+    assert(board.getPieceAt(e1) == 'K');
+    assert(board.getPieceAt(f1) == 'B');
+    assert(board.getPieceAt(g1) == 'N');
+    assert(board.getPieceAt(h1) == 'R');
+
+    std::cout << "\t\t\tTesting white pieces on rank 2...\n";
+    assert(board.getPieceAt(a2) == 'P');
+    assert(board.getPieceAt(h2) == 'P');
+
+    std::cout << "\t\t\tTesting black pieces on rank 8...\n";
+    assert(board.getPieceAt(a8) == 'r');
+    assert(board.getPieceAt(e8) == 'k');
+
+    std::cout << "\t\t\tTesting black pieces on rank 7...\n";
+    assert(board.getPieceAt(a7) == 'p');
+    assert(board.getPieceAt(h7) == 'p');
+
+    std::cout << "\t\t\tTesting empty squares...\n";
+    assert(board.getPieceAt(e4) == '.');
+    assert(board.getPieceAt(d5) == '.');
+
+    std::cout << "\t\tInitial position tests passed!\n";
+}
+
+int run_chessboard_tests() {
+    std::cout << "\t Testing chessboard...\n";
+    test_board_initialization();
+    test_to_string();
+    test_initial_position();
+
+    std::cout << "\tAll chessboard tests passed!\n";
+    return 0;
+}

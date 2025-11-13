@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bitboard.h"
+#include "../bitboard/bitboard.h"
 
 extern const Bitboard whitePawns;
 extern const Bitboard blackPawns;
