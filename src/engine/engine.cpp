@@ -1,7 +1,11 @@
 #include "engine.h"
 
+#include <bitset>
+#include <iostream>
+
 #include "../lib/color.h"
 #include "../lib/masks.h"
+#include "../lib/square.h"
 
 #pragma region pawns
 
@@ -122,8 +126,7 @@ Bitboard northEastRelevantOccupancies(int square) {
 
     for (int rank = pieceRank + 1, file = pieceFile + 1; rank <= 6 && file <= 6;
          rank++, file++) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + file);
+        Bitboard tMask = Bitboard::fromSquare(rank * 8 + file);
         mask |= tMask;
     }
     return mask;
@@ -137,8 +140,7 @@ Bitboard southEastRelevantOccupancies(int square) {
 
     for (int rank = pieceRank - 1, file = pieceFile + 1; rank >= 1 && file <= 6;
          rank--, file++) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + file);
+        Bitboard tMask = Bitboard::fromSquare(rank * 8 + file);
         mask |= tMask;
     }
     return mask;
@@ -152,8 +154,7 @@ Bitboard northWestRelevantOccupancies(int square) {
 
     for (int rank = pieceRank + 1, file = pieceFile - 1; rank <= 6 && file >= 1;
          rank++, file--) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + file);
+        Bitboard tMask = Bitboard::fromSquare(rank * 8 + file);
         mask |= tMask;
     }
     return mask;
@@ -167,8 +168,7 @@ Bitboard southWestRelevantOccupancies(int square) {
 
     for (int rank = pieceRank - 1, file = pieceFile - 1; rank >= 1 && file >= 1;
          rank--, file--) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + file);
+        Bitboard tMask = Bitboard::fromSquare(rank * 8 + file);
         mask |= tMask;
     }
     return mask;
@@ -199,8 +199,7 @@ Bitboard bishopNorthEastAttacks(int square, Bitboard blocks) {
 
     for (int rank = pieceRank + 1, file = pieceFile + 1; rank < 8 && file < 8;
          rank++, file++) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + file);
+        Bitboard tMask = Bitboard::fromSquare(rank * 8 + file);
         mask |= tMask;
 
         if (!(blocks & tMask).isEmpty()) {
@@ -218,8 +217,7 @@ Bitboard bishopSouthEastAttacks(int square, Bitboard blocks) {
 
     for (int rank = pieceRank - 1, file = pieceFile + 1; rank >= 0 && file < 8;
          rank--, file++) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + file);
+        Bitboard tMask = Bitboard::fromSquare(rank * 8 + file);
         mask |= tMask;
 
         if (!(blocks & tMask).isEmpty()) {
@@ -238,8 +236,7 @@ Bitboard bishopNorthWestAttacks(int square, Bitboard blocks) {
 
     for (int rank = pieceRank + 1, file = pieceFile - 1; rank < 8 && file >= 0;
          rank++, file--) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + file);
+        Bitboard tMask = Bitboard::fromSquare(rank * 8 + file);
         mask |= tMask;
 
         if (!(blocks & tMask).isEmpty()) {
@@ -257,8 +254,7 @@ Bitboard bishopSouthWestAttacks(int square, Bitboard blocks) {
 
     for (int rank = pieceRank - 1, file = pieceFile - 1; rank >= 0 && file >= 0;
          rank--, file--) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + file);
+        Bitboard tMask(rank * 8 + file);
         mask |= tMask;
 
         if (!(blocks & tMask).isEmpty()) {
@@ -289,8 +285,7 @@ Bitboard northRelevantOccupancies(int square) {
     int pieceFile = square % 8;
 
     for (int rank = pieceRank + 1; rank < 7; rank++) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + pieceFile);
+        Bitboard tMask = Bitboard::fromSquare(rank * 8 + pieceFile);
         mask |= tMask;
     }
     return mask;
@@ -303,8 +298,7 @@ Bitboard southRelevantOccupancies(int square) {
     int pieceFile = square % 8;
 
     for (int rank = pieceRank - 1; rank > 0; rank--) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + pieceFile);
+        Bitboard tMask = Bitboard::fromSquare(rank * 8 + pieceFile);
         mask |= tMask;
     }
     return mask;
@@ -317,8 +311,7 @@ Bitboard westRelevantOccupancies(int square) {
     int pieceFile = square % 8;
 
     for (int file = pieceFile - 1; file > 0; file--) {
-        Bitboard tMask;
-        tMask.setBit(pieceRank * 8 + file);
+        Bitboard tMask = Bitboard::fromSquare(pieceRank * 8 + file);
         mask |= tMask;
     }
     return mask;
@@ -331,8 +324,7 @@ Bitboard eastRelevantOccupancies(int square) {
     int pieceFile = square % 8;
 
     for (int file = pieceFile + 1; file < 7; file++) {
-        Bitboard tMask;
-        tMask.setBit(pieceRank * 8 + file);
+        Bitboard tMask = Bitboard::fromSquare(pieceRank * 8 + file);
         mask |= tMask;
     }
     return mask;
@@ -362,8 +354,7 @@ Bitboard rookNorthAttacks(int square, Bitboard blocks) {
     int pieceFile = square % 8;
 
     for (int rank = pieceRank + 1; rank < 8; rank++) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + pieceFile);
+        Bitboard tMask = Bitboard::fromSquare(rank * 8 + pieceFile);
         mask |= tMask;
 
         if (!(blocks & tMask).isEmpty()) {
@@ -380,8 +371,7 @@ Bitboard rookSouthAttacks(int square, Bitboard blocks) {
     int pieceFile = square % 8;
 
     for (int rank = pieceRank - 1; rank >= 0; rank--) {
-        Bitboard tMask;
-        tMask.setBit(rank * 8 + pieceFile);
+        Bitboard tMask = Bitboard::fromSquare(rank * 8 + pieceFile);
         mask |= tMask;
 
         if (!(blocks & tMask).isEmpty()) {
@@ -398,8 +388,7 @@ Bitboard rookWestAttacks(int square, Bitboard blocks) {
     int pieceFile = square % 8;
 
     for (int file = pieceFile - 1; file >= 0; file--) {
-        Bitboard tMask;
-        tMask.setBit(pieceRank * 8 + file);
+        Bitboard tMask = Bitboard::fromSquare(pieceRank * 8 + file);
         mask |= tMask;
 
         if (!(blocks & tMask).isEmpty()) {
@@ -416,8 +405,7 @@ Bitboard rookEastAttacks(int square, Bitboard blocks) {
     int pieceRank = square / 8;
 
     for (int file = pieceFile + 1; file < 8; file++) {
-        Bitboard tMask;
-        tMask.setBit(pieceRank * 8 + file);
+        Bitboard tMask = Bitboard::fromSquare(pieceRank * 8 + file);
         mask |= tMask;
 
         if (!(blocks & tMask).isEmpty()) {
@@ -435,6 +423,22 @@ Bitboard Engine::generateSingleRookAttacks(int square, Bitboard blocks) {
     attacks |= rookEastAttacks(square, blocks);
 
     return attacks;
-};
+}
 
 #pragma endregion
+
+Bitboard Engine::setOccupancy(int index, Bitboard attacksMask) {
+    Bitboard occupancyMask;
+    int attacksMaskPopCount = attacksMask.popCount();
+
+    for (int count = 0; count < attacksMaskPopCount; count++) {
+        int square = attacksMask.leastSignificantBeatIndex();
+        attacksMask.clearBit(square);
+
+        if (index & (1 << count)) {
+            occupancyMask |= Bitboard::fromSquare(square);
+        }
+    }
+
+    return occupancyMask;
+};

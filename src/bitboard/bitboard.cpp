@@ -7,6 +7,12 @@ Bitboard::Bitboard() : board_(0ULL) {}
 
 Bitboard::Bitboard(uint64_t board) : board_(board) {}
 
+Bitboard Bitboard::fromSquare(int square) {
+    Bitboard bitboard;
+    bitboard.setBit(square);
+    return bitboard;
+}
+
 void Bitboard::setBit(int square) {
     if (square >= 0 && square < 64) {
         board_ |= (1ULL << (63 - square));

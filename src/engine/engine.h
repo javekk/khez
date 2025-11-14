@@ -14,6 +14,8 @@ class Engine {
     Bitboard generateSingleRookRelevantOccupanciesMask(int square);
     Bitboard generateSingleRookAttacks(int square, Bitboard blocks);
 
+    Bitboard setOccupancy(int index, Bitboard attacksMask);
+
    private:
     Bitboard pawnMoveMasks[2][64];
     Bitboard knightMoveMasks[64];

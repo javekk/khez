@@ -37,3 +37,31 @@ const Bitboard notGHFile = Bitboard(0xfcfcfcfcfcfcfcfc);
 
 const Bitboard firstRank = Bitboard(0xFF00000000000000);
 const Bitboard eighthRank = Bitboard(0x00000000000000FF);
+
+/*
+  To generate file bitboards you can use this simple script,
+  this one in the example is for Rook Relevant Occupancies count per square
+
+    int rook_relevant_occupancies_counts[64];
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            int square = file + (8 * rank);
+            rook_relevant_occupancies_counts[square] =
+                engine.generateSingleRookRelevantOccupanciesMask(square)
+                    .popCount();
+        }
+    }
+    for (int i = 0; i < 64; i++) {
+        std::cout << rook_relevant_occupancies_counts[i] << ", ";
+    }
+*/
+const int rook_relevant_occupancies_counts[64] = {
+    12, 11, 11, 11, 11, 11, 11, 12, 11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11, 11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11, 11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11, 12, 11, 11, 11, 11, 11, 11, 12};
+
+const int bishop_relevant_occupancies_counts[64] = {
+    6, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 7, 7,
+    5, 5, 5, 5, 7, 9, 9, 7, 5, 5, 5, 5, 7, 9, 9, 7, 5, 5, 5, 5, 7, 7,
+    7, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 6};

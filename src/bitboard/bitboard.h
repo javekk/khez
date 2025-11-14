@@ -7,6 +7,7 @@ class Bitboard {
    public:
     Bitboard();
     explicit Bitboard(uint64_t board);
+    static Bitboard fromSquare(int square);
 
     void setBit(int square);
     void clearBit(int square);
