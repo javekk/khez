@@ -60,6 +60,8 @@ std::string Bitboard::toString() const {
         oss << "\n";
     }
 
+    oss << "Decimal: " << board_ << "\n";
+
     return oss.str();
 }
 
