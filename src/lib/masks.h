@@ -23,3 +23,9 @@ extern const Bitboard notGHFile;
 
 extern const Bitboard firstRank;
 extern const Bitboard eighthRank;
+
+extern const int rookRelevantOccupanciesCounts[64];
+extern const int bishopRelevantOccupanciesCounts[64];
+
+extern const u_int64_t bishopMagicNumbers[64];
+extern const u_int64_t rookinMagicNumbers[64];

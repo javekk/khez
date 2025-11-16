@@ -2,13 +2,13 @@
 
 #include <cstdint>
 
-class RandonNumberGenerator {
+class PseudoRandomNumberGenerator {
    private:
     unsigned int state_;
 
    public:
-    RandonNumberGenerator();
-    RandonNumberGenerator(int state);
+    PseudoRandomNumberGenerator();
+    PseudoRandomNumberGenerator(int state);
     unsigned int generateRandomU32Number();
     uint64_t generateRandomU64Number();
     uint64_t generateMagicNumberCandidate();

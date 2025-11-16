@@ -6,6 +6,7 @@ using namespace std;
 #include "bitboard/bitboard.h"
 #include "chessboard/chessboard.h"
 #include "engine/engine.h"
+#include "lib/magic.h"
 #include "lib/random.h"
 #include "lib/square.h"
 
@@ -13,16 +14,18 @@ int main() {
     std::cout << "Khez Chess Engine - Bitboard Demo\n";
     std::cout << "==================================\n\n";
 
-    RandonNumberGenerator rng = RandonNumberGenerator(1804289383);
+    PseudoRandomNumberGenerator rng = PseudoRandomNumberGenerator(1804289383);
+    MagicNumberGenerator mng = MagicNumberGenerator(rng);
+    u_int64_t* bishopMagicNumbers = mng.findBishopMagicNumbers();
 
-    Bitboard bb1 = Bitboard(rng.generateRandomU32Number());
-    cout << bb1.toString() << endl;
-    Bitboard bb2 = Bitboard(rng.generateRandomU32Number() & 0xFFFF);
-    cout << bb2.toString() << endl;
-    Bitboard bb3 = Bitboard(rng.generateRandomU64Number());
-    cout << bb3.toString() << endl;
-    Bitboard bb4 = Bitboard(rng.generateMagicNumberCandidate());
-    cout << bb4.toString() << endl;
+    for (int square = 0; square < 64; square++) {
+        cout << "0x" << hex << bishopMagicNumbers[square] << "," << endl;
+    }
+    cout << "\n\n";
+    u_int64_t* rookMagicNumbers = mng.findRookMagicNumbers();
+    for (int square = 0; square < 64; square++) {
+        cout << "0x" << hex << rookMagicNumbers[square] << "," << endl;
+    }
 
     return 0;
 }
