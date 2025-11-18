@@ -20,6 +20,8 @@ ChessBoard::ChessBoard() {
 }
 
 void ChessBoard::setupInitialPosition() {
+    side = WHITE;
+
     boards_[WHITE_PAWNS] = whitePawns;
     boards_[BLACK_PAWNS] = blackPawns;
     boards_[WHITE_ROOKS] = whiteRooks;
@@ -33,7 +35,7 @@ void ChessBoard::setupInitialPosition() {
     boards_[WHITE_KING] = whiteKing;
     boards_[BLACK_KING] = blackKing;
 
-    updateAllBoards();
+    updateAllOccupancyBoards();
 }
 
 std::string ChessBoard::toString() const {
@@ -63,7 +65,34 @@ char ChessBoard::getPieceAt(int square) const {
     return '.';
 }
 
-void ChessBoard::updateAllBoards() {
+std::string ChessBoard::toStringFancy() const {
+    std::ostringstream oss;
+
+    for (int rank = 7; rank >= 0; rank--) {
+        oss << (rank + 1) << " | ";
+        for (int file = 0; file < 8; ++file) {
+            int square = rank * 8 + file;
+            oss << getPieceAtFancy(square) << " ";
+        }
+        oss << "\n";
+    }
+
+    oss << "    ---------------\n";
+    oss << "    a b c d e f g h\n";
+
+    return oss.str();
+}
+
+std::string ChessBoard::getPieceAtFancy(int square) const {
+    for (int boardsIndex = 0; boardsIndex < 12; boardsIndex++) {
+        if (boards_[boardsIndex].getBit(square)) {
+            return pieceSymbols_[boardsIndex];
+        }
+    }
+    return square % 2 == 0 ? "◾" : "◽";
+}
+
+void ChessBoard::updateAllOccupancyBoards() {
     boards_[WHITE_ALL] = boards_[WHITE_PAWNS] | boards_[WHITE_ROOKS] |
                          boards_[WHITE_KNIGHTS] | boards_[WHITE_BISHOPS] |
                          boards_[WHITE_QUEEN] | boards_[WHITE_KING];

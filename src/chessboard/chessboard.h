@@ -3,6 +3,8 @@
 #include <string>
 
 #include "../bitboard/bitboard.h"
+#include "../lib/color.h"
+#include "../lib/square.h"
 
 enum PieceBoard {
     WHITE_PAWNS,
@@ -24,12 +26,24 @@ enum PieceBoard {
     ALL,
 };
 
+enum Castle {
+    WHITE_KINGSIDE = 0b0001,
+    WHITE_QUEENSIDE = 0b0010,
+    BLACK_KINGSIDE = 0b0100,
+    BLACK_QUEENSIDE = 0b1000,
+};
+
 class ChessBoard {
    public:
     ChessBoard();
     void setupInitialPosition();
-    std::string toString() const;
     char getPieceAt(int square) const;
+    std::string toString() const;
+    std::string getPieceAtFancy(int square) const;
+    std::string toStringFancy() const;
+
+    Color side;
+    Square enpassant;
 
    private:
     Bitboard boards_[15];
@@ -37,5 +51,8 @@ class ChessBoard {
     char pieceNames_[12] = {'P', 'p', 'R', 'r', 'N', 'n',
                             'B', 'b', 'Q', 'q', 'K', 'k'};
 
-    void updateAllBoards();
+    std::string pieceSymbols_[12] = {"♙", "♟︎", "♖", "♜", "♘", "♞",
+                                     "♗", "♝", "♕", "♛", "♔", "♚"};
+
+    void updateAllOccupancyBoards();
 };
