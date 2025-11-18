@@ -388,6 +388,132 @@ void test_rook_attacks_generation() {
     std::cout << "\t\tRook attacks generations tests passed...\n";
 }
 
+void test_sliding_pieces_generation() {
+    std::cout << "\t\tTesting Sliding pieced attacks generations...\n";
+    Engine engine;
+
+    engine.generateSliderPiecesAttacks(BISHOP);
+    engine.generateSliderPiecesAttacks(ROOK);
+
+    Bitboard occupancies;
+    occupancies.setBit(f6);
+    occupancies.setBit(f2);
+    occupancies.setBit(b2);
+    occupancies.setBit(b1);
+    occupancies.setBit(h2);
+    occupancies.setBit(h7);
+    occupancies.setBit(e4);
+    std::cout << "\t\t\tSetting Occupancies on: f6, f2, b2, b1, h2, h7, e4\n";
+
+    std::cout << "\t\t\t\tTesting bishop on d4\n";
+    Bitboard bOnd4Attacks = engine.getSingleBishopAttacks(d4, occupancies);
+    assert(bOnd4Attacks.getBit(c5));
+    assert(bOnd4Attacks.getBit(b6));
+    assert(bOnd4Attacks.getBit(a7));
+    assert(bOnd4Attacks.getBit(e5));
+    assert(bOnd4Attacks.getBit(f6));
+    assert(bOnd4Attacks.getBit(e3));
+    assert(bOnd4Attacks.getBit(f2));
+    assert(bOnd4Attacks.getBit(c3));
+    assert(bOnd4Attacks.getBit(b2));
+    assert(bOnd4Attacks.popCount() == 9);
+    std::cout << "\t\t\t\tBishop on d4 tests passed...\n";
+
+    std::cout << "\t\t\t\tTesting bishop on c2\n";
+    Bitboard bOnc2Attacks = engine.getSingleBishopAttacks(c2, occupancies);
+    assert(bOnc2Attacks.getBit(b1));
+    assert(bOnc2Attacks.getBit(d1));
+    assert(bOnc2Attacks.getBit(b3));
+    assert(bOnc2Attacks.getBit(d3));
+    assert(bOnc2Attacks.getBit(a4));
+    assert(bOnc2Attacks.getBit(e4));
+    assert(bOnc2Attacks.popCount() == 6);
+
+    std::cout << "\t\t\t\tBishop on c2 tests passed...\n";
+
+    std::cout << "\t\t\t\tTesting rook on f4\n";
+    Bitboard rOnf4Attacks = engine.getSingleRookAttacks(f4, occupancies);
+    assert(rOnf4Attacks.getBit(e4));
+    assert(rOnf4Attacks.getBit(g4));
+    assert(rOnf4Attacks.getBit(h4));
+    assert(rOnf4Attacks.getBit(f2));
+    assert(rOnf4Attacks.getBit(f3));
+    assert(rOnf4Attacks.getBit(f5));
+    assert(rOnf4Attacks.getBit(f6));
+    assert(rOnf4Attacks.popCount() == 7);
+    std::cout << "\t\t\t\tRook on f4 tests passed...\n";
+
+    std::cout << "\t\t\t\tTesting rook on e2\n";
+    Bitboard rOne2Attacks = engine.getSingleRookAttacks(e2, occupancies);
+    assert(rOne2Attacks.getBit(e1));
+    assert(rOne2Attacks.getBit(e3));
+    assert(rOne2Attacks.getBit(e4));
+    assert(rOne2Attacks.getBit(b2));
+    assert(rOne2Attacks.getBit(c2));
+    assert(rOne2Attacks.getBit(d2));
+    assert(rOne2Attacks.getBit(f2));
+    assert(rOne2Attacks.popCount() == 7);
+    std::cout << "\t\t\t\tRook on e2 tests passed...\n";
+
+    std::cout
+        << "\t\t\tOccupancies on: f6, f2, b2, b1, h2, h7, e4, tests passed\n";
+
+    Bitboard occupancies_2;
+    occupancies_2.setBit(a3);
+    occupancies_2.setBit(b3);
+    occupancies_2.setBit(c3);
+    occupancies_2.setBit(c2);
+    occupancies_2.setBit(c1);
+    std::cout << "\t\t\tSetting Occupancies on: a3, b3, c3, c2, c1...\n";
+
+    std::cout << "\t\t\t\tTesting bishop on a1\n";
+    Bitboard bOna1Attacks = engine.getSingleBishopAttacks(a1, occupancies_2);
+    assert(bOna1Attacks.getBit(b2));
+    assert(bOna1Attacks.getBit(c3));
+    assert(bOna1Attacks.popCount() == 2);
+    std::cout << "\t\t\t\tBishop on a1 tests passed...\n";
+
+    std::cout << "\t\t\t\tTesting bishop on h8\n";
+    Bitboard bOnh8Attacks = engine.getSingleBishopAttacks(h8, occupancies_2);
+    assert(bOnh8Attacks.getBit(g7));
+    assert(bOnh8Attacks.getBit(f6));
+    assert(bOnh8Attacks.getBit(e5));
+    assert(bOnh8Attacks.getBit(d4));
+    assert(bOnh8Attacks.getBit(c3));
+    assert(bOnh8Attacks.popCount() == 5);
+    std::cout << "\t\t\t\tBishop on h8 tests passed...\n";
+
+    std::cout << "\t\t\t\tTesting rook on b2\n";
+    Bitboard rOnb2Attacks = engine.getSingleRookAttacks(b2, occupancies_2);
+    assert(rOnb2Attacks.getBit(b1));
+    assert(rOnb2Attacks.getBit(a2));
+    assert(rOnb2Attacks.getBit(b3));
+    assert(rOnb2Attacks.getBit(c2));
+    assert(rOnb2Attacks.popCount() == 4);
+    std::cout << "\t\t\t\tRook on b2 tests passed...\n";
+
+    std::cout << "\t\t\t\tTesting rook on h2\n";
+    Bitboard rOnh2Attacks = engine.getSingleRookAttacks(h2, occupancies_2);
+    assert(rOnh2Attacks.getBit(h1));
+    assert(rOnh2Attacks.getBit(h3));
+    assert(rOnh2Attacks.getBit(h4));
+    assert(rOnh2Attacks.getBit(h5));
+    assert(rOnh2Attacks.getBit(h6));
+    assert(rOnh2Attacks.getBit(h7));
+    assert(rOnh2Attacks.getBit(h8));
+    assert(rOnh2Attacks.getBit(g2));
+    assert(rOnh2Attacks.getBit(f2));
+    assert(rOnh2Attacks.getBit(e2));
+    assert(rOnh2Attacks.getBit(d2));
+    assert(rOnh2Attacks.getBit(c2));
+    assert(rOnh2Attacks.popCount() == 12);
+    std::cout << "\t\t\t\tRook on h2 tests passed...\n";
+
+    std::cout << "\t\t\tOccupancies on: a3, b3, c3, c2, c1, tests passed\n";
+
+    std::cout << "\t\tSliding pieced attacks generations tested passed...\n";
+}
+
 int run_engine_tests() {
     std::cout << "\tTesting engine...!\n";
     test_pawn_attacks_generation();
@@ -399,6 +525,8 @@ int run_engine_tests() {
 
     test_bishop_attacks_generation();
     test_rook_attacks_generation();
+
+    test_sliding_pieces_generation();
 
     std::cout << "\tAll engine tests passed!\n";
     return 0;

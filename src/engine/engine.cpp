@@ -5,6 +5,7 @@
 
 #include "../lib/color.h"
 #include "../lib/masks.h"
+#include "../lib/sliding-piece.h"
 #include "../lib/square.h"
 
 #pragma region pawns
@@ -184,13 +185,6 @@ Bitboard Engine::generateSingleBishopRelevantOccupanciesMask(int square) {
     return mask;
 }
 
-void Engine::generateBishopRelevantOccupancies() {
-    for (int square = 0; square < 64; square++) {
-        bishopRelevantOccupanciesMasks[square] =
-            generateSingleBishopRelevantOccupanciesMask(square);
-    }
-}
-
 Bitboard bishopNorthEastAttacks(int square, Bitboard blocks) {
     Bitboard mask;
 
@@ -254,7 +248,7 @@ Bitboard bishopSouthWestAttacks(int square, Bitboard blocks) {
 
     for (int rank = pieceRank - 1, file = pieceFile - 1; rank >= 0 && file >= 0;
          rank--, file--) {
-        Bitboard tMask(rank * 8 + file);
+        Bitboard tMask = Bitboard::fromSquare(rank * 8 + file);
         mask |= tMask;
 
         if (!(blocks & tMask).isEmpty()) {
@@ -272,6 +266,14 @@ Bitboard Engine::generateSingleBishopAttacks(int square, Bitboard blocks) {
     attacks |= bishopSouthWestAttacks(square, blocks);
 
     return attacks;
+}
+
+Bitboard Engine::getSingleBishopAttacks(int square, Bitboard occupancies) {
+    Bitboard t1 = occupancies & bishopRelevantOccupanciesMasks[square];
+    Bitboard t2 = Bitboard(t1.getValue() * bishopMagicNumbers[square]);
+    Bitboard t3 = Bitboard(t2.getValue() >>
+                           (64 - bishopRelevantOccupanciesCounts[square]));
+    return bishopAttacksTable[square][t3.getValue()];
 }
 
 #pragma endregion
@@ -338,13 +340,6 @@ Bitboard Engine::generateSingleRookRelevantOccupanciesMask(int square) {
     mask |= eastRelevantOccupancies(square);
 
     return mask;
-}
-
-void Engine::generateRookRelevantOccupancies() {
-    for (int square = 0; square < 64; square++) {
-        bishopRelevantOccupanciesMasks[square] =
-            generateSingleRookRelevantOccupanciesMask(square);
-    }
 }
 
 Bitboard rookNorthAttacks(int square, Bitboard blocks) {
@@ -425,8 +420,17 @@ Bitboard Engine::generateSingleRookAttacks(int square, Bitboard blocks) {
     return attacks;
 }
 
+Bitboard Engine::getSingleRookAttacks(int square, Bitboard occupancies) {
+    Bitboard t1 = occupancies & rookRelevantOccupanciesMasks[square];
+    Bitboard t2 = Bitboard(t1.getValue() * rookMagicNumbers[square]);
+    Bitboard t3 =
+        Bitboard(t2.getValue() >> (64 - rookRelevantOccupanciesCounts[square]));
+    return rookAttacksTable[square][t3.getValue()];
+}
+
 #pragma endregion
 
+#pragma region Sliding Pieces
 Bitboard Engine::setOccupancy(int index, Bitboard attacksMask) {
     Bitboard occupancyMask;
     int attacksMaskPopCount = attacksMask.popCount();
@@ -442,3 +446,39 @@ Bitboard Engine::setOccupancy(int index, Bitboard attacksMask) {
 
     return occupancyMask;
 };
+
+void Engine::generateSliderPiecesAttacks(SlidingPiece piece) {
+    for (int square = 0; square < 64; square++) {
+        bishopRelevantOccupanciesMasks[square] =
+            generateSingleBishopRelevantOccupanciesMask(square);
+        rookRelevantOccupanciesMasks[square] =
+            generateSingleRookRelevantOccupanciesMask(square);
+
+        Bitboard attackMask = piece == BISHOP
+                                  ? bishopRelevantOccupanciesMasks[square]
+                                  : rookRelevantOccupanciesMasks[square];
+
+        int relevantOccupanciesBits = attackMask.popCount();
+        int occupancyIndices = (1 << relevantOccupanciesBits);
+
+        for (int index = 0; index < occupancyIndices; index++) {
+            if (piece == BISHOP) {
+                Bitboard occupancy = setOccupancy(index, attackMask);
+                int magicIndex =
+                    (occupancy.getValue() * bishopMagicNumbers[square]) >>
+                    (64 - bishopRelevantOccupanciesCounts[square]);
+                bishopAttacksTable[square][magicIndex] =
+                    generateSingleBishopAttacks(square, occupancy);
+            } else {
+                Bitboard occupancy = setOccupancy(index, attackMask);
+                int magicIndex =
+                    (occupancy.getValue() * rookMagicNumbers[square]) >>
+                    (64 - rookRelevantOccupanciesCounts[square]);
+                rookAttacksTable[square][magicIndex] =
+                    generateSingleRookAttacks(square, occupancy);
+            }
+        }
+    }
+}
+
+#pragma endregion

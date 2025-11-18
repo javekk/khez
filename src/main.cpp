@@ -14,18 +14,27 @@ int main() {
     std::cout << "Khez Chess Engine - Bitboard Demo\n";
     std::cout << "==================================\n\n";
 
-    PseudoRandomNumberGenerator rng = PseudoRandomNumberGenerator(1804289383);
-    MagicNumberGenerator mng = MagicNumberGenerator(rng);
-    u_int64_t* bishopMagicNumbers = mng.findBishopMagicNumbers();
+    Engine engine;
 
-    for (int square = 0; square < 64; square++) {
-        cout << "0x" << hex << bishopMagicNumbers[square] << "," << endl;
-    }
-    cout << "\n\n";
-    u_int64_t* rookMagicNumbers = mng.findRookMagicNumbers();
-    for (int square = 0; square < 64; square++) {
-        cout << "0x" << hex << rookMagicNumbers[square] << "," << endl;
-    }
+    engine.generateSliderPiecesAttacks(BISHOP);
+    engine.generateSliderPiecesAttacks(ROOK);
+
+    Bitboard occupancies;
+    occupancies.setBit(a3);
+    occupancies.setBit(b3);
+    occupancies.setBit(c3);
+    occupancies.setBit(c2);
+    occupancies.setBit(c1);
+
+    Bitboard attacks = engine.getSingleBishopAttacks(a1, occupancies);
+
+    cout << "Occupancies: \n" << occupancies.toString() << endl;
+
+    cout << "Attacks from c2 " << endl << attacks.toString();
+
+    Bitboard attacks2 = engine.getSingleRookAttacks(e2, occupancies);
+
+    cout << "Attacks from f4" << endl << attacks2.toString();
 
     return 0;
 }

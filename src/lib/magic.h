@@ -6,11 +6,7 @@
 #include "../bitboard/bitboard.h"
 #include "../engine/engine.h"
 #include "random.h"
-
-enum SlidingPiece {
-    BISHOP,
-    ROOK,
-};
+#include "sliding-piece.h"
 
 class MagicNumberGenerator {
    private:
