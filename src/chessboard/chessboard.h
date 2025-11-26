@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 
 #include "../bitboard/bitboard.h"
@@ -36,14 +37,18 @@ enum Castle {
 class ChessBoard {
    public:
     ChessBoard();
+
+    Color side;
+    std::optional<Square> enpassant;
+    int8_t availableCastle;
+
     void setupInitialPosition();
+
     char getPieceAt(int square) const;
     std::string toString() const;
     std::string getPieceAtFancy(int square) const;
     std::string toStringFancy() const;
-
-    Color side;
-    Square enpassant;
+    std::string availableCastleToString() const;
 
    private:
     Bitboard boards_[15];

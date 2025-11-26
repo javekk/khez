@@ -1,5 +1,6 @@
 #include "chessboard.h"
 
+#include <bitset>
 #include <sstream>
 
 #include "../lib/masks.h"
@@ -36,6 +37,8 @@ void ChessBoard::setupInitialPosition() {
     boards_[BLACK_KING] = blackKing;
 
     updateAllOccupancyBoards();
+
+    availableCastle = 0b1111;
 }
 
 std::string ChessBoard::toString() const {
@@ -89,7 +92,7 @@ std::string ChessBoard::getPieceAtFancy(int square) const {
             return pieceSymbols_[boardsIndex];
         }
     }
-    return square % 2 == 0 ? "◾" : "◽";
+    return ".";
 }
 
 void ChessBoard::updateAllOccupancyBoards() {
@@ -102,4 +105,15 @@ void ChessBoard::updateAllOccupancyBoards() {
                          boards_[BLACK_QUEEN] | boards_[BLACK_KING];
 
     boards_[ALL] = boards_[WHITE_ALL] | boards_[BLACK_ALL];
+}
+
+std::string ChessBoard::availableCastleToString() const {
+    std::ostringstream oss;
+
+    if (this->availableCastle & WHITE_KINGSIDE) oss << "<WK>";
+    if (this->availableCastle & WHITE_QUEENSIDE) oss << "<WQ>";
+    if (this->availableCastle & BLACK_KINGSIDE) oss << "<bk>";
+    if (this->availableCastle & BLACK_QUEENSIDE) oss << "<bq>";
+
+    return oss.str();
 }

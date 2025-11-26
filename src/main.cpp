@@ -18,6 +18,12 @@ int main() {
     board.setupInitialPosition();
 
     cout << board.toStringFancy() << endl;
+    cout << "Side: " << (board.side ? "Black" : "White") << endl;
+    cout << "Castling: " << board.availableCastleToString() << endl;
+    cout << "Enpassant: "
+         << (board.enpassant.has_value() ? squareMap.at(board.enpassant.value())
+                                         : " ")
+         << endl;
 
     return 0;
 }
