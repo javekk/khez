@@ -392,8 +392,8 @@ void test_sliding_pieces_generation() {
     std::cout << "\t\tTesting Sliding pieced attacks generations...\n";
     Engine engine;
 
-    engine.generateSliderPiecesAttacks(BISHOP);
-    engine.generateSliderPiecesAttacks(ROOK);
+    engine.generateSliderPiecesAttacks(IS_BISHOP);
+    engine.generateSliderPiecesAttacks(IS_ROOK);
 
     Bitboard occupancies;
     occupancies.setBit(f6);

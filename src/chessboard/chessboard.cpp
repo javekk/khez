@@ -1,7 +1,12 @@
 #include "chessboard.h"
 
+#include <string.h>
+
 #include <bitset>
+#include <cassert>
+#include <iostream>
 #include <sstream>
+#include <vector>
 
 #include "../lib/masks.h"
 
@@ -39,6 +44,50 @@ void ChessBoard::setupInitialPosition() {
     updateAllOccupancyBoards();
 
     availableCastle = 0b1111;
+}
+
+std::vector<std::string> split(std::string s, const char* delim) {
+    std::vector<std::string> result;
+
+    char* token = strtok(s.data(), delim);
+    while (token != nullptr) {
+        result.push_back(std::string(token));
+        token = strtok(nullptr, delim);
+    }
+
+    return result;
+}
+
+void ChessBoard::parseFEN(const std::string FEN) {
+    std::vector<std::string> result = split(FEN, " ");
+
+    for (auto t : result) {
+        std::cout << t << std::endl;
+    }
+}
+
+void ChessBoard::setPieceAt(int square, Piece piece, Color color) {
+    assert(square >= 0 && square < 64);
+
+    std::map<std::pair<Color, Piece>, int> indexMap = {
+        {{WHITE, PAWN}, WHITE_PAWNS},     {{WHITE, BISHOP}, WHITE_BISHOPS},
+        {{WHITE, KNIGHT}, WHITE_KNIGHTS}, {{WHITE, ROOK}, WHITE_ROOKS},
+        {{WHITE, KING}, WHITE_KING},      {{WHITE, QUEEN}, WHITE_QUEEN},
+        {{BLACK, PAWN}, BLACK_PAWNS},     {{BLACK, BISHOP}, BLACK_BISHOPS},
+        {{BLACK, KNIGHT}, BLACK_KNIGHTS}, {{BLACK, ROOK}, BLACK_ROOKS},
+        {{BLACK, KING}, BLACK_KING},      {{BLACK, QUEEN}, BLACK_QUEEN},
+    };
+
+    boards_[indexMap.at({color, piece})].setBit(square);
+}
+
+void ChessBoard::clearPieceAt(int square) {
+    for (int boardsIndex = 0; boardsIndex < 12; boardsIndex++) {
+        if (boards_[boardsIndex].getBit(square)) {
+            boards_[boardsIndex].clearBit(square);
+            break;
+        }
+    }
 }
 
 std::string ChessBoard::toString() const {

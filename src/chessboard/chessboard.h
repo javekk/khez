@@ -5,6 +5,7 @@
 
 #include "../bitboard/bitboard.h"
 #include "../lib/color.h"
+#include "../lib/piece.h"
 #include "../lib/square.h"
 
 enum PieceBoard {
@@ -43,6 +44,9 @@ class ChessBoard {
     int8_t availableCastle;
 
     void setupInitialPosition();
+    void parseFEN(const std::string FEN);
+    void setPieceAt(int square, Piece piece, Color color);
+    void clearPieceAt(int square);
 
     char getPieceAt(int square) const;
     std::string toString() const;

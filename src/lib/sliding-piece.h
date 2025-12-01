@@ -1,6 +1,6 @@
 #pragma once
 
 enum SlidingPiece {
-    BISHOP,
-    ROOK,
+    IS_BISHOP,
+    IS_ROOK,
 };

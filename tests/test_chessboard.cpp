@@ -73,11 +73,40 @@ void test_initial_position() {
     std::cout << "\t\tInitial position tests passed!\n";
 }
 
+void test_set_piece_at() {
+    std::cout << "\t\tTesting set piece at function...\n";
+
+    ChessBoard board;
+
+    std::cout << "\t\t\tTesting e4...\n";
+    assert(board.getPieceAt(e4) == '.');
+    board.setPieceAt(e4, PAWN, WHITE);
+    assert(board.getPieceAt(e4) == 'P');
+    board.clearPieceAt(e4);
+    board.setPieceAt(e4, QUEEN, BLACK);
+    assert(board.getPieceAt(e4) == 'q');
+    board.clearPieceAt(e4);
+    assert(board.getPieceAt(e4) == '.');
+
+    std::cout << "\t\t\tTesting a1...\n";
+    assert(board.getPieceAt(a1) == '.');
+    board.setPieceAt(a1, ROOK, WHITE);
+    assert(board.getPieceAt(a1) == 'R');
+    board.clearPieceAt(a1);
+    board.setPieceAt(a1, KNIGHT, BLACK);
+    assert(board.getPieceAt(a1) == 'n');
+    board.clearPieceAt(a1);
+    assert(board.getPieceAt(a1) == '.');
+
+    std::cout << "\t\tTSet piece at function tests passed...\n";
+}
+
 int run_chessboard_tests() {
     std::cout << "\t Testing chessboard...\n";
     test_board_initialization();
     test_to_string();
     test_initial_position();
+    test_set_piece_at();
 
     std::cout << "\tAll chessboard tests passed!\n";
     return 0;

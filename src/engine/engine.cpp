@@ -454,7 +454,7 @@ void Engine::generateSliderPiecesAttacks(SlidingPiece piece) {
         rookRelevantOccupanciesMasks[square] =
             generateSingleRookRelevantOccupanciesMask(square);
 
-        Bitboard attackMask = piece == BISHOP
+        Bitboard attackMask = piece == IS_BISHOP
                                   ? bishopRelevantOccupanciesMasks[square]
                                   : rookRelevantOccupanciesMasks[square];
 
@@ -462,7 +462,7 @@ void Engine::generateSliderPiecesAttacks(SlidingPiece piece) {
         int occupancyIndices = (1 << relevantOccupanciesBits);
 
         for (int index = 0; index < occupancyIndices; index++) {
-            if (piece == BISHOP) {
+            if (piece == IS_BISHOP) {
                 Bitboard occupancy = setOccupancy(index, attackMask);
                 int magicIndex =
                     (occupancy.getValue() * bishopMagicNumbers[square]) >>

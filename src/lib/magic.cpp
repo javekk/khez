@@ -23,7 +23,7 @@ uint64_t MagicNumberGenerator::findMagicNumber(int square, int relevantBits,
     Bitboard usedAttacks[4096];
 
     Bitboard attackMasks =
-        piece == BISHOP
+        piece == IS_BISHOP
             ? engine_.generateSingleBishopRelevantOccupanciesMask(square)
             : engine_.generateSingleRookRelevantOccupanciesMask(square);
 
@@ -32,10 +32,11 @@ uint64_t MagicNumberGenerator::findMagicNumber(int square, int relevantBits,
     for (int index = 0; index < occupancyIndecies; index++) {
         occupancies[index] = engine_.setOccupancy(index, attackMasks);
 
-        attacks[index] = piece == BISHOP ? engine_.generateSingleBishopAttacks(
-                                               square, occupancies[index])
-                                         : engine_.generateSingleRookAttacks(
-                                               square, occupancies[index]);
+        attacks[index] =
+            piece == IS_BISHOP
+                ? engine_.generateSingleBishopAttacks(square,
+                                                      occupancies[index])
+                : engine_.generateSingleRookAttacks(square, occupancies[index]);
     }
 
     for (int randomCount = 0; randomCount < 100000000; randomCount++) {
@@ -80,7 +81,7 @@ uint64_t* MagicNumberGenerator::findBishopMagicNumbers() {
     uint64_t* magicNumbers = new u_int64_t[64];
     for (int square = 0; square < 64; square++) {
         magicNumbers[square] = findMagicNumber(
-            square, bishopRelevantOccupanciesCounts[square], BISHOP);
+            square, bishopRelevantOccupanciesCounts[square], IS_BISHOP);
     }
     return magicNumbers;
 }
@@ -89,7 +90,7 @@ uint64_t* MagicNumberGenerator::findRookMagicNumbers() {
     uint64_t* magicNumbers = new u_int64_t[64];
     for (int square = 0; square < 64; square++) {
         magicNumbers[square] = findMagicNumber(
-            square, rookRelevantOccupanciesCounts[square], ROOK);
+            square, rookRelevantOccupanciesCounts[square], IS_ROOK);
     }
     return magicNumbers;
 }
