@@ -17,19 +17,12 @@ int main() {
     std::cout << "==================================\n\n";
 
     ChessBoard board;
-    board.setupInitialPosition();
-    board.setPieceAt(e4, QUEEN, WHITE);
+    // board.setupInitialPosition();
+    //  board.setPieceAt(e4, QUEEN, WHITE)//;
 
     board.parseFEN(
-        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2");
 
-    cout << board.toStringFancy() << endl;
-    cout << "Side: " << (board.side ? "Black" : "White") << endl;
-    cout << "Castling: " << board.availableCastleToString() << endl;
-    cout << "Enpassant: "
-         << (board.enpassant.has_value() ? squareMap.at(board.enpassant.value())
-                                         : " ")
-         << endl;
-
+    cout << board.toStringComplete() << endl;
     return 0;
 }

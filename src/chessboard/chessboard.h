@@ -43,9 +43,14 @@ class ChessBoard {
     std::optional<Square> enpassant;
     int8_t availableCastle;
 
+    int halfmoveCounter;
+    int fullmoveNumber;
+
     void setupInitialPosition();
     void parseFEN(const std::string FEN);
+
     void setPieceAt(int square, Piece piece, Color color);
+    void setPieceAt(int square, char piece);
     void clearPieceAt(int square);
 
     char getPieceAt(int square) const;
@@ -53,6 +58,7 @@ class ChessBoard {
     std::string getPieceAtFancy(int square) const;
     std::string toStringFancy() const;
     std::string availableCastleToString() const;
+    std::string toStringComplete() const;
 
    private:
     Bitboard boards_[15];
@@ -64,4 +70,5 @@ class ChessBoard {
                                      "♗", "♝", "♕", "♛", "♔", "♚"};
 
     void updateAllOccupancyBoards();
+    void parseFENCastling(std::string FEN_castling);
 };

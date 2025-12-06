@@ -71,3 +71,4 @@ enum Square {
 };
 
 extern const std::map<Square, std::string> squareMap;
+extern const std::map<std::string, Square> inverseSquareMap;

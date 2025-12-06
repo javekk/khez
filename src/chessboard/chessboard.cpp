@@ -58,12 +58,36 @@ std::vector<std::string> split(std::string s, const char* delim) {
     return result;
 }
 
+// rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1
+// rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2
 void ChessBoard::parseFEN(const std::string FEN) {
     std::vector<std::string> result = split(FEN, " ");
 
-    for (auto t : result) {
-        std::cout << t << std::endl;
+    // Parse chessboard
+    std::string board = result[0];
+    int rankIndex = 7;
+    int fileIndex = 0;
+    for (auto c : board) {
+        if (c == '/') {
+            fileIndex = 0;
+            rankIndex--;
+        } else if (strchr(pieceNames_, c) != NULL) {
+            int square = (rankIndex * 8) + fileIndex;
+            setPieceAt(square, c);
+            fileIndex++;
+        } else if (isdigit(c)) {
+            fileIndex += (c - '0');
+        }
     }
+
+    side = (result[1] == "w") ? WHITE : BLACK;
+    parseFENCastling(result[2]);
+    if (result[3] != "-") {
+        enpassant = inverseSquareMap.at(result[3]);
+    }
+
+    halfmoveCounter = result[4][0] - '0';
+    fullmoveNumber = result[5][0] - '0';
 }
 
 void ChessBoard::setPieceAt(int square, Piece piece, Color color) {
@@ -79,6 +103,28 @@ void ChessBoard::setPieceAt(int square, Piece piece, Color color) {
     };
 
     boards_[indexMap.at({color, piece})].setBit(square);
+}
+
+void ChessBoard::setPieceAt(int square, char p) {
+    assert(strchr(pieceNames_, p));
+
+    std::map<char, std::pair<Color, Piece>> indexMap = {{
+        {'P', {WHITE, PAWN}},
+        {'B', {WHITE, BISHOP}},
+        {'N', {WHITE, KNIGHT}},
+        {'R', {WHITE, ROOK}},
+        {'K', {WHITE, KING}},
+        {'Q', {WHITE, QUEEN}},
+        {'p', {BLACK, PAWN}},
+        {'b', {BLACK, BISHOP}},
+        {'n', {BLACK, KNIGHT}},
+        {'r', {BLACK, ROOK}},
+        {'k', {BLACK, KING}},
+        {'q', {BLACK, QUEEN}},
+    }};
+    Color color = indexMap.at(p).first;
+    Piece piece = indexMap.at(p).second;
+    setPieceAt(square, piece, color);
 }
 
 void ChessBoard::clearPieceAt(int square) {
@@ -144,6 +190,30 @@ std::string ChessBoard::getPieceAtFancy(int square) const {
     return ".";
 }
 
+std::string ChessBoard::availableCastleToString() const {
+    std::ostringstream oss;
+
+    if (this->availableCastle & WHITE_KINGSIDE) oss << "<WK>";
+    if (this->availableCastle & WHITE_QUEENSIDE) oss << "<WQ>";
+    if (this->availableCastle & BLACK_KINGSIDE) oss << "<bk>";
+    if (this->availableCastle & BLACK_QUEENSIDE) oss << "<bq>";
+
+    return oss.str();
+}
+
+std::string ChessBoard::toStringComplete() const {
+    std::ostringstream oss;
+
+    oss << toString() << std::endl;
+    oss << "Side: " << (side ? "Black" : "White") << std::endl;
+    oss << "Castling: " << availableCastleToString() << std::endl;
+    oss << "Enpassant: "
+        << (enpassant.has_value() ? squareMap.at(enpassant.value()) : " ")
+        << std::endl;
+
+    return oss.str();
+}
+
 void ChessBoard::updateAllOccupancyBoards() {
     boards_[WHITE_ALL] = boards_[WHITE_PAWNS] | boards_[WHITE_ROOKS] |
                          boards_[WHITE_KNIGHTS] | boards_[WHITE_BISHOPS] |
@@ -156,13 +226,20 @@ void ChessBoard::updateAllOccupancyBoards() {
     boards_[ALL] = boards_[WHITE_ALL] | boards_[BLACK_ALL];
 }
 
-std::string ChessBoard::availableCastleToString() const {
-    std::ostringstream oss;
-
-    if (this->availableCastle & WHITE_KINGSIDE) oss << "<WK>";
-    if (this->availableCastle & WHITE_QUEENSIDE) oss << "<WQ>";
-    if (this->availableCastle & BLACK_KINGSIDE) oss << "<bk>";
-    if (this->availableCastle & BLACK_QUEENSIDE) oss << "<bq>";
-
-    return oss.str();
+void ChessBoard::parseFENCastling(std::string FEN_castling) {
+    if (FEN_castling == "-") {
+        availableCastle = 0;
+    }
+    if (strchr(FEN_castling.c_str(), 'K') != NULL) {
+        availableCastle |= WHITE_KINGSIDE;
+    }
+    if (strchr(FEN_castling.c_str(), 'Q') != NULL) {
+        availableCastle |= WHITE_QUEENSIDE;
+    }
+    if (strchr(FEN_castling.c_str(), 'k') != NULL) {
+        availableCastle |= BLACK_KINGSIDE;
+    }
+    if (strchr(FEN_castling.c_str(), 'q') != NULL) {
+        availableCastle |= BLACK_QUEENSIDE;
+    }
 }
