@@ -39,23 +39,24 @@ class ChessBoard {
    public:
     ChessBoard();
 
-    Color side;
+    std::optional<Color> side;
     std::optional<Square> enpassant;
     int8_t availableCastle;
 
     int halfmoveCounter;
     int fullmoveNumber;
 
+    void emptyBoard();
     void setupInitialPosition();
     void parseFEN(const std::string FEN);
 
-    void setPieceAt(int square, Piece piece, Color color);
-    void setPieceAt(int square, char piece);
-    void clearPieceAt(int square);
+    void setPieceAt(const int square, const Piece piece, const Color color);
+    void setPieceAt(const int square, const char piece);
+    void clearPieceAt(const int square);
 
-    char getPieceAt(int square) const;
+    char getPieceAt(const int square) const;
     std::string toString() const;
-    std::string getPieceAtFancy(int square) const;
+    std::string getPieceAtFancy(const int square) const;
     std::string toStringFancy() const;
     std::string availableCastleToString() const;
     std::string toStringComplete() const;
@@ -70,5 +71,5 @@ class ChessBoard {
                                      "♗", "♝", "♕", "♛", "♔", "♚"};
 
     void updateAllOccupancyBoards();
-    void parseFENCastling(std::string FEN_castling);
+    void parseFENCastling(const std::string FEN_castling);
 };

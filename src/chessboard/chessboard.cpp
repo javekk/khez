@@ -10,7 +10,9 @@
 
 #include "../lib/masks.h"
 
-ChessBoard::ChessBoard() {
+ChessBoard::ChessBoard() { emptyBoard(); }
+
+void ChessBoard::emptyBoard() {
     boards_[WHITE_PAWNS] = Bitboard();
     boards_[BLACK_PAWNS] = Bitboard();
     boards_[WHITE_ROOKS] = Bitboard();
@@ -23,11 +25,17 @@ ChessBoard::ChessBoard() {
     boards_[BLACK_QUEEN] = Bitboard();
     boards_[WHITE_KING] = Bitboard();
     boards_[BLACK_KING] = Bitboard();
+
+    updateAllOccupancyBoards();
+
+    side.reset();
+    availableCastle = 0b1111;
+    enpassant.reset();
+    halfmoveCounter = 0;
+    fullmoveNumber = 0;
 }
 
 void ChessBoard::setupInitialPosition() {
-    side = WHITE;
-
     boards_[WHITE_PAWNS] = whitePawns;
     boards_[BLACK_PAWNS] = blackPawns;
     boards_[WHITE_ROOKS] = whiteRooks;
@@ -43,7 +51,11 @@ void ChessBoard::setupInitialPosition() {
 
     updateAllOccupancyBoards();
 
+    side = WHITE;
     availableCastle = 0b1111;
+    enpassant.reset();
+    halfmoveCounter = 0;
+    fullmoveNumber = 0;
 }
 
 std::vector<std::string> split(std::string s, const char* delim) {
@@ -58,8 +70,6 @@ std::vector<std::string> split(std::string s, const char* delim) {
     return result;
 }
 
-// rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1
-// rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2
 void ChessBoard::parseFEN(const std::string FEN) {
     std::vector<std::string> result = split(FEN, " ");
 
@@ -90,7 +100,8 @@ void ChessBoard::parseFEN(const std::string FEN) {
     fullmoveNumber = result[5][0] - '0';
 }
 
-void ChessBoard::setPieceAt(int square, Piece piece, Color color) {
+void ChessBoard::setPieceAt(const int square, const Piece piece,
+                            const Color color) {
     assert(square >= 0 && square < 64);
 
     std::map<std::pair<Color, Piece>, int> indexMap = {
@@ -105,7 +116,7 @@ void ChessBoard::setPieceAt(int square, Piece piece, Color color) {
     boards_[indexMap.at({color, piece})].setBit(square);
 }
 
-void ChessBoard::setPieceAt(int square, char p) {
+void ChessBoard::setPieceAt(const int square, const char p) {
     assert(strchr(pieceNames_, p));
 
     std::map<char, std::pair<Color, Piece>> indexMap = {{
@@ -127,7 +138,7 @@ void ChessBoard::setPieceAt(int square, char p) {
     setPieceAt(square, piece, color);
 }
 
-void ChessBoard::clearPieceAt(int square) {
+void ChessBoard::clearPieceAt(const int square) {
     for (int boardsIndex = 0; boardsIndex < 12; boardsIndex++) {
         if (boards_[boardsIndex].getBit(square)) {
             boards_[boardsIndex].clearBit(square);
@@ -154,7 +165,7 @@ std::string ChessBoard::toString() const {
     return oss.str();
 }
 
-char ChessBoard::getPieceAt(int square) const {
+char ChessBoard::getPieceAt(const int square) const {
     for (int boardsIndex = 0; boardsIndex < 12; boardsIndex++) {
         if (boards_[boardsIndex].getBit(square)) {
             return pieceNames_[boardsIndex];
@@ -181,7 +192,7 @@ std::string ChessBoard::toStringFancy() const {
     return oss.str();
 }
 
-std::string ChessBoard::getPieceAtFancy(int square) const {
+std::string ChessBoard::getPieceAtFancy(const int square) const {
     for (int boardsIndex = 0; boardsIndex < 12; boardsIndex++) {
         if (boards_[boardsIndex].getBit(square)) {
             return pieceSymbols_[boardsIndex];
@@ -226,7 +237,7 @@ void ChessBoard::updateAllOccupancyBoards() {
     boards_[ALL] = boards_[WHITE_ALL] | boards_[BLACK_ALL];
 }
 
-void ChessBoard::parseFENCastling(std::string FEN_castling) {
+void ChessBoard::parseFENCastling(const std::string FEN_castling) {
     if (FEN_castling == "-") {
         availableCastle = 0;
     }
