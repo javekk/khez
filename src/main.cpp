@@ -19,8 +19,8 @@ int main() {
     Engine engine;
     engine.init();
 
-    Bitboard occupancies = Bitboard();
-    Bitboard queensAttacks = engine.getSingleQueenAttacks(e4, occupancies);
+    ChessBoard board;
+    board.parseFEN("8/8/8/2p5/8/8/8/8 w KQkq - 0 0");
 
-    cout << queensAttacks.toString() << endl;
+    cout << board.toStringComplete() << endl;
 }

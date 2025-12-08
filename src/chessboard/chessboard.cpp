@@ -204,10 +204,10 @@ std::string ChessBoard::getPieceAtFancy(const int square) const {
 std::string ChessBoard::availableCastleToString() const {
     std::ostringstream oss;
 
-    if (this->availableCastle & WHITE_KINGSIDE) oss << "<WK>";
-    if (this->availableCastle & WHITE_QUEENSIDE) oss << "<WQ>";
-    if (this->availableCastle & BLACK_KINGSIDE) oss << "<bk>";
-    if (this->availableCastle & BLACK_QUEENSIDE) oss << "<bq>";
+    if (availableCastle & WHITE_KINGSIDE) oss << "<WK>";
+    if (availableCastle & WHITE_QUEENSIDE) oss << "<WQ>";
+    if (availableCastle & BLACK_KINGSIDE) oss << "<bk>";
+    if (availableCastle & BLACK_QUEENSIDE) oss << "<bq>";
 
     return oss.str();
 }
@@ -238,8 +238,9 @@ void ChessBoard::updateAllOccupancyBoards() {
 }
 
 void ChessBoard::parseFENCastling(const std::string FEN_castling) {
+    availableCastle = 0;
     if (FEN_castling == "-") {
-        availableCastle = 0;
+        return;
     }
     if (strchr(FEN_castling.c_str(), 'K') != NULL) {
         availableCastle |= WHITE_KINGSIDE;
