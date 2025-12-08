@@ -16,13 +16,11 @@ int main() {
     std::cout << "Khez Chess Engine - Bitboard Demo\n";
     std::cout << "==================================\n\n";
 
-    ChessBoard board;
-    // board.setupInitialPosition();
-    //  board.setPieceAt(e4, QUEEN, WHITE)//;
+    Engine engine;
+    engine.init();
 
-    board.parseFEN(
-        "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2");
+    Bitboard occupancies = Bitboard();
+    Bitboard queensAttacks = engine.getSingleQueenAttacks(e4, occupancies);
 
-    cout << board.toStringComplete() << endl;
-    return 0;
+    cout << queensAttacks.toString() << endl;
 }

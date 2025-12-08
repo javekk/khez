@@ -7,6 +7,8 @@
 
 class Engine {
    public:
+    void init();
+
     Bitboard generateSinglePawnMaskAttacks(int square, int color);
     Bitboard generateSingleKnightMaskMoves(int square);
     Bitboard generateSingleKingMaskMoves(int square);
@@ -18,6 +20,8 @@ class Engine {
     Bitboard generateSingleRookRelevantOccupanciesMask(int square);
     Bitboard generateSingleRookAttacks(int square, Bitboard blocks);
     Bitboard getSingleRookAttacks(int square, Bitboard occupancies);
+
+    Bitboard getSingleQueenAttacks(int square, Bitboard occupancies);
 
     Bitboard setOccupancy(int index, Bitboard attacksMask);
     void generateSliderPiecesAttacks(SlidingPiece piece);

@@ -68,6 +68,7 @@ const int bishopRelevantOccupanciesCounts[64] = {
 
 /*
   The logic to generate this numbers is inside the magic.h class
+  Those random number were generate using this seed = 1804289383
 */
 const u_int64_t bishopMagicNumbers[64] = {
     0x40040822862081,   0xa168041010224880, 0x8010141024304420,

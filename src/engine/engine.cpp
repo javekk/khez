@@ -8,6 +8,14 @@
 #include "../lib/sliding-piece.h"
 #include "../lib/square.h"
 
+void Engine::init() {
+    generatePawnMaskAttacks();
+    generateKnightMaskMoves();
+    generateKingMaskMoves();
+    generateSliderPiecesAttacks(IS_BISHOP);
+    generateSliderPiecesAttacks(IS_ROOK);
+}
+
 #pragma region pawns
 
 Bitboard whitePawnWestAttack(Bitboard pawn) { return (pawn & notAFile) >> 7; }
@@ -430,7 +438,7 @@ Bitboard Engine::getSingleRookAttacks(int square, Bitboard occupancies) {
 
 #pragma endregion
 
-#pragma region Sliding Pieces
+#pragma region Sliding Pieces Logic
 Bitboard Engine::setOccupancy(int index, Bitboard attacksMask) {
     Bitboard occupancyMask;
     int attacksMaskPopCount = attacksMask.popCount();
@@ -479,6 +487,18 @@ void Engine::generateSliderPiecesAttacks(SlidingPiece piece) {
             }
         }
     }
+}
+
+#pragma endregion
+
+#pragma region Queen
+
+Bitboard Engine::getSingleQueenAttacks(int square, Bitboard occupancies) {
+    Bitboard attacks;
+    attacks |= getSingleBishopAttacks(square, occupancies);
+    attacks |= getSingleRookAttacks(square, occupancies);
+
+    return attacks;
 }
 
 #pragma endregion
