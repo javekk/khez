@@ -7,26 +7,7 @@
 #include "../lib/color.h"
 #include "../lib/piece.h"
 #include "../lib/square.h"
-
-enum PieceBoard {
-    WHITE_PAWNS,
-    BLACK_PAWNS,
-    WHITE_ROOKS,
-    BLACK_ROOKS,
-    WHITE_KNIGHTS,
-    BLACK_KNIGHTS,
-    WHITE_BISHOPS,
-    BLACK_BISHOPS,
-    WHITE_QUEEN,
-    BLACK_QUEEN,
-    WHITE_KING,
-    BLACK_KING,
-
-    WHITE_ALL,
-    BLACK_ALL,
-
-    ALL,
-};
+#include "chessboard-status.h"
 
 enum Castle {
     WHITE_KINGSIDE = 0b0001,
@@ -39,12 +20,7 @@ class ChessBoard {
    public:
     ChessBoard();
 
-    std::optional<Color> side;
-    std::optional<Square> enpassant;
-    int8_t availableCastle;
-
-    int halfmoveCounter;
-    int fullmoveNumber;
+    ChessboardStatus status;
 
     void emptyBoard();
     void setupInitialPosition();
@@ -62,8 +38,6 @@ class ChessBoard {
     std::string toStringComplete() const;
 
    private:
-    Bitboard boards_[15];
-
     char pieceNames_[12] = {'P', 'p', 'R', 'r', 'N', 'n',
                             'B', 'b', 'Q', 'q', 'K', 'k'};
 

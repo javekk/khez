@@ -139,11 +139,11 @@ void test_parseFEN() {
     assert(board.getPieceAt(c5) == '.');
 
     std::cout << "\t\t\t\tTesting extra info...\n";
-    assert(board.side == WHITE);
-    assert(!board.enpassant.has_value());
-    assert(board.availableCastle == 0b1111);
-    assert(board.halfmoveCounter == 0);
-    assert(board.fullmoveNumber == 1);
+    assert(board.status.side == WHITE);
+    assert(!board.status.enpassant.has_value());
+    assert(board.status.availableCastle == 0b1111);
+    assert(board.status.halfmoveCounter == 0);
+    assert(board.status.fullmoveNumber == 1);
 
     std::cout << "\t\t\t parseFEN (init position) tests passed!\n";
 
@@ -195,11 +195,11 @@ void test_parseFEN() {
     assert(board.getPieceAt(g5) == '.');
 
     std::cout << "\t\t\t\tTesting extra info...\n";
-    assert(board.side == BLACK);
-    assert(!board.enpassant.has_value());
-    assert(board.availableCastle == 0b1111);
-    assert(board.halfmoveCounter == 1);
-    assert(board.fullmoveNumber == 2);
+    assert(board.status.side == BLACK);
+    assert(!board.status.enpassant.has_value());
+    assert(board.status.availableCastle == 0b1111);
+    assert(board.status.halfmoveCounter == 1);
+    assert(board.status.fullmoveNumber == 2);
 
     std::cout << "\t\t\t parseFEN (after a couple of moves) tests passed!\n";
 

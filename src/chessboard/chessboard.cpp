@@ -13,49 +13,49 @@
 ChessBoard::ChessBoard() { emptyBoard(); }
 
 void ChessBoard::emptyBoard() {
-    boards_[WHITE_PAWNS] = Bitboard();
-    boards_[BLACK_PAWNS] = Bitboard();
-    boards_[WHITE_ROOKS] = Bitboard();
-    boards_[BLACK_ROOKS] = Bitboard();
-    boards_[WHITE_KNIGHTS] = Bitboard();
-    boards_[BLACK_KNIGHTS] = Bitboard();
-    boards_[WHITE_BISHOPS] = Bitboard();
-    boards_[BLACK_BISHOPS] = Bitboard();
-    boards_[WHITE_QUEEN] = Bitboard();
-    boards_[BLACK_QUEEN] = Bitboard();
-    boards_[WHITE_KING] = Bitboard();
-    boards_[BLACK_KING] = Bitboard();
+    status.boards[WHITE_PAWNS] = Bitboard();
+    status.boards[BLACK_PAWNS] = Bitboard();
+    status.boards[WHITE_ROOKS] = Bitboard();
+    status.boards[BLACK_ROOKS] = Bitboard();
+    status.boards[WHITE_KNIGHTS] = Bitboard();
+    status.boards[BLACK_KNIGHTS] = Bitboard();
+    status.boards[WHITE_BISHOPS] = Bitboard();
+    status.boards[BLACK_BISHOPS] = Bitboard();
+    status.boards[WHITE_QUEEN] = Bitboard();
+    status.boards[BLACK_QUEEN] = Bitboard();
+    status.boards[WHITE_KING] = Bitboard();
+    status.boards[BLACK_KING] = Bitboard();
 
     updateAllOccupancyBoards();
 
-    side.reset();
-    availableCastle = 0b1111;
-    enpassant.reset();
-    halfmoveCounter = 0;
-    fullmoveNumber = 0;
+    status.side.reset();
+    status.availableCastle = 0b1111;
+    status.enpassant.reset();
+    status.halfmoveCounter = 0;
+    status.fullmoveNumber = 0;
 }
 
 void ChessBoard::setupInitialPosition() {
-    boards_[WHITE_PAWNS] = whitePawns;
-    boards_[BLACK_PAWNS] = blackPawns;
-    boards_[WHITE_ROOKS] = whiteRooks;
-    boards_[BLACK_ROOKS] = blackRooks;
-    boards_[WHITE_KNIGHTS] = whiteKnights;
-    boards_[BLACK_KNIGHTS] = blackKnights;
-    boards_[WHITE_BISHOPS] = whiteBishops;
-    boards_[BLACK_BISHOPS] = blackBishops;
-    boards_[WHITE_QUEEN] = whiteQueen;
-    boards_[BLACK_QUEEN] = blackQueen;
-    boards_[WHITE_KING] = whiteKing;
-    boards_[BLACK_KING] = blackKing;
+    status.boards[WHITE_PAWNS] = whitePawns;
+    status.boards[BLACK_PAWNS] = blackPawns;
+    status.boards[WHITE_ROOKS] = whiteRooks;
+    status.boards[BLACK_ROOKS] = blackRooks;
+    status.boards[WHITE_KNIGHTS] = whiteKnights;
+    status.boards[BLACK_KNIGHTS] = blackKnights;
+    status.boards[WHITE_BISHOPS] = whiteBishops;
+    status.boards[BLACK_BISHOPS] = blackBishops;
+    status.boards[WHITE_QUEEN] = whiteQueen;
+    status.boards[BLACK_QUEEN] = blackQueen;
+    status.boards[WHITE_KING] = whiteKing;
+    status.boards[BLACK_KING] = blackKing;
 
     updateAllOccupancyBoards();
 
-    side = WHITE;
-    availableCastle = 0b1111;
-    enpassant.reset();
-    halfmoveCounter = 0;
-    fullmoveNumber = 0;
+    status.side = WHITE;
+    status.availableCastle = 0b1111;
+    status.enpassant.reset();
+    status.halfmoveCounter = 0;
+    status.fullmoveNumber = 0;
 }
 
 std::vector<std::string> split(std::string s, const char* delim) {
@@ -90,14 +90,14 @@ void ChessBoard::parseFEN(const std::string FEN) {
         }
     }
 
-    side = (result[1] == "w") ? WHITE : BLACK;
+    status.side = (result[1] == "w") ? WHITE : BLACK;
     parseFENCastling(result[2]);
     if (result[3] != "-") {
-        enpassant = inverseSquareMap.at(result[3]);
+        status.enpassant = inverseSquareMap.at(result[3]);
     }
 
-    halfmoveCounter = result[4][0] - '0';
-    fullmoveNumber = result[5][0] - '0';
+    status.halfmoveCounter = result[4][0] - '0';
+    status.fullmoveNumber = result[5][0] - '0';
 }
 
 void ChessBoard::setPieceAt(const int square, const Piece piece,
@@ -113,7 +113,7 @@ void ChessBoard::setPieceAt(const int square, const Piece piece,
         {{BLACK, KING}, BLACK_KING},      {{BLACK, QUEEN}, BLACK_QUEEN},
     };
 
-    boards_[indexMap.at({color, piece})].setBit(square);
+    status.boards[indexMap.at({color, piece})].setBit(square);
 }
 
 void ChessBoard::setPieceAt(const int square, const char p) {
@@ -140,8 +140,8 @@ void ChessBoard::setPieceAt(const int square, const char p) {
 
 void ChessBoard::clearPieceAt(const int square) {
     for (int boardsIndex = 0; boardsIndex < 12; boardsIndex++) {
-        if (boards_[boardsIndex].getBit(square)) {
-            boards_[boardsIndex].clearBit(square);
+        if (status.boards[boardsIndex].getBit(square)) {
+            status.boards[boardsIndex].clearBit(square);
             break;
         }
     }
@@ -167,7 +167,7 @@ std::string ChessBoard::toString() const {
 
 char ChessBoard::getPieceAt(const int square) const {
     for (int boardsIndex = 0; boardsIndex < 12; boardsIndex++) {
-        if (boards_[boardsIndex].getBit(square)) {
+        if (status.boards[boardsIndex].getBit(square)) {
             return pieceNames_[boardsIndex];
         }
     }
@@ -194,7 +194,7 @@ std::string ChessBoard::toStringFancy() const {
 
 std::string ChessBoard::getPieceAtFancy(const int square) const {
     for (int boardsIndex = 0; boardsIndex < 12; boardsIndex++) {
-        if (boards_[boardsIndex].getBit(square)) {
+        if (status.boards[boardsIndex].getBit(square)) {
             return pieceSymbols_[boardsIndex];
         }
     }
@@ -204,10 +204,10 @@ std::string ChessBoard::getPieceAtFancy(const int square) const {
 std::string ChessBoard::availableCastleToString() const {
     std::ostringstream oss;
 
-    if (availableCastle & WHITE_KINGSIDE) oss << "<WK>";
-    if (availableCastle & WHITE_QUEENSIDE) oss << "<WQ>";
-    if (availableCastle & BLACK_KINGSIDE) oss << "<bk>";
-    if (availableCastle & BLACK_QUEENSIDE) oss << "<bq>";
+    if (status.availableCastle & WHITE_KINGSIDE) oss << "<WK>";
+    if (status.availableCastle & WHITE_QUEENSIDE) oss << "<WQ>";
+    if (status.availableCastle & BLACK_KINGSIDE) oss << "<bk>";
+    if (status.availableCastle & BLACK_QUEENSIDE) oss << "<bq>";
 
     return oss.str();
 }
@@ -216,42 +216,46 @@ std::string ChessBoard::toStringComplete() const {
     std::ostringstream oss;
 
     oss << toString() << std::endl;
-    oss << "Side: " << (side ? "Black" : "White") << std::endl;
+    oss << "Side: " << (status.side ? "Black" : "White") << std::endl;
     oss << "Castling: " << availableCastleToString() << std::endl;
     oss << "Enpassant: "
-        << (enpassant.has_value() ? squareMap.at(enpassant.value()) : " ")
+        << (status.enpassant.has_value()
+                ? squareMap.at(status.enpassant.value())
+                : " ")
         << std::endl;
 
     return oss.str();
 }
 
 void ChessBoard::updateAllOccupancyBoards() {
-    boards_[WHITE_ALL] = boards_[WHITE_PAWNS] | boards_[WHITE_ROOKS] |
-                         boards_[WHITE_KNIGHTS] | boards_[WHITE_BISHOPS] |
-                         boards_[WHITE_QUEEN] | boards_[WHITE_KING];
+    status.boards[WHITE_ALL] =
+        status.boards[WHITE_PAWNS] | status.boards[WHITE_ROOKS] |
+        status.boards[WHITE_KNIGHTS] | status.boards[WHITE_BISHOPS] |
+        status.boards[WHITE_QUEEN] | status.boards[WHITE_KING];
 
-    boards_[BLACK_ALL] = boards_[BLACK_PAWNS] | boards_[BLACK_ROOKS] |
-                         boards_[BLACK_KNIGHTS] | boards_[BLACK_BISHOPS] |
-                         boards_[BLACK_QUEEN] | boards_[BLACK_KING];
+    status.boards[BLACK_ALL] =
+        status.boards[BLACK_PAWNS] | status.boards[BLACK_ROOKS] |
+        status.boards[BLACK_KNIGHTS] | status.boards[BLACK_BISHOPS] |
+        status.boards[BLACK_QUEEN] | status.boards[BLACK_KING];
 
-    boards_[ALL] = boards_[WHITE_ALL] | boards_[BLACK_ALL];
+    status.boards[ALL] = status.boards[WHITE_ALL] | status.boards[BLACK_ALL];
 }
 
 void ChessBoard::parseFENCastling(const std::string FEN_castling) {
-    availableCastle = 0;
+    status.availableCastle = 0;
     if (FEN_castling == "-") {
         return;
     }
     if (strchr(FEN_castling.c_str(), 'K') != NULL) {
-        availableCastle |= WHITE_KINGSIDE;
+        status.availableCastle |= WHITE_KINGSIDE;
     }
     if (strchr(FEN_castling.c_str(), 'Q') != NULL) {
-        availableCastle |= WHITE_QUEENSIDE;
+        status.availableCastle |= WHITE_QUEENSIDE;
     }
     if (strchr(FEN_castling.c_str(), 'k') != NULL) {
-        availableCastle |= BLACK_KINGSIDE;
+        status.availableCastle |= BLACK_KINGSIDE;
     }
     if (strchr(FEN_castling.c_str(), 'q') != NULL) {
-        availableCastle |= BLACK_QUEENSIDE;
+        status.availableCastle |= BLACK_QUEENSIDE;
     }
 }
