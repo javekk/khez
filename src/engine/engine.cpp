@@ -24,7 +24,7 @@ Bitboard whitePawnEastAttack(Bitboard pawn) { return (pawn & notHFile) >> 9; }
 Bitboard blackPawnWestAttack(Bitboard pawn) { return (pawn & notAFile) << 9; }
 Bitboard blackPawnEastAttack(Bitboard pawn) { return (pawn & notHFile) << 7; }
 
-Bitboard Engine::generateSinglePawnMaskAttacks(int square, int color) {
+Bitboard Engine::generateSinglePawnMaskAttacks(Square square, Color color) {
     Bitboard squareBitboard;
     squareBitboard.setBit(square);
 
@@ -44,9 +44,9 @@ Bitboard Engine::generateSinglePawnMaskAttacks(int square, int color) {
 void Engine::generatePawnMaskAttacks() {
     for (int square = 0; square < 64; square++) {
         pawnMoveMasks[WHITE][square] =
-            generateSinglePawnMaskAttacks(square, WHITE);
+            generateSinglePawnMaskAttacks(static_cast<Square>(square), WHITE);
         pawnMoveMasks[BLACK][square] =
-            generateSinglePawnMaskAttacks(square, BLACK);
+            generateSinglePawnMaskAttacks(static_cast<Square>(square), BLACK);
     }
 }
 
@@ -63,7 +63,7 @@ Bitboard knightNoWeWe(Bitboard knight) { return (knight & notABFile) >> 6; }
 Bitboard knightSoWeWe(Bitboard knight) { return (knight & notABFile) << 10; }
 Bitboard knightSoSoWe(Bitboard knight) { return (knight & notAFile) << 17; }
 
-Bitboard Engine::generateSingleKnightMaskMoves(int square) {
+Bitboard Engine::generateSingleKnightMaskMoves(Square square) {
     Bitboard squareBitboard;
     squareBitboard.setBit(square);
 
@@ -83,7 +83,8 @@ Bitboard Engine::generateSingleKnightMaskMoves(int square) {
 
 void Engine::generateKnightMaskMoves() {
     for (int square = 0; square < 64; square++) {
-        knightMoveMasks[square] = generateSingleKnightMaskMoves(square);
+        knightMoveMasks[square] =
+            generateSingleKnightMaskMoves(static_cast<Square>(square));
     }
 }
 
@@ -100,7 +101,7 @@ Bitboard kingSo(Bitboard king) { return king << 8; }
 Bitboard kingSoWe(Bitboard king) { return (king & notAFile) << 9; }
 Bitboard kingWe(Bitboard king) { return (king & notAFile) << 1; }
 
-Bitboard Engine::generateSingleKingMaskMoves(int square) {
+Bitboard Engine::generateSingleKingMaskMoves(Square square) {
     Bitboard squareBitboard;
     squareBitboard.setBit(square);
 
@@ -119,7 +120,8 @@ Bitboard Engine::generateSingleKingMaskMoves(int square) {
 
 void Engine::generateKingMaskMoves() {
     for (int square = 0; square < 64; square++) {
-        kingMoveMasks[square] = generateSingleKingMaskMoves(square);
+        kingMoveMasks[square] =
+            generateSingleKingMaskMoves(static_cast<Square>(square));
     }
 }
 
@@ -127,7 +129,7 @@ void Engine::generateKingMaskMoves() {
 
 #pragma region Bishops
 
-Bitboard northEastRelevantOccupancies(int square) {
+Bitboard northEastRelevantOccupancies(Square square) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -141,7 +143,7 @@ Bitboard northEastRelevantOccupancies(int square) {
     return mask;
 }
 
-Bitboard southEastRelevantOccupancies(int square) {
+Bitboard southEastRelevantOccupancies(Square square) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -155,7 +157,7 @@ Bitboard southEastRelevantOccupancies(int square) {
     return mask;
 }
 
-Bitboard northWestRelevantOccupancies(int square) {
+Bitboard northWestRelevantOccupancies(Square square) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -169,7 +171,7 @@ Bitboard northWestRelevantOccupancies(int square) {
     return mask;
 }
 
-Bitboard southWestRelevantOccupancies(int square) {
+Bitboard southWestRelevantOccupancies(Square square) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -183,7 +185,7 @@ Bitboard southWestRelevantOccupancies(int square) {
     return mask;
 }
 
-Bitboard Engine::generateSingleBishopRelevantOccupanciesMask(int square) {
+Bitboard Engine::generateSingleBishopRelevantOccupanciesMask(Square square) {
     Bitboard mask;
     mask |= northEastRelevantOccupancies(square);
     mask |= southEastRelevantOccupancies(square);
@@ -193,7 +195,7 @@ Bitboard Engine::generateSingleBishopRelevantOccupanciesMask(int square) {
     return mask;
 }
 
-Bitboard bishopNorthEastAttacks(int square, Bitboard blocks) {
+Bitboard bishopNorthEastAttacks(Square square, Bitboard blocks) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -211,7 +213,7 @@ Bitboard bishopNorthEastAttacks(int square, Bitboard blocks) {
     return mask;
 }
 
-Bitboard bishopSouthEastAttacks(int square, Bitboard blocks) {
+Bitboard bishopSouthEastAttacks(Square square, Bitboard blocks) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -230,7 +232,7 @@ Bitboard bishopSouthEastAttacks(int square, Bitboard blocks) {
     return mask;
 }
 
-Bitboard bishopNorthWestAttacks(int square, Bitboard blocks) {
+Bitboard bishopNorthWestAttacks(Square square, Bitboard blocks) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -248,7 +250,7 @@ Bitboard bishopNorthWestAttacks(int square, Bitboard blocks) {
     return mask;
 }
 
-Bitboard bishopSouthWestAttacks(int square, Bitboard blocks) {
+Bitboard bishopSouthWestAttacks(Square square, Bitboard blocks) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -266,7 +268,7 @@ Bitboard bishopSouthWestAttacks(int square, Bitboard blocks) {
     return mask;
 }
 
-Bitboard Engine::generateSingleBishopAttacks(int square, Bitboard blocks) {
+Bitboard Engine::generateSingleBishopAttacks(Square square, Bitboard blocks) {
     Bitboard attacks;
     attacks |= bishopNorthEastAttacks(square, blocks);
     attacks |= bishopSouthEastAttacks(square, blocks);
@@ -276,7 +278,7 @@ Bitboard Engine::generateSingleBishopAttacks(int square, Bitboard blocks) {
     return attacks;
 }
 
-Bitboard Engine::getSingleBishopAttacks(int square, Bitboard occupancies) {
+Bitboard Engine::getSingleBishopAttacks(Square square, Bitboard occupancies) {
     Bitboard t1 = occupancies & bishopRelevantOccupanciesMasks[square];
     Bitboard t2 = Bitboard(t1.getValue() * bishopMagicNumbers[square]);
     Bitboard t3 = Bitboard(t2.getValue() >>
@@ -288,7 +290,7 @@ Bitboard Engine::getSingleBishopAttacks(int square, Bitboard occupancies) {
 
 #pragma region Rooks
 
-Bitboard northRelevantOccupancies(int square) {
+Bitboard northRelevantOccupancies(Square square) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -301,7 +303,7 @@ Bitboard northRelevantOccupancies(int square) {
     return mask;
 }
 
-Bitboard southRelevantOccupancies(int square) {
+Bitboard southRelevantOccupancies(Square square) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -314,7 +316,7 @@ Bitboard southRelevantOccupancies(int square) {
     return mask;
 }
 
-Bitboard westRelevantOccupancies(int square) {
+Bitboard westRelevantOccupancies(Square square) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -327,7 +329,7 @@ Bitboard westRelevantOccupancies(int square) {
     return mask;
 }
 
-Bitboard eastRelevantOccupancies(int square) {
+Bitboard eastRelevantOccupancies(Square square) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -340,7 +342,7 @@ Bitboard eastRelevantOccupancies(int square) {
     return mask;
 }
 
-Bitboard Engine::generateSingleRookRelevantOccupanciesMask(int square) {
+Bitboard Engine::generateSingleRookRelevantOccupanciesMask(Square square) {
     Bitboard mask;
     mask |= northRelevantOccupancies(square);
     mask |= southRelevantOccupancies(square);
@@ -350,7 +352,7 @@ Bitboard Engine::generateSingleRookRelevantOccupanciesMask(int square) {
     return mask;
 }
 
-Bitboard rookNorthAttacks(int square, Bitboard blocks) {
+Bitboard rookNorthAttacks(Square square, Bitboard blocks) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -367,7 +369,7 @@ Bitboard rookNorthAttacks(int square, Bitboard blocks) {
     return mask;
 }
 
-Bitboard rookSouthAttacks(int square, Bitboard blocks) {
+Bitboard rookSouthAttacks(Square square, Bitboard blocks) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -384,7 +386,7 @@ Bitboard rookSouthAttacks(int square, Bitboard blocks) {
     return mask;
 }
 
-Bitboard rookWestAttacks(int square, Bitboard blocks) {
+Bitboard rookWestAttacks(Square square, Bitboard blocks) {
     Bitboard mask;
 
     int pieceRank = square / 8;
@@ -401,7 +403,7 @@ Bitboard rookWestAttacks(int square, Bitboard blocks) {
     return mask;
 }
 
-Bitboard rookEastAttacks(int square, Bitboard blocks) {
+Bitboard rookEastAttacks(Square square, Bitboard blocks) {
     Bitboard mask;
 
     int pieceFile = square % 8;
@@ -418,7 +420,7 @@ Bitboard rookEastAttacks(int square, Bitboard blocks) {
     return mask;
 }
 
-Bitboard Engine::generateSingleRookAttacks(int square, Bitboard blocks) {
+Bitboard Engine::generateSingleRookAttacks(Square square, Bitboard blocks) {
     Bitboard attacks;
     attacks |= rookNorthAttacks(square, blocks);
     attacks |= rookSouthAttacks(square, blocks);
@@ -428,7 +430,7 @@ Bitboard Engine::generateSingleRookAttacks(int square, Bitboard blocks) {
     return attacks;
 }
 
-Bitboard Engine::getSingleRookAttacks(int square, Bitboard occupancies) {
+Bitboard Engine::getSingleRookAttacks(Square square, Bitboard occupancies) {
     Bitboard t1 = occupancies & rookRelevantOccupanciesMasks[square];
     Bitboard t2 = Bitboard(t1.getValue() * rookMagicNumbers[square]);
     Bitboard t3 =
@@ -458,9 +460,11 @@ Bitboard Engine::setOccupancy(int index, Bitboard attacksMask) {
 void Engine::generateSliderPiecesAttacks(SlidingPiece piece) {
     for (int square = 0; square < 64; square++) {
         bishopRelevantOccupanciesMasks[square] =
-            generateSingleBishopRelevantOccupanciesMask(square);
+            generateSingleBishopRelevantOccupanciesMask(
+                static_cast<Square>(square));
         rookRelevantOccupanciesMasks[square] =
-            generateSingleRookRelevantOccupanciesMask(square);
+            generateSingleRookRelevantOccupanciesMask(
+                static_cast<Square>(square));
 
         Bitboard attackMask = piece == IS_BISHOP
                                   ? bishopRelevantOccupanciesMasks[square]
@@ -476,24 +480,43 @@ void Engine::generateSliderPiecesAttacks(SlidingPiece piece) {
                     (occupancy.getValue() * bishopMagicNumbers[square]) >>
                     (64 - bishopRelevantOccupanciesCounts[square]);
                 bishopAttacksTable[square][magicIndex] =
-                    generateSingleBishopAttacks(square, occupancy);
+                    generateSingleBishopAttacks(static_cast<Square>(square),
+                                                occupancy);
             } else {
                 Bitboard occupancy = setOccupancy(index, attackMask);
                 int magicIndex =
                     (occupancy.getValue() * rookMagicNumbers[square]) >>
                     (64 - rookRelevantOccupanciesCounts[square]);
                 rookAttacksTable[square][magicIndex] =
-                    generateSingleRookAttacks(square, occupancy);
+                    generateSingleRookAttacks(static_cast<Square>(square),
+                                              occupancy);
             }
         }
     }
+}
+
+bool Engine::isSquareUnderAttack(ChessboardStatus status, Square square,
+                                 Color color) {
+    return false;
+}
+
+void Engine::__printAttackedSquare(ChessboardStatus status, Color color) {
+    std::string _color = color ? "White" : "Black";
+    std::cout << "Squares under attack for " << _color << " : [ ";
+    for (int square = 0; square < 64; square++) {
+        Square _square = static_cast<Square>(square);
+        if (isSquareUnderAttack(status, _square, color)) {
+            std::cout << squareMap.at(_square) << " ";
+        }
+    }
+    std::cout << " ]\n";
 }
 
 #pragma endregion
 
 #pragma region Queen
 
-Bitboard Engine::getSingleQueenAttacks(int square, Bitboard occupancies) {
+Bitboard Engine::getSingleQueenAttacks(Square square, Bitboard occupancies) {
     Bitboard attacks;
     attacks |= getSingleBishopAttacks(square, occupancies);
     attacks |= getSingleRookAttacks(square, occupancies);

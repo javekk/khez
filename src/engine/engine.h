@@ -3,32 +3,43 @@
 #include <string>
 
 #include "../bitboard/bitboard.h"
+#include "../chessboard/chessboard-status.h"
+#include "../lib/color.h"
 #include "../lib/sliding-piece.h"
+#include "../lib/square.h"
 
 class Engine {
    public:
     void init();
 
-    Bitboard generateSinglePawnMaskAttacks(int square, int color);
-    Bitboard generateSingleKnightMaskMoves(int square);
-    Bitboard generateSingleKingMaskMoves(int square);
+    Bitboard generateSinglePawnMaskAttacks(Square square, Color color);
 
-    Bitboard generateSingleBishopRelevantOccupanciesMask(int square);
-    Bitboard generateSingleBishopAttacks(int square, Bitboard blocks);
-    Bitboard getSingleBishopAttacks(int square, Bitboard occupancies);
+    Bitboard generateSingleKnightMaskMoves(Square square);
 
-    Bitboard generateSingleRookRelevantOccupanciesMask(int square);
-    Bitboard generateSingleRookAttacks(int square, Bitboard blocks);
-    Bitboard getSingleRookAttacks(int square, Bitboard occupancies);
+    Bitboard generateSingleKingMaskMoves(Square square);
 
-    Bitboard getSingleQueenAttacks(int square, Bitboard occupancies);
+    Bitboard generateSingleBishopRelevantOccupanciesMask(Square square);
+    Bitboard generateSingleBishopAttacks(Square square, Bitboard blocks);
+    Bitboard getSingleBishopAttacks(Square square, Bitboard occupancies);
+
+    Bitboard generateSingleRookRelevantOccupanciesMask(Square square);
+    Bitboard generateSingleRookAttacks(Square square, Bitboard blocks);
+    Bitboard getSingleRookAttacks(Square square, Bitboard occupancies);
+
+    Bitboard getSingleQueenAttacks(Square square, Bitboard occupancies);
 
     Bitboard setOccupancy(int index, Bitboard attacksMask);
     void generateSliderPiecesAttacks(SlidingPiece piece);
 
+    bool isSquareUnderAttack(ChessboardStatus status, Square square,
+                             Color color);
+    void __printAttackedSquare(ChessboardStatus status, Color color);
+
    private:
     Bitboard pawnMoveMasks[2][64];
+
     Bitboard knightMoveMasks[64];
+
     Bitboard kingMoveMasks[64];
 
     Bitboard bishopRelevantOccupanciesMasks[64];

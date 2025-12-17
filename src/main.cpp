@@ -23,4 +23,6 @@ int main() {
     board.parseFEN("8/8/8/2p5/8/8/8/8 w KQkq - 0 0");
 
     cout << board.toStringComplete() << endl;
+    engine.__printAttackedSquare(board.status, WHITE);
+    engine.__printAttackedSquare(board.status, BLACK);
 }

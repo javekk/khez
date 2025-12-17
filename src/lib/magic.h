@@ -16,7 +16,8 @@ class MagicNumberGenerator {
    public:
     MagicNumberGenerator();
     MagicNumberGenerator(PseudoRandomNumberGenerator prng);
-    uint64_t findMagicNumber(int square, int relevantBits, SlidingPiece piece);
+    uint64_t findMagicNumber(Square square, int relevantBits,
+                             SlidingPiece piece);
     uint64_t* findBishopMagicNumbers();
     uint64_t* findRookMagicNumbers();
 };

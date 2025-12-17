@@ -16,7 +16,7 @@ MagicNumberGenerator::MagicNumberGenerator(PseudoRandomNumberGenerator prng) {
     engine_ = Engine();
 }
 
-uint64_t MagicNumberGenerator::findMagicNumber(int square, int relevantBits,
+uint64_t MagicNumberGenerator::findMagicNumber(Square square, int relevantBits,
                                                SlidingPiece piece) {
     Bitboard occupancies[4096];
     Bitboard attacks[4096];
@@ -80,8 +80,9 @@ uint64_t MagicNumberGenerator::findMagicNumber(int square, int relevantBits,
 uint64_t* MagicNumberGenerator::findBishopMagicNumbers() {
     uint64_t* magicNumbers = new u_int64_t[64];
     for (int square = 0; square < 64; square++) {
-        magicNumbers[square] = findMagicNumber(
-            square, bishopRelevantOccupanciesCounts[square], IS_BISHOP);
+        magicNumbers[square] =
+            findMagicNumber(static_cast<Square>(square),
+                            bishopRelevantOccupanciesCounts[square], IS_BISHOP);
     }
     return magicNumbers;
 }
@@ -89,8 +90,9 @@ uint64_t* MagicNumberGenerator::findBishopMagicNumbers() {
 uint64_t* MagicNumberGenerator::findRookMagicNumbers() {
     uint64_t* magicNumbers = new u_int64_t[64];
     for (int square = 0; square < 64; square++) {
-        magicNumbers[square] = findMagicNumber(
-            square, rookRelevantOccupanciesCounts[square], IS_ROOK);
+        magicNumbers[square] =
+            findMagicNumber(static_cast<Square>(square),
+                            rookRelevantOccupanciesCounts[square], IS_ROOK);
     }
     return magicNumbers;
 }
