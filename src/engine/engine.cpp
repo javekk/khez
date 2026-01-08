@@ -43,11 +43,15 @@ Bitboard Engine::generateSinglePawnMaskAttacks(Square square, Color color) {
 
 void Engine::generatePawnMaskAttacks() {
     for (int square = 0; square < 64; square++) {
-        pawnMoveMasks[WHITE][square] =
+        pawnAttacksMasks[WHITE][square] =
             generateSinglePawnMaskAttacks(static_cast<Square>(square), WHITE);
-        pawnMoveMasks[BLACK][square] =
+        pawnAttacksMasks[BLACK][square] =
             generateSinglePawnMaskAttacks(static_cast<Square>(square), BLACK);
     }
+}
+
+Bitboard Engine::getSinglePawnAttacks(Square square, Color color) {
+    return pawnAttacksMasks[color][square];
 }
 
 #pragma endregion pawns
@@ -63,7 +67,7 @@ Bitboard knightNoWeWe(Bitboard knight) { return (knight & notABFile) >> 6; }
 Bitboard knightSoWeWe(Bitboard knight) { return (knight & notABFile) << 10; }
 Bitboard knightSoSoWe(Bitboard knight) { return (knight & notAFile) << 17; }
 
-Bitboard Engine::generateSingleKnightMaskMoves(Square square) {
+Bitboard Engine::generateSingleKnightAttacksMask(Square square) {
     Bitboard squareBitboard;
     squareBitboard.setBit(square);
 
@@ -83,9 +87,13 @@ Bitboard Engine::generateSingleKnightMaskMoves(Square square) {
 
 void Engine::generateKnightMaskMoves() {
     for (int square = 0; square < 64; square++) {
-        knightMoveMasks[square] =
-            generateSingleKnightMaskMoves(static_cast<Square>(square));
+        knightAttacksMasks[square] =
+            generateSingleKnightAttacksMask(static_cast<Square>(square));
     }
+}
+
+Bitboard Engine::getSingleKnightAttacks(Square square) {
+    return knightAttacksMasks[square];
 }
 
 #pragma endregion
@@ -101,7 +109,7 @@ Bitboard kingSo(Bitboard king) { return king << 8; }
 Bitboard kingSoWe(Bitboard king) { return (king & notAFile) << 9; }
 Bitboard kingWe(Bitboard king) { return (king & notAFile) << 1; }
 
-Bitboard Engine::generateSingleKingMaskMoves(Square square) {
+Bitboard Engine::generateSingleKingAttacksMask(Square square) {
     Bitboard squareBitboard;
     squareBitboard.setBit(square);
 
@@ -120,9 +128,13 @@ Bitboard Engine::generateSingleKingMaskMoves(Square square) {
 
 void Engine::generateKingMaskMoves() {
     for (int square = 0; square < 64; square++) {
-        kingMoveMasks[square] =
-            generateSingleKingMaskMoves(static_cast<Square>(square));
+        kingAttacksMasks[square] =
+            generateSingleKingAttacksMask(static_cast<Square>(square));
     }
+}
+
+Bitboard Engine::getSingleKingAttacks(Square square) {
+    return kingAttacksMasks[square];
 }
 
 #pragma endregion
@@ -495,23 +507,6 @@ void Engine::generateSliderPiecesAttacks(SlidingPiece piece) {
     }
 }
 
-bool Engine::isSquareUnderAttack(ChessboardStatus status, Square square,
-                                 Color color) {
-    return false;
-}
-
-void Engine::__printAttackedSquare(ChessboardStatus status, Color color) {
-    std::string _color = color ? "White" : "Black";
-    std::cout << "Squares under attack for " << _color << " : [ ";
-    for (int square = 0; square < 64; square++) {
-        Square _square = static_cast<Square>(square);
-        if (isSquareUnderAttack(status, _square, color)) {
-            std::cout << squareMap.at(_square) << " ";
-        }
-    }
-    std::cout << " ]\n";
-}
-
 #pragma endregion
 
 #pragma region Queen
@@ -522,6 +517,70 @@ Bitboard Engine::getSingleQueenAttacks(Square square, Bitboard occupancies) {
     attacks |= getSingleRookAttacks(square, occupancies);
 
     return attacks;
+}
+
+#pragma endregion
+
+#pragma region Attacks
+
+bool Engine::isSquareUnderAttackBy(const ChessboardStatus* const status,
+                                   Square square, Color color) {
+    if ((color == WHITE) &&
+        (getSinglePawnAttacks(square, BLACK) & status->boards[WHITE_PAWNS])
+            .getValue()) {
+        return true;
+    }
+
+    if ((color == BLACK) &&
+        (getSinglePawnAttacks(square, WHITE) & status->boards[BLACK_PAWNS])
+            .getValue()) {
+        return true;
+    }
+
+    if ((getSingleKnightAttacks(square) &
+         status->boards[color == BLACK ? BLACK_KNIGHTS : WHITE_KNIGHTS])
+            .getValue()) {
+        return true;
+    }
+
+    if ((getSingleKingAttacks(square) &
+         status->boards[color == BLACK ? BLACK_KING : WHITE_KING])
+            .getValue()) {
+        return true;
+    }
+
+    if ((getSingleBishopAttacks(square, status->boards[ALL_PIECES]) &
+         status->boards[color == BLACK ? BLACK_BISHOPS : WHITE_BISHOPS])
+            .getValue()) {
+        return true;
+    }
+
+    if ((getSingleRookAttacks(square, status->boards[ALL_PIECES]) &
+         status->boards[color == BLACK ? BLACK_ROOKS : WHITE_ROOKS])
+            .getValue()) {
+        return true;
+    }
+
+    if ((getSingleQueenAttacks(square, status->boards[ALL_PIECES]) &
+         status->boards[color == BLACK ? BLACK_QUEEN : WHITE_QUEEN])
+            .getValue()) {
+        return true;
+    }
+
+    return false;
+}
+
+void Engine::__printAttackedSquare(const ChessboardStatus* const status,
+                                   Color color) {
+    std::string _color = color == WHITE ? "White" : "Black";
+    std::cout << _color << " is attacking : [ ";
+    for (int square = 0; square < 64; square++) {
+        Square _square = static_cast<Square>(square);
+        if (isSquareUnderAttackBy(status, _square, color)) {
+            std::cout << squareMap.at(_square) << " ";
+        }
+    }
+    std::cout << " ]\n";
 }
 
 #pragma endregion

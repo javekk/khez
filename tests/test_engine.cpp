@@ -1,6 +1,8 @@
 #include <cassert>
 #include <iostream>
 
+#include "../src/chessboard/chessboard-status.h"
+#include "../src/chessboard/chessboard.h"
 #include "../src/engine/engine.h"
 #include "../src/lib/color.h"
 #include "../src/lib/masks.h"
@@ -40,7 +42,7 @@ void test_knight_moves_generation() {
 
     std::cout << "\t\t\tTesting knight possible moves on e4...\n";
     Engine engine;
-    Bitboard e4Attacks = engine.generateSingleKnightMaskMoves(e4);
+    Bitboard e4Attacks = engine.generateSingleKnightAttacksMask(e4);
     assert(e4Attacks.getBit(f6));
     assert(e4Attacks.getBit(g5));
     assert(e4Attacks.getBit(g3));
@@ -52,20 +54,20 @@ void test_knight_moves_generation() {
     assert(e4Attacks.popCount() == 8);
 
     std::cout << "\t\t\tTesting knight possible moves on a1...\n";
-    Bitboard a1Attacks = engine.generateSingleKnightMaskMoves(a1);
+    Bitboard a1Attacks = engine.generateSingleKnightAttacksMask(a1);
     assert(a1Attacks.getBit(c2));
     assert(a1Attacks.getBit(b3));
     assert(a1Attacks.popCount() == 2);
 
     std::cout << "\t\t\tTesting knight possible moves on a2...\n";
-    Bitboard a2Attacks = engine.generateSingleKnightMaskMoves(a2);
+    Bitboard a2Attacks = engine.generateSingleKnightAttacksMask(a2);
     assert(a2Attacks.getBit(b4));
     assert(a2Attacks.getBit(c3));
     assert(a2Attacks.getBit(c1));
     assert(a2Attacks.popCount() == 3);
 
     std::cout << "\t\t\tTesting knight possible moves on g7...\n";
-    Bitboard g7Attacks = engine.generateSingleKnightMaskMoves(g7);
+    Bitboard g7Attacks = engine.generateSingleKnightAttacksMask(g7);
     assert(g7Attacks.getBit(h5));
     assert(g7Attacks.getBit(f5));
     assert(g7Attacks.getBit(e6));
@@ -73,7 +75,7 @@ void test_knight_moves_generation() {
     assert(g7Attacks.popCount() == 4);
 
     std::cout << "\t\t\tTesting knight possible moves on g3...\n";
-    Bitboard g3Attacks = engine.generateSingleKnightMaskMoves(g3);
+    Bitboard g3Attacks = engine.generateSingleKnightAttacksMask(g3);
     assert(g3Attacks.getBit(h5));
     assert(g3Attacks.getBit(h1));
     assert(g3Attacks.getBit(f1));
@@ -90,7 +92,7 @@ void test_king_moves_generation() {
 
     std::cout << "\t\t\tTesting king possible moves on e4...\n";
     Engine engine;
-    Bitboard e4moves = engine.generateSingleKingMaskMoves(e4);
+    Bitboard e4moves = engine.generateSingleKingAttacksMask(e4);
     assert(e4moves.getBit(d5));
     assert(e4moves.getBit(e5));
     assert(e4moves.getBit(f5));
@@ -102,35 +104,35 @@ void test_king_moves_generation() {
     assert(e4moves.popCount() == 8);
 
     std::cout << "\t\t\tTesting king possible moves on a1...\n";
-    Bitboard a1moves = engine.generateSingleKingMaskMoves(a1);
+    Bitboard a1moves = engine.generateSingleKingAttacksMask(a1);
     assert(a1moves.getBit(a2));
     assert(a1moves.getBit(b2));
     assert(a1moves.getBit(b1));
     assert(a1moves.popCount() == 3);
 
     std::cout << "\t\t\tTesting king possible moves on a8...\n";
-    Bitboard a8Moves = engine.generateSingleKingMaskMoves(a8);
+    Bitboard a8Moves = engine.generateSingleKingAttacksMask(a8);
     assert(a8Moves.getBit(b8));
     assert(a8Moves.getBit(b7));
     assert(a8Moves.getBit(a7));
     assert(a8Moves.popCount() == 3);
 
     std::cout << "\t\t\tTesting king possible moves on h8...\n";
-    Bitboard h8Moves = engine.generateSingleKingMaskMoves(h8);
+    Bitboard h8Moves = engine.generateSingleKingAttacksMask(h8);
     assert(h8Moves.getBit(g8));
     assert(h8Moves.getBit(h7));
     assert(h8Moves.getBit(g7));
     assert(h8Moves.popCount() == 3);
 
     std::cout << "\t\t\tTesting king possible moves on h1...\n";
-    Bitboard h1Moves = engine.generateSingleKingMaskMoves(h1);
+    Bitboard h1Moves = engine.generateSingleKingAttacksMask(h1);
     assert(h1Moves.getBit(h2));
     assert(h1Moves.getBit(g2));
     assert(h1Moves.getBit(g1));
     assert(h1Moves.popCount() == 3);
 
     std::cout << "\t\t\tTesting king possible moves on d8...\n";
-    Bitboard d8Moves = engine.generateSingleKingMaskMoves(d8);
+    Bitboard d8Moves = engine.generateSingleKingAttacksMask(d8);
     assert(d8Moves.getBit(c8));
     assert(d8Moves.getBit(e8));
     assert(d8Moves.getBit(c7));
@@ -514,6 +516,90 @@ void test_sliding_pieces_generation() {
     std::cout << "\t\tSliding pieced attacks generations tested passed...\n";
 }
 
+void test_square_under_attacks() {
+    std::cout << "\t\tTesting Square under attacks...\n";
+    Engine engine;
+    engine.init();
+
+    std::cout << "\t\t\tTesting Squares under attacks in 8/8/8/8/3p4/8/8/8 w "
+                 "KQkq - 0 0\n";
+
+    ChessBoard board;
+    board.parseFEN("8/8/8/8/3p4/8/8/8 w KQkq - 0 0");
+
+    assert(engine.isSquareUnderAttackBy(&board.status, c3, BLACK));
+    assert(engine.isSquareUnderAttackBy(&board.status, e3, BLACK));
+    assert(!engine.isSquareUnderAttackBy(&board.status, a1, BLACK));
+
+    assert(!engine.isSquareUnderAttackBy(&board.status, e3, WHITE));
+    assert(!engine.isSquareUnderAttackBy(&board.status, c3, WHITE));
+    assert(!engine.isSquareUnderAttackBy(&board.status, f7, WHITE));
+
+    std::cout << "\t\t\tSquares under attacks in 8/8/8/8/3P4/8/8/8 w "
+                 "KQkq - 0 0 tests passed...\n";
+
+    std::cout << "\t\t\tTesting Squares under attacks in 8/8/8/8/3P4/8/8/8 w "
+                 "KQkq - 0 0\n";
+
+    board.parseFEN("8/8/8/8/3P4/8/8/8 w KQkq - 0 0");
+
+    assert(engine.isSquareUnderAttackBy(&board.status, e5, WHITE));
+    assert(engine.isSquareUnderAttackBy(&board.status, c5, WHITE));
+    assert(!engine.isSquareUnderAttackBy(&board.status, f7, WHITE));
+
+    assert(!engine.isSquareUnderAttackBy(&board.status, c3, BLACK));
+    assert(!engine.isSquareUnderAttackBy(&board.status, e3, BLACK));
+    assert(!engine.isSquareUnderAttackBy(&board.status, a1, BLACK));
+
+    std::cout << "\t\t\tSquares under attacks in 8/8/8/8/3P4/8/8/8 w "
+                 "KQkq - 0 0 tests passed...\n";
+
+    std::cout << "\t\t\tTesting Squares under attacks in 8/2p3/8/8/2P5/8/8/8 w "
+                 "KQkq - 0 0\n";
+
+    board.parseFEN("8/2p3/8/8/2P5/8/8/8 w KQkq - 0 0");
+
+    assert(engine.isSquareUnderAttackBy(&board.status, b5, WHITE));
+    assert(engine.isSquareUnderAttackBy(&board.status, d5, WHITE));
+    assert(!engine.isSquareUnderAttackBy(&board.status, c5, WHITE));
+    assert(!engine.isSquareUnderAttackBy(&board.status, d6, WHITE));
+    assert(!engine.isSquareUnderAttackBy(&board.status, b6, WHITE));
+
+    assert(engine.isSquareUnderAttackBy(&board.status, b6, BLACK));
+    assert(engine.isSquareUnderAttackBy(&board.status, d6, BLACK));
+    assert(!engine.isSquareUnderAttackBy(&board.status, c3, BLACK));
+    assert(!engine.isSquareUnderAttackBy(&board.status, e3, BLACK));
+    assert(!engine.isSquareUnderAttackBy(&board.status, a1, BLACK));
+
+    std::cout << "\t\t\tSquares under attacks in 8/2p3/8/8/2P5/8/8/8 w KQkq - "
+                 "0 0  tests passed...\n";
+
+    // 8/2p3/8/8/2P5/8/1q6/8 w KQkq - 0 0
+
+    std::cout << "\t\t\tTesting Squares under attacks in 8/2p3/8/8/2P5/8/1q6/8 "
+                 "w KQkq - 0 0\n";
+
+    board.parseFEN("8/2p3/8/8/2P5/8/1q6/8 w KQkq - 0 0");
+
+    assert(engine.isSquareUnderAttackBy(&board.status, b5, WHITE));
+    assert(engine.isSquareUnderAttackBy(&board.status, d5, WHITE));
+    assert(!engine.isSquareUnderAttackBy(&board.status, c5, WHITE));
+    assert(!engine.isSquareUnderAttackBy(&board.status, d6, WHITE));
+    assert(!engine.isSquareUnderAttackBy(&board.status, b6, WHITE));
+
+    assert(engine.isSquareUnderAttackBy(&board.status, a1, BLACK));
+    assert(engine.isSquareUnderAttackBy(&board.status, b6, BLACK));
+    assert(engine.isSquareUnderAttackBy(&board.status, d6, BLACK));
+    assert(engine.isSquareUnderAttackBy(&board.status, c3, BLACK));
+    assert(engine.isSquareUnderAttackBy(&board.status, b8, BLACK));
+    assert(engine.isSquareUnderAttackBy(&board.status, h8, BLACK));
+    assert(!engine.isSquareUnderAttackBy(&board.status, e3, BLACK));
+
+    std::cout << "\t\t\tSquares under attacks in 8/2p3/8/8/2P5/8/1q6/8 w KQkq "
+                 "- 0 0  tests "
+                 "passed...\n";
+}
+
 int run_engine_tests() {
     std::cout << "\tTesting engine...!\n";
     test_pawn_attacks_generation();
@@ -527,6 +613,7 @@ int run_engine_tests() {
     test_rook_attacks_generation();
 
     test_sliding_pieces_generation();
+    test_square_under_attacks();
 
     std::cout << "\tAll engine tests passed!\n";
     return 0;

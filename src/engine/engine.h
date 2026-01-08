@@ -13,10 +13,13 @@ class Engine {
     void init();
 
     Bitboard generateSinglePawnMaskAttacks(Square square, Color color);
+    Bitboard getSinglePawnAttacks(Square square, Color color);
 
-    Bitboard generateSingleKnightMaskMoves(Square square);
+    Bitboard generateSingleKnightAttacksMask(Square square);
+    Bitboard getSingleKnightAttacks(Square square);
 
-    Bitboard generateSingleKingMaskMoves(Square square);
+    Bitboard generateSingleKingAttacksMask(Square square);
+    Bitboard getSingleKingAttacks(Square square);
 
     Bitboard generateSingleBishopRelevantOccupanciesMask(Square square);
     Bitboard generateSingleBishopAttacks(Square square, Bitboard blocks);
@@ -31,16 +34,17 @@ class Engine {
     Bitboard setOccupancy(int index, Bitboard attacksMask);
     void generateSliderPiecesAttacks(SlidingPiece piece);
 
-    bool isSquareUnderAttack(ChessboardStatus status, Square square,
-                             Color color);
-    void __printAttackedSquare(ChessboardStatus status, Color color);
+    bool isSquareUnderAttackBy(const ChessboardStatus* const status,
+                               Square square, Color color);
+    void __printAttackedSquare(const ChessboardStatus* const status,
+                               Color color);
 
    private:
-    Bitboard pawnMoveMasks[2][64];
+    Bitboard pawnAttacksMasks[2][64];
 
-    Bitboard knightMoveMasks[64];
+    Bitboard knightAttacksMasks[64];
 
-    Bitboard kingMoveMasks[64];
+    Bitboard kingAttacksMasks[64];
 
     Bitboard bishopRelevantOccupanciesMasks[64];
     Bitboard rookRelevantOccupanciesMasks[64];

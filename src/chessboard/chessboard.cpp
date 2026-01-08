@@ -36,6 +36,8 @@ void ChessBoard::emptyBoard() {
 }
 
 void ChessBoard::setupInitialPosition() {
+    emptyBoard();
+
     status.boards[WHITE_PAWNS] = whitePawns;
     status.boards[BLACK_PAWNS] = blackPawns;
     status.boards[WHITE_ROOKS] = whiteRooks;
@@ -71,6 +73,8 @@ std::vector<std::string> split(std::string s, const char* delim) {
 }
 
 void ChessBoard::parseFEN(const std::string FEN) {
+    emptyBoard();
+
     std::vector<std::string> result = split(FEN, " ");
 
     // Parse chessboard
@@ -83,7 +87,7 @@ void ChessBoard::parseFEN(const std::string FEN) {
             rankIndex--;
         } else if (strchr(pieceNames_, c) != NULL) {
             int square = (rankIndex * 8) + fileIndex;
-            setPieceAt(square, c);
+            setPieceAt(static_cast<Square>(square), c);
             fileIndex++;
         } else if (isdigit(c)) {
             fileIndex += (c - '0');
@@ -98,9 +102,11 @@ void ChessBoard::parseFEN(const std::string FEN) {
 
     status.halfmoveCounter = result[4][0] - '0';
     status.fullmoveNumber = result[5][0] - '0';
+
+    updateAllOccupancyBoards();
 }
 
-void ChessBoard::setPieceAt(const int square, const Piece piece,
+void ChessBoard::setPieceAt(const Square square, const Piece piece,
                             const Color color) {
     assert(square >= 0 && square < 64);
 
@@ -114,9 +120,10 @@ void ChessBoard::setPieceAt(const int square, const Piece piece,
     };
 
     status.boards[indexMap.at({color, piece})].setBit(square);
+    updateAllOccupancyBoards();
 }
 
-void ChessBoard::setPieceAt(const int square, const char p) {
+void ChessBoard::setPieceAt(const Square square, const char p) {
     assert(strchr(pieceNames_, p));
 
     std::map<char, std::pair<Color, Piece>> indexMap = {{
@@ -138,13 +145,14 @@ void ChessBoard::setPieceAt(const int square, const char p) {
     setPieceAt(square, piece, color);
 }
 
-void ChessBoard::clearPieceAt(const int square) {
+void ChessBoard::clearPieceAt(const Square square) {
     for (int boardsIndex = 0; boardsIndex < 12; boardsIndex++) {
         if (status.boards[boardsIndex].getBit(square)) {
             status.boards[boardsIndex].clearBit(square);
             break;
         }
     }
+    updateAllOccupancyBoards();
 }
 
 std::string ChessBoard::toString() const {
@@ -154,7 +162,7 @@ std::string ChessBoard::toString() const {
         oss << (rank + 1) << " | ";
         for (int file = 0; file < 8; ++file) {
             int square = rank * 8 + file;
-            oss << getPieceAt(square) << " ";
+            oss << getPieceAt(static_cast<Square>(square)) << " ";
         }
         oss << "\n";
     }
@@ -165,7 +173,7 @@ std::string ChessBoard::toString() const {
     return oss.str();
 }
 
-char ChessBoard::getPieceAt(const int square) const {
+char ChessBoard::getPieceAt(const Square square) const {
     for (int boardsIndex = 0; boardsIndex < 12; boardsIndex++) {
         if (status.boards[boardsIndex].getBit(square)) {
             return pieceNames_[boardsIndex];
@@ -181,7 +189,7 @@ std::string ChessBoard::toStringFancy() const {
         oss << (rank + 1) << " | ";
         for (int file = 0; file < 8; ++file) {
             int square = rank * 8 + file;
-            oss << getPieceAtFancy(square) << " ";
+            oss << getPieceAtFancy(static_cast<Square>(square)) << " ";
         }
         oss << "\n";
     }
@@ -192,7 +200,7 @@ std::string ChessBoard::toStringFancy() const {
     return oss.str();
 }
 
-std::string ChessBoard::getPieceAtFancy(const int square) const {
+std::string ChessBoard::getPieceAtFancy(const Square square) const {
     for (int boardsIndex = 0; boardsIndex < 12; boardsIndex++) {
         if (status.boards[boardsIndex].getBit(square)) {
             return pieceSymbols_[boardsIndex];
@@ -238,7 +246,8 @@ void ChessBoard::updateAllOccupancyBoards() {
         status.boards[BLACK_KNIGHTS] | status.boards[BLACK_BISHOPS] |
         status.boards[BLACK_QUEEN] | status.boards[BLACK_KING];
 
-    status.boards[ALL] = status.boards[WHITE_ALL] | status.boards[BLACK_ALL];
+    status.boards[ALL_PIECES] =
+        status.boards[WHITE_ALL] | status.boards[BLACK_ALL];
 }
 
 void ChessBoard::parseFENCastling(const std::string FEN_castling) {

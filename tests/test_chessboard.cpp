@@ -9,8 +9,8 @@ void test_board_initialization() {
 
     ChessBoard board;
     bool has_pieces = false;
-    for (int i = 0; i < 64; i++) {
-        char c = board.getPieceAt(0);
+    for (int square = 0; square < 64; square++) {
+        char c = board.getPieceAt(static_cast<Square>(square));
         if (c >= 'A' && c <= 'Z') {
             has_pieces = true;
             break;

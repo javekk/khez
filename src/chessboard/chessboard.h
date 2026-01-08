@@ -26,13 +26,13 @@ class ChessBoard {
     void setupInitialPosition();
     void parseFEN(const std::string FEN);
 
-    void setPieceAt(const int square, const Piece piece, const Color color);
-    void setPieceAt(const int square, const char piece);
-    void clearPieceAt(const int square);
+    void setPieceAt(const Square square, const Piece piece, const Color color);
+    void setPieceAt(const Square square, const char piece);
+    void clearPieceAt(const Square square);
 
-    char getPieceAt(const int square) const;
+    char getPieceAt(const Square square) const;
     std::string toString() const;
-    std::string getPieceAtFancy(const int square) const;
+    std::string getPieceAtFancy(const Square square) const;
     std::string toStringFancy() const;
     std::string availableCastleToString() const;
     std::string toStringComplete() const;

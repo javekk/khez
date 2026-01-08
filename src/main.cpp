@@ -14,15 +14,15 @@ using namespace std;
 
 int main() {
     std::cout << "Khez Chess Engine - Bitboard Demo\n";
-    std::cout << "==================================\n\n";
+    std::cout << "=================================\n\n";
 
     Engine engine;
     engine.init();
 
     ChessBoard board;
-    board.parseFEN("8/8/8/2p5/8/8/8/8 w KQkq - 0 0");
+    board.parseFEN("8/2p3/8/8/2P5/8/1q6/8 w KQkq - 0 0");
 
-    cout << board.toStringComplete() << endl;
-    engine.__printAttackedSquare(board.status, WHITE);
-    engine.__printAttackedSquare(board.status, BLACK);
+    cout << board.toStringComplete();
+    engine.__printAttackedSquare(&board.status, WHITE);
+    engine.__printAttackedSquare(&board.status, BLACK);
 }

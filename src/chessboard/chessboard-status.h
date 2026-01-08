@@ -23,7 +23,7 @@ enum PieceBoard {
     WHITE_ALL,
     BLACK_ALL,
 
-    ALL,
+    ALL_PIECES,
     BOARDS_COUNTER,  // Must be last - used only for size
 };
 
