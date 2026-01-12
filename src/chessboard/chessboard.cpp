@@ -94,7 +94,7 @@ void ChessBoard::parseFEN(const std::string FEN) {
         }
     }
 
-    status.side = (result[1] == "w") ? WHITE : BLACK;
+    status.side = (result[1] == "w" || result[1] == "W") ? WHITE : BLACK;
     parseFENCastling(result[2]);
     if (result[3] != "-") {
         status.enpassant = inverseSquareMap.at(result[3]);
@@ -224,7 +224,8 @@ std::string ChessBoard::toStringComplete() const {
     std::ostringstream oss;
 
     oss << toString() << std::endl;
-    oss << "Side: " << (status.side ? "Black" : "White") << std::endl;
+    oss << "Side: " << (*status.side == Color::BLACK ? "Black" : "White")
+        << std::endl;
     oss << "Castling: " << availableCastleToString() << std::endl;
     oss << "Enpassant: "
         << (status.enpassant.has_value()

@@ -20,9 +20,9 @@ int main() {
     engine.init();
 
     ChessBoard board;
-    board.parseFEN("8/2p3/8/8/2P5/8/1q6/8 w KQkq - 0 0");
+    board.parseFEN(
+        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R w KQkq - 0 0");
 
     cout << board.toStringComplete();
-    engine.__printAttackedSquare(&board.status, WHITE);
-    engine.__printAttackedSquare(&board.status, BLACK);
+    engine.__printMoves(engine.generateMoves(&board.status));
 }

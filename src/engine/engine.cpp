@@ -584,3 +584,149 @@ void Engine::__printAttackedSquare(const ChessboardStatus* const status,
 }
 
 #pragma endregion
+
+#pragma region Move generation
+
+std::vector<std::tuple<Move, MoveType>> Engine::generateMoves(
+    const ChessboardStatus* const status) {
+    std::vector<std::tuple<Move, MoveType>> moves;
+    Bitboard attacksBoard;
+
+    // Loop over all the bitboard
+    for (int piece = 0; piece < 12; piece++) {
+        Bitboard pieceBoard = status->boards[piece];
+
+        // Generate white pawns and side castling moves
+        if (status->side == WHITE) {
+            if (piece == WHITE_PAWNS) {
+                while (pieceBoard.getValue()) {
+                    Square sourceSquare = static_cast<Square>(
+                        pieceBoard.leastSignificantBeatIndex());
+
+                    Square targetSquareCandidate = static_cast<Square>(
+                        sourceSquare + 8);  // move forward 1 square
+
+                    // Quite moves
+                    if ((targetSquareCandidate < h8) &&
+                        !(status->boards[ALL_PIECES].getBit(
+                            targetSquareCandidate))) {
+                        if (sourceSquare >= a7 && sourceSquare <= h7) {
+                            // Pawn promotion
+                            moves.push_back(std::make_tuple(
+                                Move{sourceSquare, targetSquareCandidate},
+                                PAWN_PROMOTION_TO_BISHOP));
+                            moves.push_back(std::make_tuple(
+                                Move{sourceSquare, targetSquareCandidate},
+                                PAWN_PROMOTION_TO_ROOK));
+                            moves.push_back(std::make_tuple(
+                                Move{sourceSquare, targetSquareCandidate},
+                                PAWN_PROMOTION_TO_KNIGHT));
+                            moves.push_back(std::make_tuple(
+                                Move{sourceSquare, targetSquareCandidate},
+                                PAWN_PROMOTION_TO_QUEEN));
+                        } else {
+                            // Pawn push
+                            moves.push_back(std::make_tuple(
+                                Move{sourceSquare, targetSquareCandidate},
+                                PAWN_PUSH));
+
+                            if (sourceSquare >= a2 && sourceSquare <= h2 &&
+                                !(status->boards[ALL_PIECES].getBit(
+                                    targetSquareCandidate + 8))) {
+                                Square targetSquare = static_cast<Square>(
+                                    targetSquareCandidate + 8);
+                                moves.push_back(std::make_tuple(
+                                    Move{sourceSquare, targetSquare},
+                                    PAWN_DOUBLE_PUSH));
+                            }
+                        }
+                    }
+
+                    pieceBoard.clearBit(sourceSquare);
+                }
+            }
+        }
+
+        // Generate black pawns and side castling moves
+        if (status->side == BLACK) {
+            if (piece == BLACK_PAWNS) {
+                while (pieceBoard.getValue()) {
+                    Square sourceSquare = static_cast<Square>(
+                        pieceBoard.leastSignificantBeatIndex());
+
+                    Square targetSquareCandidate = static_cast<Square>(
+                        sourceSquare - 8);  // move forward 1 square
+
+                    // Quite moves
+                    if ((targetSquareCandidate > a1) &&
+                        !(status->boards[ALL_PIECES].getBit(
+                            targetSquareCandidate))) {
+                        if (sourceSquare >= a2 && sourceSquare <= h2) {
+                            // Pawn promotion
+                            moves.push_back(std::make_tuple(
+                                Move{sourceSquare, targetSquareCandidate},
+                                PAWN_PROMOTION_TO_BISHOP));
+                            moves.push_back(std::make_tuple(
+                                Move{sourceSquare, targetSquareCandidate},
+                                PAWN_PROMOTION_TO_ROOK));
+                            moves.push_back(std::make_tuple(
+                                Move{sourceSquare, targetSquareCandidate},
+                                PAWN_PROMOTION_TO_KNIGHT));
+                            moves.push_back(std::make_tuple(
+                                Move{sourceSquare, targetSquareCandidate},
+                                PAWN_PROMOTION_TO_QUEEN));
+                        } else {
+                            // Pawn push
+                            moves.push_back(std::make_tuple(
+                                Move{sourceSquare, targetSquareCandidate},
+                                PAWN_PUSH));
+
+                            if (sourceSquare >= a7 && sourceSquare <= h7 &&
+                                !(status->boards[ALL_PIECES].getBit(
+                                    targetSquareCandidate - 8))) {
+                                Square targetSquare = static_cast<Square>(
+                                    targetSquareCandidate - 8);
+                                moves.push_back(std::make_tuple(
+                                    Move{sourceSquare, targetSquare},
+                                    PAWN_DOUBLE_PUSH));
+                            }
+                        }
+                    }
+
+                    pieceBoard.clearBit(sourceSquare);
+                }
+            }
+        }
+
+        // Generate knight moves
+
+        // Generate bishop moves
+
+        // Generate rook moves
+
+        // Generate queen moves
+
+        // Generate king moves
+    }
+
+    return moves;
+}
+
+void Engine::__printMoves(std::vector<std::tuple<Move, MoveType>> moves) {
+    std::cout << "Moves: \n";
+    std::map<MoveType, std::string> moveDescriptionMap = {
+        {PAWN_PUSH, "Pawn push"},
+        {PAWN_DOUBLE_PUSH, "Double pawn push"},
+        {PAWN_PROMOTION_TO_BISHOP, "Pawn promotion to Bishop"},
+        {PAWN_PROMOTION_TO_ROOK, "Pawn promotion to Rook"},
+        {PAWN_PROMOTION_TO_KNIGHT, "Pawn promotion to Knight"},
+        {PAWN_PROMOTION_TO_QUEEN, "Pawn promotion to Queen"},
+    };
+    for (auto [move, moveType] : moves) {
+        std::cout << " - " << moveDescriptionMap.at(moveType) << " from "
+                  << squareMap.at(move.sourceSquare) << " to "
+                  << squareMap.at(move.targetSquare) << std::endl;
+    }
+}
+
+#pragma endregion

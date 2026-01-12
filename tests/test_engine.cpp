@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 
@@ -513,7 +514,7 @@ void test_sliding_pieces_generation() {
 
     std::cout << "\t\t\tOccupancies on: a3, b3, c3, c2, c1, tests passed\n";
 
-    std::cout << "\t\tSliding pieced attacks generations tested passed...\n";
+    std::cout << "\t\tSliding pieced attacks generations tests passed...\n";
 }
 
 void test_square_under_attacks() {
@@ -598,6 +599,186 @@ void test_square_under_attacks() {
     std::cout << "\t\t\tSquares under attacks in 8/2p3/8/8/2P5/8/1q6/8 w KQkq "
                  "- 0 0  tests "
                  "passed...\n";
+
+    std::cout << "\t\tSquare under attacks tests passed...\n";
+}
+
+void test_move_generations() {
+    std::cout << "\t\tTesting move generations...\n";
+    Engine engine;
+    engine.init();
+
+    ChessBoard board;
+    std::vector<std::tuple<Move, MoveType>> moves;
+
+    std::cout << "\t\t\tTesting quite pawn move generation...\n";
+
+    std::cout << "\t\t\t\tTesting initial position white to play\n";
+    board.setupInitialPosition();
+    moves = engine.generateMoves(&board.status);
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{a2, a3}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{b2, b3}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{c2, c3}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{d2, d3}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{e2, e3}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{f2, f3}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{g2, g3}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{h2, h3}, PAWN_PUSH)) != moves.end());
+
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{a2, a4}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{b2, b4}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{c2, c4}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{d2, d4}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{e2, e4}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{f2, f4}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{g2, g4}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{h2, h4}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+
+    std::cout << "\t\t\t\tInitial position white to play tests passed\n";
+
+    std::cout
+        << "\t\t\t\tTesting initial position after a2->a4, black to play\n";
+    board.parseFEN(
+        "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq e3 0 1");
+    moves = engine.generateMoves(&board.status);
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{a7, a6}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{b7, b6}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{c7, c6}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{d7, d6}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{e7, e6}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{f7, f6}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{g7, g6}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{h7, h6}, PAWN_PUSH)) != moves.end());
+
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{a7, a5}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{b7, b5}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{c7, c5}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{d7, d5}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{e7, e5}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{f7, f5}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{g7, g5}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{h7, h5}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+
+    std::cout << "\t\t\t\tInitial position after a2->a4, black to play tests "
+                 "passed\n";
+
+    std::cout << "\t\t\t\tTesting "
+                 "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R b "
+                 "KQkq - 0 0\n";
+    board.parseFEN(
+        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R b KQkq - 0 0");
+    moves = engine.generateMoves(&board.status);
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{b4, b3}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{g6, g5}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{c7, c6}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{d7, d6}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{c7, c5}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{g2, g1}, PAWN_PROMOTION_TO_BISHOP)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{g2, g1}, PAWN_PROMOTION_TO_ROOK)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{g2, g1}, PAWN_PROMOTION_TO_KNIGHT)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{g2, g1}, PAWN_PROMOTION_TO_QUEEN)) !=
+           moves.end());
+
+    std::cout
+        << "\t\t\t\tr3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R b "
+           "KQkq - 0 0 tests passed\n";
+
+    std::cout << "\t\t\t\tTesting "
+                 "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R w "
+                 "KQkq - 0 0\n";
+    board.parseFEN(
+        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R w KQkq - 0 0");
+    moves = engine.generateMoves(&board.status);
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{a2, a3}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{b2, b3}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{d5, d6}, PAWN_PUSH)) != moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{a2, a4}, PAWN_DOUBLE_PUSH)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{b7, b8}, PAWN_PROMOTION_TO_BISHOP)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{b7, b8}, PAWN_PROMOTION_TO_ROOK)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{b7, b8}, PAWN_PROMOTION_TO_KNIGHT)) !=
+           moves.end());
+    assert(std::find(moves.begin(), moves.end(),
+                     std::make_tuple(Move{b7, b8}, PAWN_PROMOTION_TO_QUEEN)) !=
+           moves.end());
+
+    std::cout
+        << "\t\t\t\tr3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R w "
+           "KQkq - 0 0 tests passed\n";
+
+    std::cout << "\t\t\tPawn move generation tests passed...\n";
+
+    std::cout << "\t\tSquare under attacks tests passed...\n";
 }
 
 int run_engine_tests() {
@@ -614,6 +795,8 @@ int run_engine_tests() {
 
     test_sliding_pieces_generation();
     test_square_under_attacks();
+
+    test_move_generations();
 
     std::cout << "\tAll engine tests passed!\n";
     return 0;
