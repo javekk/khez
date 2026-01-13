@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <tuple>
 #include <vector>
 
 #include "../bitboard/bitboard.h"
@@ -42,10 +41,9 @@ class Engine {
     void __printAttackedSquare(const ChessboardStatus* const status,
                                Color color);
 
-    std::vector<std::tuple<Move, MoveType>> generateMoves(
-        const ChessboardStatus* const status);
+    std::vector<Move> generateMoves(const ChessboardStatus* const status);
 
-    void __printMoves(std::vector<std::tuple<Move, MoveType>> moves);
+    void __printMoves(std::vector<Move> moves);
 
    private:
     Bitboard pawnAttacksMasks[2][64];

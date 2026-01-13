@@ -587,12 +587,10 @@ void Engine::__printAttackedSquare(const ChessboardStatus* const status,
 
 #pragma region Move generation
 
-std::vector<std::tuple<Move, MoveType>> Engine::generateMoves(
-    const ChessboardStatus* const status) {
-    std::vector<std::tuple<Move, MoveType>> moves;
+std::vector<Move> Engine::generateMoves(const ChessboardStatus* const status) {
+    std::vector<Move> moves;
     Bitboard attacksBoard;
 
-    // Loop over all the bitboard
     for (int piece = 0; piece < 12; piece++) {
         Bitboard pieceBoard = status->boards[piece];
 
@@ -612,32 +610,32 @@ std::vector<std::tuple<Move, MoveType>> Engine::generateMoves(
                             targetSquareCandidate))) {
                         if (sourceSquare >= a7 && sourceSquare <= h7) {
                             // Pawn promotion
-                            moves.push_back(std::make_tuple(
-                                Move{sourceSquare, targetSquareCandidate},
-                                PAWN_PROMOTION_TO_BISHOP));
-                            moves.push_back(std::make_tuple(
-                                Move{sourceSquare, targetSquareCandidate},
-                                PAWN_PROMOTION_TO_ROOK));
-                            moves.push_back(std::make_tuple(
-                                Move{sourceSquare, targetSquareCandidate},
-                                PAWN_PROMOTION_TO_KNIGHT));
-                            moves.push_back(std::make_tuple(
-                                Move{sourceSquare, targetSquareCandidate},
-                                PAWN_PROMOTION_TO_QUEEN));
+                            moves.push_back(Move{sourceSquare,
+                                                 targetSquareCandidate,
+                                                 PAWN_PROMOTION_TO_BISHOP});
+                            moves.push_back(Move{sourceSquare,
+                                                 targetSquareCandidate,
+                                                 PAWN_PROMOTION_TO_ROOK});
+                            moves.push_back(Move{sourceSquare,
+                                                 targetSquareCandidate,
+                                                 PAWN_PROMOTION_TO_KNIGHT});
+                            moves.push_back(Move{sourceSquare,
+                                                 targetSquareCandidate,
+                                                 PAWN_PROMOTION_TO_QUEEN});
                         } else {
                             // Pawn push
-                            moves.push_back(std::make_tuple(
-                                Move{sourceSquare, targetSquareCandidate},
-                                PAWN_PUSH));
+                            moves.push_back(Move{sourceSquare,
+                                                 targetSquareCandidate,
+                                                 PAWN_PUSH});
 
                             if (sourceSquare >= a2 && sourceSquare <= h2 &&
                                 !(status->boards[ALL_PIECES].getBit(
                                     targetSquareCandidate + 8))) {
+                                // Double pawn push
                                 Square targetSquare = static_cast<Square>(
                                     targetSquareCandidate + 8);
-                                moves.push_back(std::make_tuple(
-                                    Move{sourceSquare, targetSquare},
-                                    PAWN_DOUBLE_PUSH));
+                                moves.push_back(Move{sourceSquare, targetSquare,
+                                                     PAWN_DOUBLE_PUSH});
                             }
                         }
                     }
@@ -663,32 +661,32 @@ std::vector<std::tuple<Move, MoveType>> Engine::generateMoves(
                             targetSquareCandidate))) {
                         if (sourceSquare >= a2 && sourceSquare <= h2) {
                             // Pawn promotion
-                            moves.push_back(std::make_tuple(
-                                Move{sourceSquare, targetSquareCandidate},
-                                PAWN_PROMOTION_TO_BISHOP));
-                            moves.push_back(std::make_tuple(
-                                Move{sourceSquare, targetSquareCandidate},
-                                PAWN_PROMOTION_TO_ROOK));
-                            moves.push_back(std::make_tuple(
-                                Move{sourceSquare, targetSquareCandidate},
-                                PAWN_PROMOTION_TO_KNIGHT));
-                            moves.push_back(std::make_tuple(
-                                Move{sourceSquare, targetSquareCandidate},
-                                PAWN_PROMOTION_TO_QUEEN));
+                            moves.push_back(Move{sourceSquare,
+                                                 targetSquareCandidate,
+                                                 PAWN_PROMOTION_TO_BISHOP});
+                            moves.push_back(Move{sourceSquare,
+                                                 targetSquareCandidate,
+                                                 PAWN_PROMOTION_TO_ROOK});
+                            moves.push_back(Move{sourceSquare,
+                                                 targetSquareCandidate,
+                                                 PAWN_PROMOTION_TO_KNIGHT});
+                            moves.push_back(Move{sourceSquare,
+                                                 targetSquareCandidate,
+                                                 PAWN_PROMOTION_TO_QUEEN});
                         } else {
                             // Pawn push
-                            moves.push_back(std::make_tuple(
-                                Move{sourceSquare, targetSquareCandidate},
-                                PAWN_PUSH));
+                            moves.push_back(Move{sourceSquare,
+                                                 targetSquareCandidate,
+                                                 PAWN_PUSH});
 
                             if (sourceSquare >= a7 && sourceSquare <= h7 &&
                                 !(status->boards[ALL_PIECES].getBit(
                                     targetSquareCandidate - 8))) {
+                                // Double pawn push
                                 Square targetSquare = static_cast<Square>(
                                     targetSquareCandidate - 8);
-                                moves.push_back(std::make_tuple(
-                                    Move{sourceSquare, targetSquare},
-                                    PAWN_DOUBLE_PUSH));
+                                moves.push_back(Move{sourceSquare, targetSquare,
+                                                     PAWN_DOUBLE_PUSH});
                             }
                         }
                     }
@@ -712,7 +710,7 @@ std::vector<std::tuple<Move, MoveType>> Engine::generateMoves(
     return moves;
 }
 
-void Engine::__printMoves(std::vector<std::tuple<Move, MoveType>> moves) {
+void Engine::__printMoves(std::vector<Move> moves) {
     std::cout << "Moves: \n";
     std::map<MoveType, std::string> moveDescriptionMap = {
         {PAWN_PUSH, "Pawn push"},
@@ -722,8 +720,8 @@ void Engine::__printMoves(std::vector<std::tuple<Move, MoveType>> moves) {
         {PAWN_PROMOTION_TO_KNIGHT, "Pawn promotion to Knight"},
         {PAWN_PROMOTION_TO_QUEEN, "Pawn promotion to Queen"},
     };
-    for (auto [move, moveType] : moves) {
-        std::cout << " - " << moveDescriptionMap.at(moveType) << " from "
+    for (auto move : moves) {
+        std::cout << " - " << moveDescriptionMap.at(move.type) << " from "
                   << squareMap.at(move.sourceSquare) << " to "
                   << squareMap.at(move.targetSquare) << std::endl;
     }

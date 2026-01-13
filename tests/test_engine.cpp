@@ -621,68 +621,52 @@ void test_move_generations() {
         Engine engine;
         engine.init();
         ChessBoard board;
-        std::vector<std::tuple<Move, MoveType>> moves;
+        std::vector<Move> moves;
 
         describe("Testing quite pawn move generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
                 moves = engine.generateMoves(&board.status);
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{a2, a3}, PAWN_PUSH)) !=
-                       moves.end());
+                                 Move{a2, a3, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{b2, b3}, PAWN_PUSH)) !=
-                       moves.end());
+                                 (Move{b2, b3, PAWN_PUSH})) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{c2, c3}, PAWN_PUSH)) !=
-                       moves.end());
+                                 (Move{c2, c3, PAWN_PUSH})) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{d2, d3}, PAWN_PUSH)) !=
-                       moves.end());
+                                 (Move{d2, d3, PAWN_PUSH})) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{e2, e3}, PAWN_PUSH)) !=
-                       moves.end());
+                                 (Move{e2, e3, PAWN_PUSH})) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{f2, f3}, PAWN_PUSH)) !=
-                       moves.end());
+                                 (Move{f2, f3, PAWN_PUSH})) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{g2, g3}, PAWN_PUSH)) !=
-                       moves.end());
+                                 (Move{g2, g3, PAWN_PUSH})) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{h2, h3}, PAWN_PUSH)) !=
-                       moves.end());
+                                 (Move{h2, h3, PAWN_PUSH})) != moves.end());
 
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{a2, a4}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 (Move{a2, a4, PAWN_DOUBLE_PUSH})) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{b2, b4}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 (Move{b2, b4, PAWN_DOUBLE_PUSH})) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{c2, c4}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 (Move{c2, c4, PAWN_DOUBLE_PUSH})) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{d2, d4}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 (Move{d2, d4, PAWN_DOUBLE_PUSH})) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{e2, e4}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 (Move{e2, e4, PAWN_DOUBLE_PUSH})) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{f2, f4}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 (Move{f2, f4, PAWN_DOUBLE_PUSH})) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{g2, g4}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 (Move{g2, g4, PAWN_DOUBLE_PUSH})) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{h2, h4}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 (Move{h2, h4, PAWN_DOUBLE_PUSH})) !=
                        moves.end());
             });
 
@@ -692,61 +676,45 @@ void test_move_generations() {
                     "1");
                 moves = engine.generateMoves(&board.status);
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{a7, a6}, PAWN_PUSH)) !=
-                       moves.end());
+                                 Move{a7, a6, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{b7, b6}, PAWN_PUSH)) !=
-                       moves.end());
+                                 Move{b7, b6, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{c7, c6}, PAWN_PUSH)) !=
-                       moves.end());
+                                 Move{c7, c6, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{d7, d6}, PAWN_PUSH)) !=
-                       moves.end());
+                                 Move{d7, d6, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{e7, e6}, PAWN_PUSH)) !=
-                       moves.end());
+                                 Move{e7, e6, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{f7, f6}, PAWN_PUSH)) !=
-                       moves.end());
+                                 Move{f7, f6, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{g7, g6}, PAWN_PUSH)) !=
-                       moves.end());
+                                 Move{g7, g6, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{h7, h6}, PAWN_PUSH)) !=
-                       moves.end());
+                                 Move{h7, h6, PAWN_PUSH}) != moves.end());
 
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{a7, a5}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 Move{a7, a5, PAWN_DOUBLE_PUSH}) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{b7, b5}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 Move{b7, b5, PAWN_DOUBLE_PUSH}) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{c7, c5}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 Move{c7, c5, PAWN_DOUBLE_PUSH}) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{d7, d5}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 Move{d7, d5, PAWN_DOUBLE_PUSH}) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{e7, e5}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 Move{e7, e5, PAWN_DOUBLE_PUSH}) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{f7, f5}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 Move{f7, f5, PAWN_DOUBLE_PUSH}) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{g7, g5}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 Move{g7, g5, PAWN_DOUBLE_PUSH}) !=
                        moves.end());
-                expect(std::find(
-                           moves.begin(), moves.end(),
-                           std::make_tuple(Move{h7, h5}, PAWN_DOUBLE_PUSH)) !=
+                expect(std::find(moves.begin(), moves.end(),
+                                 Move{h7, h5, PAWN_DOUBLE_PUSH}) !=
                        moves.end());
             });
 
@@ -759,38 +727,27 @@ void test_move_generations() {
                        "R3K2R b KQkq - 0 0");
                    moves = engine.generateMoves(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{b4, b3}, PAWN_PUSH)) !=
+                                    Move{b4, b3, PAWN_PUSH}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{g6, g5, PAWN_PUSH}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{c7, c6, PAWN_PUSH}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{d7, d6, PAWN_PUSH}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{c7, c5, PAWN_DOUBLE_PUSH}) !=
                           moves.end());
                    expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{g6, g5}, PAWN_PUSH)) !=
+                                    Move{g2, g1, PAWN_PROMOTION_TO_BISHOP}) !=
                           moves.end());
                    expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{c7, c6}, PAWN_PUSH)) !=
+                                    Move{g2, g1, PAWN_PROMOTION_TO_ROOK}) !=
                           moves.end());
                    expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{d7, d6}, PAWN_PUSH)) !=
+                                    Move{g2, g1, PAWN_PROMOTION_TO_KNIGHT}) !=
                           moves.end());
                    expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{c7, c5},
-                                                    PAWN_DOUBLE_PUSH)) !=
-                          moves.end());
-                   expect(
-                       std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{g2, g1},
-                                                 PAWN_PROMOTION_TO_BISHOP)) !=
-                       moves.end());
-                   expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{g2, g1},
-                                                    PAWN_PROMOTION_TO_ROOK)) !=
-                          moves.end());
-                   expect(
-                       std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{g2, g1},
-                                                 PAWN_PROMOTION_TO_KNIGHT)) !=
-                       moves.end());
-                   expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{g2, g1},
-                                                    PAWN_PROMOTION_TO_QUEEN)) !=
+                                    Move{g2, g1, PAWN_PROMOTION_TO_QUEEN}) !=
                           moves.end());
                });
 
@@ -803,35 +760,25 @@ void test_move_generations() {
                        "R3K2R w KQkq - 0 0");
                    moves = engine.generateMoves(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{a2, a3}, PAWN_PUSH)) !=
+                                    Move{a2, a3, PAWN_PUSH}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b2, b3, PAWN_PUSH}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{d5, d6, PAWN_PUSH}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{a2, a4, PAWN_DOUBLE_PUSH}) !=
                           moves.end());
                    expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{b2, b3}, PAWN_PUSH)) !=
+                                    Move{b7, b8, PAWN_PROMOTION_TO_BISHOP}) !=
                           moves.end());
                    expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{d5, d6}, PAWN_PUSH)) !=
+                                    Move{b7, b8, PAWN_PROMOTION_TO_ROOK}) !=
                           moves.end());
                    expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{a2, a4},
-                                                    PAWN_DOUBLE_PUSH)) !=
+                                    Move{b7, b8, PAWN_PROMOTION_TO_KNIGHT}) !=
                           moves.end());
-                   expect(
-                       std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{b7, b8},
-                                                 PAWN_PROMOTION_TO_BISHOP)) !=
-                       moves.end());
                    expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{b7, b8},
-                                                    PAWN_PROMOTION_TO_ROOK)) !=
-                          moves.end());
-                   expect(
-                       std::find(moves.begin(), moves.end(),
-                                 std::make_tuple(Move{b7, b8},
-                                                 PAWN_PROMOTION_TO_KNIGHT)) !=
-                       moves.end());
-                   expect(std::find(moves.begin(), moves.end(),
-                                    std::make_tuple(Move{b7, b8},
-                                                    PAWN_PROMOTION_TO_QUEEN)) !=
+                                    Move{b7, b8, PAWN_PROMOTION_TO_QUEEN}) !=
                           moves.end());
                });
         });
