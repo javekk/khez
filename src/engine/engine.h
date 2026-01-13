@@ -41,7 +41,7 @@ class Engine {
     void __printAttackedSquare(const ChessboardStatus* const status,
                                Color color);
 
-    std::vector<Move> generateMoves(const ChessboardStatus* const status);
+    std::vector<Move> generateAllMoves(const ChessboardStatus* const status);
 
     void __printMoves(std::vector<Move> moves);
 

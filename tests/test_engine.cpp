@@ -626,7 +626,7 @@ void test_move_generations() {
         describe("Testing quite pawn move generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateMoves(&board.status);
+                moves = engine.generateAllMoves(&board.status);
                 expect(std::find(moves.begin(), moves.end(),
                                  Move{a2, a3, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
@@ -674,7 +674,7 @@ void test_move_generations() {
                 board.parseFEN(
                     "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq e3 0 "
                     "1");
-                moves = engine.generateMoves(&board.status);
+                moves = engine.generateAllMoves(&board.status);
                 expect(std::find(moves.begin(), moves.end(),
                                  Move{a7, a6, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
@@ -725,7 +725,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
                        "R3K2R b KQkq - 0 0");
-                   moves = engine.generateMoves(&board.status);
+                   moves = engine.generateAllMoves(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{b4, b3, PAWN_PUSH}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -758,7 +758,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
                        "R3K2R w KQkq - 0 0");
-                   moves = engine.generateMoves(&board.status);
+                   moves = engine.generateAllMoves(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{a2, a3, PAWN_PUSH}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),

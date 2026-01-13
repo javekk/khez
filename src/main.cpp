@@ -24,5 +24,5 @@ int main() {
         "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R w KQkq - 0 0");
 
     cout << board.toStringComplete();
-    engine.__printMoves(engine.generateMoves(&board.status));
+    engine.__printMoves(engine.generateAllMoves(&board.status));
 }

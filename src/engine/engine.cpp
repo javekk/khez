@@ -587,125 +587,110 @@ void Engine::__printAttackedSquare(const ChessboardStatus* const status,
 
 #pragma region Move generation
 
-std::vector<Move> Engine::generateMoves(const ChessboardStatus* const status) {
+bool isOnRank(Square square, int rank) {
+    return (square >= (rank - 1) * 8) && (square < rank * 8);
+}
+
+void addPromotionMoves(Square from, Square to, std::vector<Move>& moves) {
+    moves.push_back(Move{from, to, PAWN_PROMOTION_TO_QUEEN});
+    moves.push_back(Move{from, to, PAWN_PROMOTION_TO_ROOK});
+    moves.push_back(Move{from, to, PAWN_PROMOTION_TO_BISHOP});
+    moves.push_back(Move{from, to, PAWN_PROMOTION_TO_KNIGHT});
+}
+
+std::vector<Move> generateWhitePawnMoves(const ChessboardStatus* status,
+                                         Square from) {
+    const Bitboard& allPieces = status->boards[ALL_PIECES];
+    Square to = static_cast<Square>(from + 8);
+    std::vector<Move> moves;
+
+    if (to > h8 || allPieces.getBit(to)) {
+        return moves;
+    }
+
+    if (isOnRank(from, 7)) {
+        addPromotionMoves(from, to, moves);
+        return moves;
+    }
+
+    moves.push_back(Move{from, to, PAWN_PUSH});
+
+    if (isOnRank(from, 2)) {
+        Square doublePushTo = static_cast<Square>(to + 8);
+        if (!allPieces.getBit(doublePushTo)) {
+            moves.push_back(Move{from, doublePushTo, PAWN_DOUBLE_PUSH});
+        }
+    }
+    return moves;
+}
+
+std::vector<Move> generateBlackPawnMoves(const ChessboardStatus* status,
+                                         Square from) {
+    const Bitboard& allPieces = status->boards[ALL_PIECES];
+    Square to = static_cast<Square>(from - 8);
+    std::vector<Move> moves;
+
+    if (to < a1 || allPieces.getBit(to)) {
+        return moves;
+    }
+
+    if (isOnRank(from, 2)) {
+        addPromotionMoves(from, to, moves);
+        return moves;
+    }
+
+    moves.push_back(Move{from, to, PAWN_PUSH});
+
+    if (isOnRank(from, 7)) {
+        Square doublePushTo = static_cast<Square>(to - 8);
+        if (!allPieces.getBit(doublePushTo)) {
+            moves.push_back(Move{from, doublePushTo, PAWN_DOUBLE_PUSH});
+        }
+    }
+    return moves;
+}
+
+std::vector<Move> generateAllPawnMoves(const ChessboardStatus* const status,
+                                       Color side) {
+    PieceBoard pawnPiece = (side == WHITE) ? WHITE_PAWNS : BLACK_PAWNS;
+    Bitboard pawns = status->boards[pawnPiece];
+
+    std::vector<Move> moves;
+    while (pawns.getValue()) {
+        Square from = static_cast<Square>(pawns.leastSignificantBeatIndex());
+
+        if (side == WHITE) {
+            std::vector<Move> whiteMoves = generateWhitePawnMoves(status, from);
+            moves.insert(moves.end(), whiteMoves.begin(), whiteMoves.end());
+        } else {
+            std::vector<Move> blackMoves = generateBlackPawnMoves(status, from);
+            moves.insert(moves.end(), blackMoves.begin(), blackMoves.end());
+        }
+
+        pawns.clearBit(from);
+    }
+    return moves;
+}
+
+std::vector<Move> Engine::generateAllMoves(
+    const ChessboardStatus* const status) {
     std::vector<Move> moves;
     Bitboard attacksBoard;
 
-    for (int piece = 0; piece < 12; piece++) {
-        Bitboard pieceBoard = status->boards[piece];
+    Color sideToMove = status->side.value();
 
-        // Generate white pawns and side castling moves
-        if (status->side == WHITE) {
-            if (piece == WHITE_PAWNS) {
-                while (pieceBoard.getValue()) {
-                    Square sourceSquare = static_cast<Square>(
-                        pieceBoard.leastSignificantBeatIndex());
+    std::vector<Move> pawnMoves = generateAllPawnMoves(status, sideToMove);
+    moves.insert(moves.end(), pawnMoves.begin(), pawnMoves.end());
 
-                    Square targetSquareCandidate = static_cast<Square>(
-                        sourceSquare + 8);  // move forward 1 square
+    // Generate knight moves
 
-                    // Quite moves
-                    if ((targetSquareCandidate < h8) &&
-                        !(status->boards[ALL_PIECES].getBit(
-                            targetSquareCandidate))) {
-                        if (sourceSquare >= a7 && sourceSquare <= h7) {
-                            // Pawn promotion
-                            moves.push_back(Move{sourceSquare,
-                                                 targetSquareCandidate,
-                                                 PAWN_PROMOTION_TO_BISHOP});
-                            moves.push_back(Move{sourceSquare,
-                                                 targetSquareCandidate,
-                                                 PAWN_PROMOTION_TO_ROOK});
-                            moves.push_back(Move{sourceSquare,
-                                                 targetSquareCandidate,
-                                                 PAWN_PROMOTION_TO_KNIGHT});
-                            moves.push_back(Move{sourceSquare,
-                                                 targetSquareCandidate,
-                                                 PAWN_PROMOTION_TO_QUEEN});
-                        } else {
-                            // Pawn push
-                            moves.push_back(Move{sourceSquare,
-                                                 targetSquareCandidate,
-                                                 PAWN_PUSH});
+    // Generate bishop moves
 
-                            if (sourceSquare >= a2 && sourceSquare <= h2 &&
-                                !(status->boards[ALL_PIECES].getBit(
-                                    targetSquareCandidate + 8))) {
-                                // Double pawn push
-                                Square targetSquare = static_cast<Square>(
-                                    targetSquareCandidate + 8);
-                                moves.push_back(Move{sourceSquare, targetSquare,
-                                                     PAWN_DOUBLE_PUSH});
-                            }
-                        }
-                    }
+    // Generate rook moves
 
-                    pieceBoard.clearBit(sourceSquare);
-                }
-            }
-        }
+    // Generate queen moves
 
-        // Generate black pawns and side castling moves
-        if (status->side == BLACK) {
-            if (piece == BLACK_PAWNS) {
-                while (pieceBoard.getValue()) {
-                    Square sourceSquare = static_cast<Square>(
-                        pieceBoard.leastSignificantBeatIndex());
-
-                    Square targetSquareCandidate = static_cast<Square>(
-                        sourceSquare - 8);  // move forward 1 square
-
-                    // Quite moves
-                    if ((targetSquareCandidate > a1) &&
-                        !(status->boards[ALL_PIECES].getBit(
-                            targetSquareCandidate))) {
-                        if (sourceSquare >= a2 && sourceSquare <= h2) {
-                            // Pawn promotion
-                            moves.push_back(Move{sourceSquare,
-                                                 targetSquareCandidate,
-                                                 PAWN_PROMOTION_TO_BISHOP});
-                            moves.push_back(Move{sourceSquare,
-                                                 targetSquareCandidate,
-                                                 PAWN_PROMOTION_TO_ROOK});
-                            moves.push_back(Move{sourceSquare,
-                                                 targetSquareCandidate,
-                                                 PAWN_PROMOTION_TO_KNIGHT});
-                            moves.push_back(Move{sourceSquare,
-                                                 targetSquareCandidate,
-                                                 PAWN_PROMOTION_TO_QUEEN});
-                        } else {
-                            // Pawn push
-                            moves.push_back(Move{sourceSquare,
-                                                 targetSquareCandidate,
-                                                 PAWN_PUSH});
-
-                            if (sourceSquare >= a7 && sourceSquare <= h7 &&
-                                !(status->boards[ALL_PIECES].getBit(
-                                    targetSquareCandidate - 8))) {
-                                // Double pawn push
-                                Square targetSquare = static_cast<Square>(
-                                    targetSquareCandidate - 8);
-                                moves.push_back(Move{sourceSquare, targetSquare,
-                                                     PAWN_DOUBLE_PUSH});
-                            }
-                        }
-                    }
-
-                    pieceBoard.clearBit(sourceSquare);
-                }
-            }
-        }
-
-        // Generate knight moves
-
-        // Generate bishop moves
-
-        // Generate rook moves
-
-        // Generate queen moves
-
-        // Generate king moves
-    }
+    // Generate king moves
 
     return moves;
 }
