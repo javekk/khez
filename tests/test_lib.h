@@ -19,5 +19,8 @@ class TestLib {
 
 void describe(const std::string& description, std::function<void()> tests);
 void it(const std::string& description, std::function<void()> test);
-void expect(bool condition,
-            const std::string message = std::string("Assertion failed"));
+void expectImpl(bool condition, int line,
+                const std::string& message = "Assertion failed");
+
+#define expect(condition, ...) \
+    expectImpl(condition, __LINE__, ##__VA_ARGS__)  // ## == token pasting

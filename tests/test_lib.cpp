@@ -47,8 +47,9 @@ void it(const std::string& description, std::function<void()> test) {
     globalTest.it(description, test);
 }
 
-void expect(bool condition, const std::string message) {
+void expectImpl(bool condition, int line, const std::string& message) {
     if (!condition) {
-        throw std::runtime_error(message);
+        throw std::runtime_error(message + " (line " + std::to_string(line) +
+                                 ")");
     }
 }

@@ -1,6 +1,7 @@
 #include "engine.h"
 
 #include <bitset>
+#include <cstdlib>
 #include <iostream>
 
 #include "../lib/color.h"
@@ -592,10 +593,53 @@ bool isOnRank(Square square, int rank) {
 }
 
 void addPromotionMoves(Square from, Square to, std::vector<Move>& moves) {
-    moves.push_back(Move{from, to, PAWN_PROMOTION_TO_QUEEN});
-    moves.push_back(Move{from, to, PAWN_PROMOTION_TO_ROOK});
-    moves.push_back(Move{from, to, PAWN_PROMOTION_TO_BISHOP});
-    moves.push_back(Move{from, to, PAWN_PROMOTION_TO_KNIGHT});
+    bool isCapture = from % 8 != to % 8;
+
+    moves.push_back(Move{
+        from, to,
+        isCapture ? PAWN_CAPTURE_PROMOTION_TO_QUEEN : PAWN_PROMOTION_TO_QUEEN});
+    moves.push_back(Move{
+        from, to,
+        isCapture ? PAWN_CAPTURE_PROMOTION_TO_ROOK : PAWN_PROMOTION_TO_ROOK});
+    moves.push_back(Move{from, to,
+                         isCapture ? PAWN_CAPTURE_PROMOTION_TO_BISHOP
+                                   : PAWN_PROMOTION_TO_BISHOP});
+    moves.push_back(Move{from, to,
+                         isCapture ? PAWN_CAPTURE_PROMOTION_TO_KNIGHT
+                                   : PAWN_PROMOTION_TO_KNIGHT});
+}
+
+void addPawnPushMove(Square from, Square to, std::vector<Move>& moves) {
+    bool isCapture = from % 8 != to % 8;
+    moves.push_back(Move{from, to, isCapture ? PAWN_CAPTURE : PAWN_PUSH});
+
+    bool isDoublePush = abs((to / 8) - (from / 8)) == 2;
+    if (!isCapture && isDoublePush) {
+        moves.push_back(Move{from, to, PAWN_DOUBLE_PUSH});
+    }
+}
+
+std::vector<Move> generateWhitePawnCaptures(Square from, Square to) {
+    std::vector<Move> moves;
+
+    if (isOnRank(from, 7)) {
+        addPromotionMoves(from, to, moves);
+        return moves;
+    }
+    addPawnPushMove(from, to, moves);
+    return moves;
+}
+
+std::vector<Move> generateBlackPawnCaptures(Square from, Square to) {
+    std::vector<Move> moves;
+
+    if (isOnRank(from, 2)) {
+        addPromotionMoves(from, to, moves);
+        return moves;
+    }
+
+    addPawnPushMove(from, to, moves);
+    return moves;
 }
 
 std::vector<Move> generateWhitePawnMoves(const ChessboardStatus* status,
@@ -613,12 +657,12 @@ std::vector<Move> generateWhitePawnMoves(const ChessboardStatus* status,
         return moves;
     }
 
-    moves.push_back(Move{from, to, PAWN_PUSH});
+    addPawnPushMove(from, to, moves);
 
     if (isOnRank(from, 2)) {
         Square doublePushTo = static_cast<Square>(to + 8);
         if (!allPieces.getBit(doublePushTo)) {
-            moves.push_back(Move{from, doublePushTo, PAWN_DOUBLE_PUSH});
+            addPawnPushMove(from, doublePushTo, moves);
         }
     }
     return moves;
@@ -639,47 +683,70 @@ std::vector<Move> generateBlackPawnMoves(const ChessboardStatus* status,
         return moves;
     }
 
-    moves.push_back(Move{from, to, PAWN_PUSH});
+    addPawnPushMove(from, to, moves);
 
     if (isOnRank(from, 7)) {
         Square doublePushTo = static_cast<Square>(to - 8);
         if (!allPieces.getBit(doublePushTo)) {
-            moves.push_back(Move{from, doublePushTo, PAWN_DOUBLE_PUSH});
+            addPawnPushMove(from, doublePushTo, moves);
         }
     }
     return moves;
 }
 
-std::vector<Move> generateAllPawnMoves(const ChessboardStatus* const status,
-                                       Color side) {
-    PieceBoard pawnPiece = (side == WHITE) ? WHITE_PAWNS : BLACK_PAWNS;
+std::vector<Move> Engine::generateAllPawnMoves(
+    const ChessboardStatus* const status) {
+    Color sideToMove = status->side.value();
+    PieceBoard pawnPiece = (sideToMove == WHITE) ? WHITE_PAWNS : BLACK_PAWNS;
     Bitboard pawns = status->boards[pawnPiece];
 
     std::vector<Move> moves;
     while (pawns.getValue()) {
         Square from = static_cast<Square>(pawns.leastSignificantBeatIndex());
 
-        if (side == WHITE) {
-            std::vector<Move> whiteMoves = generateWhitePawnMoves(status, from);
-            moves.insert(moves.end(), whiteMoves.begin(), whiteMoves.end());
-        } else {
-            std::vector<Move> blackMoves = generateBlackPawnMoves(status, from);
-            moves.insert(moves.end(), blackMoves.begin(), blackMoves.end());
-        }
-
+        generatePawnMoves(status, from, moves);
+        generatePawnCaptureMoves(status, from, moves);
         pawns.clearBit(from);
     }
     return moves;
 }
 
+void Engine::generatePawnMoves(const ChessboardStatus* const status,
+                               Square from, std::vector<Move>& moves) {
+    Color sideToMove = status->side.value();
+    if (sideToMove == WHITE) {
+        std::vector<Move> whiteMoves = generateWhitePawnMoves(status, from);
+        moves.insert(moves.end(), whiteMoves.begin(), whiteMoves.end());
+    } else {
+        std::vector<Move> blackMoves = generateBlackPawnMoves(status, from);
+        moves.insert(moves.end(), blackMoves.begin(), blackMoves.end());
+    }
+}
+
+void Engine::generatePawnCaptureMoves(const ChessboardStatus* const status,
+                                      Square from, std::vector<Move>& moves) {
+    Color sideToMove = status->side.value();
+    PieceBoard attackedSide = (sideToMove == WHITE) ? BLACK_ALL : WHITE_ALL;
+    Bitboard attacks =
+        pawnAttacksMasks[sideToMove][from] & status->boards[attackedSide];
+    while (attacks.getValue()) {
+        Square to = static_cast<Square>(attacks.leastSignificantBeatIndex());
+        if (sideToMove == WHITE) {
+            std::vector<Move> whiteMoves = generateWhitePawnCaptures(from, to);
+            moves.insert(moves.end(), whiteMoves.begin(), whiteMoves.end());
+        } else {
+            std::vector<Move> blackMoves = generateBlackPawnCaptures(from, to);
+            moves.insert(moves.end(), blackMoves.begin(), blackMoves.end());
+        }
+        attacks.clearBit(to);
+    }
+}
+
 std::vector<Move> Engine::generateAllMoves(
     const ChessboardStatus* const status) {
     std::vector<Move> moves;
-    Bitboard attacksBoard;
 
-    Color sideToMove = status->side.value();
-
-    std::vector<Move> pawnMoves = generateAllPawnMoves(status, sideToMove);
+    std::vector<Move> pawnMoves = generateAllPawnMoves(status);
     moves.insert(moves.end(), pawnMoves.begin(), pawnMoves.end());
 
     // Generate knight moves
@@ -704,11 +771,16 @@ void Engine::__printMoves(std::vector<Move> moves) {
         {PAWN_PROMOTION_TO_ROOK, "Pawn promotion to Rook"},
         {PAWN_PROMOTION_TO_KNIGHT, "Pawn promotion to Knight"},
         {PAWN_PROMOTION_TO_QUEEN, "Pawn promotion to Queen"},
+        {PAWN_CAPTURE, "Pawn capture"},
+        {PAWN_CAPTURE_PROMOTION_TO_BISHOP, "Pawn capture promotion to Bishop"},
+        {PAWN_CAPTURE_PROMOTION_TO_ROOK, "Pawn capture promotion to Rook"},
+        {PAWN_CAPTURE_PROMOTION_TO_KNIGHT, "Pawn capture promotion to Knight"},
+        {PAWN_CAPTURE_PROMOTION_TO_QUEEN, "Pawn capture promotion to Queen"},
     };
     for (auto move : moves) {
-        std::cout << " - " << moveDescriptionMap.at(move.type) << " from "
-                  << squareMap.at(move.sourceSquare) << " to "
-                  << squareMap.at(move.targetSquare) << std::endl;
+        std::cout << "[" << squareMap.at(move.sourceSquare) << " -> "
+                  << squareMap.at(move.targetSquare) << "] "
+                  << moveDescriptionMap.at(move.type) << std::endl;
     }
 }
 

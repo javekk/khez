@@ -782,6 +782,94 @@ void test_move_generations() {
                           moves.end());
                });
         });
+
+        describe("Testing pawn capture move generation", [&]() {
+            it("Testing initial position white to play", [&]() {
+                board.setupInitialPosition();
+                moves = engine.generateAllMoves(&board.status);
+                expect(std::all_of(moves.begin(), moves.end(),
+                                   [](const Move& move) {
+                                       return move.type != PAWN_CAPTURE;
+                                   }));
+                expect(std::all_of(
+                    moves.begin(), moves.end(), [](const Move& move) {
+                        return move.type != PAWN_CAPTURE_PROMOTION_TO_BISHOP;
+                    }));
+                expect(std::all_of(
+                    moves.begin(), moves.end(), [](const Move& move) {
+                        return move.type != PAWN_CAPTURE_PROMOTION_TO_QUEEN;
+                    }));
+                expect(std::all_of(
+                    moves.begin(), moves.end(), [](const Move& move) {
+                        return move.type != PAWN_CAPTURE_PROMOTION_TO_KNIGHT;
+                    }));
+                expect(std::all_of(
+                    moves.begin(), moves.end(), [](const Move& move) {
+                        return move.type != PAWN_CAPTURE_PROMOTION_TO_ROOK;
+                    }));
+            });
+
+            it("Testing "
+               "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R w KQkq "
+               "- 0 0",
+               [&]() {
+                   board.parseFEN(
+                       "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
+                       "R3K2R w KQkq - 0 0");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{d5, e6, PAWN_CAPTURE})) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{b7, a8,
+                                          PAWN_CAPTURE_PROMOTION_TO_BISHOP})) !=
+                          moves.end());
+                   expect(std::find(
+                              moves.begin(), moves.end(),
+                              (Move{b7, a8, PAWN_CAPTURE_PROMOTION_TO_ROOK})) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{b7, a8,
+                                          PAWN_CAPTURE_PROMOTION_TO_QUEEN})) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{b7, a8,
+                                          PAWN_CAPTURE_PROMOTION_TO_KNIGHT})) !=
+                          moves.end());
+               });
+
+            it("Testing "
+               "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R b KQkq "
+               "- 0 0",
+               [&]() {
+                   board.parseFEN(
+                       "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
+                       "R3K2R b KQkq - 0 0");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{b4, c3, PAWN_CAPTURE})) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{e6, d5, PAWN_CAPTURE})) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{g2, h1,
+                                          PAWN_CAPTURE_PROMOTION_TO_BISHOP})) !=
+                          moves.end());
+                   expect(std::find(
+                              moves.begin(), moves.end(),
+                              (Move{g2, h1, PAWN_CAPTURE_PROMOTION_TO_ROOK})) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{g2, h1,
+                                          PAWN_CAPTURE_PROMOTION_TO_QUEEN})) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{g2, h1,
+                                          PAWN_CAPTURE_PROMOTION_TO_KNIGHT})) !=
+                          moves.end());
+               });
+        });
     });
 }
 
