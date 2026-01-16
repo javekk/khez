@@ -619,8 +619,14 @@ void addPawnPushMove(Square from, Square to, std::vector<Move>& moves) {
     }
 }
 
-std::vector<Move> generateWhitePawnCaptures(Square from, Square to) {
+std::vector<Move> generateWhitePawnCaptures(const ChessboardStatus* status,
+                                            Square from, Square to) {
     std::vector<Move> moves;
+
+    if (to == status->enpassant) {
+        moves.push_back(Move{from, to, PAWN_CAPTURE_ENPASSANT});
+        return moves;
+    }
 
     if (isOnRank(from, 7)) {
         addPromotionMoves(from, to, moves);
@@ -630,8 +636,14 @@ std::vector<Move> generateWhitePawnCaptures(Square from, Square to) {
     return moves;
 }
 
-std::vector<Move> generateBlackPawnCaptures(Square from, Square to) {
+std::vector<Move> generateBlackPawnCaptures(const ChessboardStatus* status,
+                                            Square from, Square to) {
     std::vector<Move> moves;
+
+    if (to == status->enpassant) {
+        moves.push_back(Move{from, to, PAWN_CAPTURE_ENPASSANT});
+        return moves;
+    }
 
     if (isOnRank(from, 2)) {
         addPromotionMoves(from, to, moves);
@@ -642,8 +654,8 @@ std::vector<Move> generateBlackPawnCaptures(Square from, Square to) {
     return moves;
 }
 
-std::vector<Move> generateWhitePawnMoves(const ChessboardStatus* status,
-                                         Square from) {
+std::vector<Move> generateWhitePawnQuietMoves(const ChessboardStatus* status,
+                                              Square from) {
     const Bitboard& allPieces = status->boards[ALL_PIECES];
     Square to = static_cast<Square>(from + 8);
     std::vector<Move> moves;
@@ -668,8 +680,8 @@ std::vector<Move> generateWhitePawnMoves(const ChessboardStatus* status,
     return moves;
 }
 
-std::vector<Move> generateBlackPawnMoves(const ChessboardStatus* status,
-                                         Square from) {
+std::vector<Move> generateBlackPawnQuietMoves(const ChessboardStatus* status,
+                                              Square from) {
     const Bitboard& allPieces = status->boards[ALL_PIECES];
     Square to = static_cast<Square>(from - 8);
     std::vector<Move> moves;
@@ -694,7 +706,7 @@ std::vector<Move> generateBlackPawnMoves(const ChessboardStatus* status,
     return moves;
 }
 
-std::vector<Move> Engine::generateAllPawnMoves(
+std::vector<Move> Engine::generatePawnMoves(
     const ChessboardStatus* const status) {
     Color sideToMove = status->side.value();
     PieceBoard pawnPiece = (sideToMove == WHITE) ? WHITE_PAWNS : BLACK_PAWNS;
@@ -704,21 +716,23 @@ std::vector<Move> Engine::generateAllPawnMoves(
     while (pawns.getValue()) {
         Square from = static_cast<Square>(pawns.leastSignificantBeatIndex());
 
-        generatePawnMoves(status, from, moves);
+        generatePawnQuietMoves(status, from, moves);
         generatePawnCaptureMoves(status, from, moves);
         pawns.clearBit(from);
     }
     return moves;
 }
 
-void Engine::generatePawnMoves(const ChessboardStatus* const status,
-                               Square from, std::vector<Move>& moves) {
+void Engine::generatePawnQuietMoves(const ChessboardStatus* const status,
+                                    Square from, std::vector<Move>& moves) {
     Color sideToMove = status->side.value();
     if (sideToMove == WHITE) {
-        std::vector<Move> whiteMoves = generateWhitePawnMoves(status, from);
+        std::vector<Move> whiteMoves =
+            generateWhitePawnQuietMoves(status, from);
         moves.insert(moves.end(), whiteMoves.begin(), whiteMoves.end());
     } else {
-        std::vector<Move> blackMoves = generateBlackPawnMoves(status, from);
+        std::vector<Move> blackMoves =
+            generateBlackPawnQuietMoves(status, from);
         moves.insert(moves.end(), blackMoves.begin(), blackMoves.end());
     }
 }
@@ -729,16 +743,27 @@ void Engine::generatePawnCaptureMoves(const ChessboardStatus* const status,
     PieceBoard attackedSide = (sideToMove == WHITE) ? BLACK_ALL : WHITE_ALL;
     Bitboard attacks =
         pawnAttacksMasks[sideToMove][from] & status->boards[attackedSide];
-    while (attacks.getValue()) {
-        Square to = static_cast<Square>(attacks.leastSignificantBeatIndex());
+
+    Bitboard enpassantAttacks;
+    if (status->enpassant.has_value()) {
+        enpassantAttacks = pawnAttacksMasks[sideToMove][from] &
+                           Bitboard::fromSquare(status->enpassant.value());
+    }
+
+    Bitboard allCapture = attacks | enpassantAttacks;
+
+    while (allCapture.getValue()) {
+        Square to = static_cast<Square>(allCapture.leastSignificantBeatIndex());
         if (sideToMove == WHITE) {
-            std::vector<Move> whiteMoves = generateWhitePawnCaptures(from, to);
+            std::vector<Move> whiteMoves =
+                generateWhitePawnCaptures(status, from, to);
             moves.insert(moves.end(), whiteMoves.begin(), whiteMoves.end());
         } else {
-            std::vector<Move> blackMoves = generateBlackPawnCaptures(from, to);
+            std::vector<Move> blackMoves =
+                generateBlackPawnCaptures(status, from, to);
             moves.insert(moves.end(), blackMoves.begin(), blackMoves.end());
         }
-        attacks.clearBit(to);
+        allCapture.clearBit(to);
     }
 }
 
@@ -746,7 +771,7 @@ std::vector<Move> Engine::generateAllMoves(
     const ChessboardStatus* const status) {
     std::vector<Move> moves;
 
-    std::vector<Move> pawnMoves = generateAllPawnMoves(status);
+    std::vector<Move> pawnMoves = generatePawnMoves(status);
     moves.insert(moves.end(), pawnMoves.begin(), pawnMoves.end());
 
     // Generate knight moves
@@ -772,6 +797,7 @@ void Engine::__printMoves(std::vector<Move> moves) {
         {PAWN_PROMOTION_TO_KNIGHT, "Pawn promotion to Knight"},
         {PAWN_PROMOTION_TO_QUEEN, "Pawn promotion to Queen"},
         {PAWN_CAPTURE, "Pawn capture"},
+        {PAWN_CAPTURE_ENPASSANT, "Pawn capture enpassant"},
         {PAWN_CAPTURE_PROMOTION_TO_BISHOP, "Pawn capture promotion to Bishop"},
         {PAWN_CAPTURE_PROMOTION_TO_ROOK, "Pawn capture promotion to Rook"},
         {PAWN_CAPTURE_PROMOTION_TO_KNIGHT, "Pawn capture promotion to Knight"},

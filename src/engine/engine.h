@@ -62,10 +62,9 @@ class Engine {
     void generateKnightMaskMoves();
     void generateKingMaskMoves();
 
-    std::vector<Move> generateAllPawnMoves(
-        const ChessboardStatus* const status);
-    void generatePawnMoves(const ChessboardStatus* const status, Square from,
-                           std::vector<Move>& moves);
+    std::vector<Move> generatePawnMoves(const ChessboardStatus* const status);
+    void generatePawnQuietMoves(const ChessboardStatus* const status,
+                                Square from, std::vector<Move>& moves);
     void generatePawnCaptureMoves(const ChessboardStatus* const status,
                                   Square from, std::vector<Move>& moves);
 };

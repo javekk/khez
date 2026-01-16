@@ -870,6 +870,60 @@ void test_move_generations() {
                           moves.end());
                });
         });
+
+        describe("Testing enpassant capture", [&]() {
+            it("Testing initial position white to play", [&]() {
+                board.setupInitialPosition();
+                moves = engine.generateAllMoves(&board.status);
+                expect(std::all_of(
+                    moves.begin(), moves.end(), [](const Move& move) {
+                        return move.type != PAWN_CAPTURE_ENPASSANT;
+                    }));
+            });
+
+            it("Testing rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq "
+               "e3 0 1",
+               [&]() {
+                   board.setupInitialPosition();
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::all_of(
+                       moves.begin(), moves.end(), [](const Move& move) {
+                           return move.type != PAWN_CAPTURE_ENPASSANT;
+                       }));
+               });
+
+            it("Testing "
+               "rnbqk2r/p1pp1pbp/5n2/PpP1p1p1/4P3/8/1P1P1PPP/RNBQKBNR w KQkq "
+               "b6 0 6",
+               [&]() {
+                   board.parseFEN(
+                       "rnbqk2r/p1pp1pbp/5n2/PpP1p1p1/4P3/8/1P1P1PPP/RNBQKBNR "
+                       "w KQkq b6 0 6");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{a5, b6, PAWN_CAPTURE_ENPASSANT})) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{c5, b6, PAWN_CAPTURE_ENPASSANT})) !=
+                          moves.end());
+               });
+
+            it("Testing "
+               "rnbqkbnr/1p1p1ppp/8/4p3/pPp1P3/5NP1/P1PPQPBP/RNB1K2R b KQkq b3 "
+               "0 6",
+               [&]() {
+                   board.parseFEN(
+                       "rnbqkbnr/1p1p1ppp/8/4p3/pPp1P3/5NP1/P1PPQPBP/RNB1K2R b "
+                       "KQkq b3 0 6");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{a4, b3, PAWN_CAPTURE_ENPASSANT})) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    (Move{c4, b3, PAWN_CAPTURE_ENPASSANT})) !=
+                          moves.end());
+               });
+        });
     });
 }
 
