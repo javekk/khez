@@ -1394,6 +1394,49 @@ void test_move_generations() {
                                     Move{b5, e8, QUEEN_QUIET}) != moves.end());
                });
         });
+
+        describe("Testing king moves generation", [&]() {
+            it("Testing initial position white to play", [&]() {
+                board.setupInitialPosition();
+                moves = engine.generateAllMoves(&board.status);
+                expect(std::all_of(
+                    moves.begin(), moves.end(),
+                    [](const Move& move) { return move.type != KING_QUIET; }));
+                expect(std::all_of(moves.begin(), moves.end(),
+                                   [](const Move& move) {
+                                       return move.type != KING_CAPTURE;
+                                   }));
+            });
+
+            it("Testing "
+               "2kr3r/ppp2p2/3b1npB/1q1pp3/2B1P1P1/1Q3N2/PPP1NP1P/3RKbR1 w - - "
+               "1 18",
+               [&]() {
+                   board.parseFEN(
+                       "2kr3r/ppp2p2/3b1npB/1q1pp3/2B1P1P1/1Q3N2/PPP1NP1P/"
+                       "3RKbR1 w - - 1 18");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e1, f1, KING_CAPTURE}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e1, d2, KING_QUIET}) != moves.end());
+               });
+
+            it("Testing 2kr3r/pQp2p2/5npB/3pp3/2B1P1P1/2b2N2/PPP1NP1P/3R1KR1 b "
+               "- - 0 20",
+               [&]() {
+                   board.parseFEN(
+                       "2kr3r/pQp2p2/5npB/3pp3/2B1P1P1/2b2N2/PPP1NP1P/3R1KR1 b "
+                       "- - 0 20");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{c8, b7, KING_CAPTURE}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{c8, d7, KING_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{c8, b8, KING_QUIET}) != moves.end());
+               });
+        });
     });
 }
 

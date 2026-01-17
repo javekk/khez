@@ -770,6 +770,10 @@ std::vector<Move> Engine::generateKingMoves(
     const ChessboardStatus* const status) {
     std::vector<Move> moves;
 
+    std::vector<Move> normalKingMoves =
+        generateSliderAndLeaperMoves(status, KING);
+    moves.insert(moves.end(), normalKingMoves.begin(), normalKingMoves.end());
+
     std::vector<Move> castlingMoves = generateKingCastlingMoves(status);
     moves.insert(moves.end(), castlingMoves.begin(), castlingMoves.end());
 
@@ -866,13 +870,15 @@ Bitboard Engine::getAttacksBoard(const ChessboardStatus* const status,
                                  Piece piece, Square square) {
     switch (piece) {
         case KNIGHT:
-            return knightAttacksMasks[square];
+            return getSingleKnightAttacks(square);
         case BISHOP:
             return getSingleBishopAttacks(square, status->boards[ALL_PIECES]);
         case ROOK:
             return getSingleRookAttacks(square, status->boards[ALL_PIECES]);
         case QUEEN:
             return getSingleQueenAttacks(square, status->boards[ALL_PIECES]);
+        case KING:
+            return getSingleKingAttacks(square);
 
         default:
             return Bitboard();
