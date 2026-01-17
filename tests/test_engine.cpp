@@ -924,6 +924,172 @@ void test_move_generations() {
                           moves.end());
                });
         });
+
+        describe("Testing castle moves", [&]() {
+            it("Testing initial position white to play", [&]() {
+                board.setupInitialPosition();
+                moves = engine.generateAllMoves(&board.status);
+                expect(std::all_of(moves.begin(), moves.end(),
+                                   [](const Move& move) {
+                                       return move.type != CASTLE_KINGSIDE;
+                                   }));
+                expect(std::all_of(moves.begin(), moves.end(),
+                                   [](const Move& move) {
+                                       return move.type != CASTLE_QUEENSIDE;
+                                   }));
+            });
+
+            it("Testing 4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K2R w KQk "
+               "- 0 20",
+               [&]() {
+                   board.parseFEN(
+                       "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K2R w KQk "
+                       "- 0 20");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e1, g1, CASTLE_KINGSIDE}) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e1, c1, CASTLE_QUEENSIDE}) !=
+                          moves.end());
+               });
+
+            it("Testing 4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K2R w - "
+               "- 0 20",
+               [&]() {
+                   board.parseFEN(
+                       "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K2R w - "
+                       "- 0 20");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::all_of(moves.begin(), moves.end(),
+                                      [](const Move& move) {
+                                          return move.type != CASTLE_KINGSIDE;
+                                      }));
+                   expect(std::all_of(moves.begin(), moves.end(),
+                                      [](const Move& move) {
+                                          return move.type != CASTLE_QUEENSIDE;
+                                      }));
+               });
+
+            it("Testing 4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K2R w Kk "
+               "- 0 20",
+               [&]() {
+                   board.parseFEN(
+                       "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K2R w Kk "
+                       "- 0 20");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e1, g1, CASTLE_KINGSIDE}) !=
+                          moves.end());
+                   expect(std::all_of(moves.begin(), moves.end(),
+                                      [](const Move& move) {
+                                          return move.type != CASTLE_QUEENSIDE;
+                                      }));
+               });
+
+            it("Testing 4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K1BR w Kk "
+               "- 0 20",
+               [&]() {
+                   board.parseFEN(
+                       "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K1BR w Kk "
+                       "- 0 20");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::all_of(moves.begin(), moves.end(),
+                                      [](const Move& move) {
+                                          return move.type != CASTLE_KINGSIDE;
+                                      }));
+                   expect(std::all_of(moves.begin(), moves.end(),
+                                      [](const Move& move) {
+                                          return move.type != CASTLE_QUEENSIDE;
+                                      }));
+               });
+
+            it("Testing "
+               "rn1qkbnr/p1p2ppp/1p1p4/4p1BQ/2B1P1b1/2NP4/PPP2PPP/R3K1NR w "
+               "KQkq - 3 7",
+               [&]() {
+                   board.parseFEN(
+                       "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K1BR w Kk "
+                       "- 0 20");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::all_of(moves.begin(), moves.end(),
+                                      [](const Move& move) {
+                                          return move.type != CASTLE_KINGSIDE;
+                                      }));
+                   expect(std::all_of(moves.begin(), moves.end(),
+                                      [](const Move& move) {
+                                          return move.type != CASTLE_QUEENSIDE;
+                                      }));
+               });
+
+            it("Testing rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq "
+               "e3 0 1",
+               [&]() {
+                   board.parseFEN(
+                       "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq "
+                       "e3 0 1");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::all_of(moves.begin(), moves.end(),
+                                      [](const Move& move) {
+                                          return move.type != CASTLE_KINGSIDE;
+                                      }));
+                   expect(std::all_of(moves.begin(), moves.end(),
+                                      [](const Move& move) {
+                                          return move.type != CASTLE_QUEENSIDE;
+                                      }));
+               });
+
+            it("Testing "
+               "r3k2r/pppq1ppp/2n2n2/2bppb2/2BPP3/2N1BN2/PPPQ1PPP/R3K2R b KQkq "
+               "- 11 8",
+               [&]() {
+                   board.parseFEN(
+                       "r3k2r/pppq1ppp/2n2n2/2bppb2/2BPP3/2N1BN2/PPPQ1PPP/"
+                       "R3K2R b KQkq - 11 8");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e8, g8, CASTLE_KINGSIDE}) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e8, c8, CASTLE_QUEENSIDE}) !=
+                          moves.end());
+               });
+
+            it("Testing "
+               "rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq "
+               "- 5 4",
+               [&]() {
+                   board.parseFEN(
+                       "rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/"
+                       "R1BQK2R b KQkq - 5 4");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e8, g8, CASTLE_KINGSIDE}) !=
+                          moves.end());
+                   expect(std::all_of(moves.begin(), moves.end(),
+                                      [](const Move& move) {
+                                          return move.type != CASTLE_QUEENSIDE;
+                                      }));
+               });
+
+            it("Testing "
+               "rnbqk2r/1ppp1ppp/p4n2/4p3/2B1P3/BPN2N2/P1PP1PPP/R2QK2R b KQkq "
+               "- 0 6",
+               [&]() {
+                   board.parseFEN(
+                       "rnbqk2r/1ppp1ppp/p4n2/4p3/2B1P3/BPN2N2/P1PP1PPP/R2QK2R "
+                       "b KQkq - 0 6");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::all_of(moves.begin(), moves.end(),
+                                      [](const Move& move) {
+                                          return move.type != CASTLE_KINGSIDE;
+                                      }));
+                   expect(std::all_of(moves.begin(), moves.end(),
+                                      [](const Move& move) {
+                                          return move.type != CASTLE_QUEENSIDE;
+                                      }));
+               });
+        });
     });
 }
 

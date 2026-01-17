@@ -27,6 +27,13 @@ enum PieceBoard {
     BOARDS_COUNTER,  // Must be last - used only for size
 };
 
+enum Castle {
+    WHITE_KINGSIDE = 0b0001,
+    WHITE_QUEENSIDE = 0b0010,
+    BLACK_KINGSIDE = 0b0100,
+    BLACK_QUEENSIDE = 0b1000,
+};
+
 struct ChessboardStatus {
     Bitboard boards[BOARDS_COUNTER];
 

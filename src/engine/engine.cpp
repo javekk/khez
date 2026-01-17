@@ -611,12 +611,10 @@ void addPromotionMoves(Square from, Square to, std::vector<Move>& moves) {
 
 void addPawnPushMove(Square from, Square to, std::vector<Move>& moves) {
     bool isCapture = from % 8 != to % 8;
-    moves.push_back(Move{from, to, isCapture ? PAWN_CAPTURE : PAWN_PUSH});
-
-    bool isDoublePush = abs((to / 8) - (from / 8)) == 2;
-    if (!isCapture && isDoublePush) {
-        moves.push_back(Move{from, to, PAWN_DOUBLE_PUSH});
-    }
+    bool isDoublePush = (!isCapture) && (abs((to / 8) - (from / 8)) == 2);
+    MoveType moveType = isDoublePush ? PAWN_DOUBLE_PUSH
+                                     : (isCapture ? PAWN_CAPTURE : PAWN_PUSH);
+    moves.push_back(Move{from, to, moveType});
 }
 
 std::vector<Move> generateWhitePawnCaptures(const ChessboardStatus* status,
@@ -767,12 +765,127 @@ void Engine::generatePawnCaptureMoves(const ChessboardStatus* const status,
     }
 }
 
+std::vector<Move> Engine::generateKingMoves(
+    const ChessboardStatus* const status) {
+    std::vector<Move> moves;
+
+    std::vector<Move> castlingMoves = generateKingCastlingMoves(status);
+    moves.insert(moves.end(), castlingMoves.begin(), castlingMoves.end());
+
+    return moves;
+}
+
+bool Engine::canWhiteCastleKingSide(const ChessboardStatus* const status) {
+    if (!(status->availableCastle & WHITE_KINGSIDE)) {
+        return false;
+    }
+
+    bool emptyRank = !status->boards[ALL_PIECES].getBit(f1) &&
+                     !status->boards[ALL_PIECES].getBit(g1);
+    bool noAttacks = !isSquareUnderAttackBy(status, e1, BLACK) &&
+                     !isSquareUnderAttackBy(status, f1, BLACK);
+    // I do not check g1 (where the king lands) that is resposability
+    // of the makeMove function
+
+    if (emptyRank && noAttacks) {
+        return true;
+    }
+
+    return false;
+}
+
+bool Engine::canWhiteCastleQueenSide(const ChessboardStatus* const status) {
+    if (!(status->availableCastle & WHITE_QUEENSIDE)) {
+        return false;
+    }
+
+    bool emptyRank = !status->boards[ALL_PIECES].getBit(d1) &&
+                     !status->boards[ALL_PIECES].getBit(c1) &&
+                     !status->boards[ALL_PIECES].getBit(b1);
+    bool noAttacks = !isSquareUnderAttackBy(status, e1, BLACK) &&
+                     !isSquareUnderAttackBy(status, d1, BLACK);
+    // I do not check c1 (where the king lands) that is resposability
+    // of the makeMove function
+
+    if (emptyRank && noAttacks) {
+        return true;
+    }
+
+    return false;
+}
+
+bool Engine::canBlackCastleKingSide(const ChessboardStatus* const status) {
+    if (!(status->availableCastle & BLACK_KINGSIDE)) {
+        return false;
+    }
+
+    bool emptyRank = !status->boards[ALL_PIECES].getBit(f8) &&
+                     !status->boards[ALL_PIECES].getBit(g8);
+    bool noAttacks = !isSquareUnderAttackBy(status, e8, WHITE) &&
+                     !isSquareUnderAttackBy(status, f8, WHITE);
+    // I do not check g8 (where the king lands) that is resposability
+    // of the makeMove function
+
+    if (emptyRank && noAttacks) {
+        return true;
+    }
+
+    return false;
+}
+
+bool Engine::canBlackCastleQueenSide(const ChessboardStatus* const status) {
+    if (!(status->availableCastle & BLACK_QUEENSIDE)) {
+        return false;
+    }
+
+    bool emptyRank = !status->boards[ALL_PIECES].getBit(d8) &&
+                     !status->boards[ALL_PIECES].getBit(c8) &&
+                     !status->boards[ALL_PIECES].getBit(b8);
+    bool noAttacks = !isSquareUnderAttackBy(status, e8, WHITE) &&
+                     !isSquareUnderAttackBy(status, d8, WHITE);
+    // I do not check c1 (where the king lands) that is resposability
+    // of the makeMove function
+
+    if (emptyRank && noAttacks) {
+        return true;
+    }
+
+    return false;
+}
+
+std::vector<Move> Engine::generateKingCastlingMoves(
+    const ChessboardStatus* const status) {
+    std::vector<Move> moves;
+    Color sideToMove = status->side.value();
+
+    if (sideToMove == WHITE) {
+        if (canWhiteCastleKingSide(status)) {
+            moves.push_back(Move{e1, g1, CASTLE_KINGSIDE});
+        }
+        if (canWhiteCastleQueenSide(status)) {
+            moves.push_back(Move{e1, c1, CASTLE_QUEENSIDE});
+        }
+    } else {
+        if (canBlackCastleKingSide(status)) {
+            moves.push_back(Move{e8, g8, CASTLE_KINGSIDE});
+        }
+        if (canBlackCastleQueenSide(status)) {
+            moves.push_back(Move{e8, c8, CASTLE_QUEENSIDE});
+        }
+    }
+
+    return moves;
+}
+
 std::vector<Move> Engine::generateAllMoves(
     const ChessboardStatus* const status) {
     std::vector<Move> moves;
 
     std::vector<Move> pawnMoves = generatePawnMoves(status);
     moves.insert(moves.end(), pawnMoves.begin(), pawnMoves.end());
+
+    std::vector<Move> kingMoves = generateKingMoves(status);
+    moves.insert(moves.end(), kingMoves.begin(), kingMoves.end());
 
     // Generate knight moves
 
@@ -781,8 +894,6 @@ std::vector<Move> Engine::generateAllMoves(
     // Generate rook moves
 
     // Generate queen moves
-
-    // Generate king moves
 
     return moves;
 }
@@ -802,12 +913,17 @@ void Engine::__printMoves(std::vector<Move> moves) {
         {PAWN_CAPTURE_PROMOTION_TO_ROOK, "Pawn capture promotion to Rook"},
         {PAWN_CAPTURE_PROMOTION_TO_KNIGHT, "Pawn capture promotion to Knight"},
         {PAWN_CAPTURE_PROMOTION_TO_QUEEN, "Pawn capture promotion to Queen"},
+        {CASTLE_KINGSIDE, "Castle kingside"},
+        {CASTLE_QUEENSIDE, "Castle queenside"},
     };
     for (auto move : moves) {
         std::cout << "[" << squareMap.at(move.sourceSquare) << " -> "
                   << squareMap.at(move.targetSquare) << "] "
                   << moveDescriptionMap.at(move.type) << std::endl;
     }
+
+    std::cout << "Found " << moves.size() << " pseudo legal moves!"
+              << std::endl;
 }
 
 #pragma endregion

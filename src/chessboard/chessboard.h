@@ -9,13 +9,6 @@
 #include "../lib/square.h"
 #include "chessboard-status.h"
 
-enum Castle {
-    WHITE_KINGSIDE = 0b0001,
-    WHITE_QUEENSIDE = 0b0010,
-    BLACK_KINGSIDE = 0b0100,
-    BLACK_QUEENSIDE = 0b1000,
-};
-
 class ChessBoard {
    public:
     ChessBoard();

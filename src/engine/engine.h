@@ -14,6 +14,15 @@ class Engine {
    public:
     void init();
 
+    Bitboard setOccupancy(int index, Bitboard attacksMask);
+
+    bool isSquareUnderAttackBy(const ChessboardStatus* const status,
+                               Square square, Color color);
+    void __printAttackedSquare(const ChessboardStatus* const status,
+                               Color color);
+
+    // Masks
+
     Bitboard generateSinglePawnMaskAttacks(Square square, Color color);
     Bitboard getSinglePawnAttacks(Square square, Color color);
 
@@ -33,19 +42,16 @@ class Engine {
 
     Bitboard getSingleQueenAttacks(Square square, Bitboard occupancies);
 
-    Bitboard setOccupancy(int index, Bitboard attacksMask);
     void generateSliderPiecesAttacks(SlidingPiece piece);
 
-    bool isSquareUnderAttackBy(const ChessboardStatus* const status,
-                               Square square, Color color);
-    void __printAttackedSquare(const ChessboardStatus* const status,
-                               Color color);
+    // Move generation from status
 
     std::vector<Move> generateAllMoves(const ChessboardStatus* const status);
-
     void __printMoves(std::vector<Move> moves);
 
    private:
+    // Masks
+
     Bitboard pawnAttacksMasks[2][64];
 
     Bitboard knightAttacksMasks[64];
@@ -62,9 +68,19 @@ class Engine {
     void generateKnightMaskMoves();
     void generateKingMaskMoves();
 
+    // Move generation from status
+
     std::vector<Move> generatePawnMoves(const ChessboardStatus* const status);
     void generatePawnQuietMoves(const ChessboardStatus* const status,
                                 Square from, std::vector<Move>& moves);
     void generatePawnCaptureMoves(const ChessboardStatus* const status,
                                   Square from, std::vector<Move>& moves);
+
+    std::vector<Move> generateKingMoves(const ChessboardStatus* const status);
+    std::vector<Move> generateKingCastlingMoves(
+        const ChessboardStatus* const status);
+    bool canWhiteCastleKingSide(const ChessboardStatus* const status);
+    bool canWhiteCastleQueenSide(const ChessboardStatus* const status);
+    bool canBlackCastleKingSide(const ChessboardStatus* const status);
+    bool canBlackCastleQueenSide(const ChessboardStatus* const status);
 };
