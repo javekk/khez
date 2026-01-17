@@ -1245,6 +1245,75 @@ void test_move_generations() {
                                     Move{d6, f8, BISHOP_QUIET}) != moves.end());
                });
         });
+
+        describe("Testing rook moves generation", [&]() {
+            it("Testing initial position white to play", [&]() {
+                board.setupInitialPosition();
+                moves = engine.generateAllMoves(&board.status);
+                expect(std::all_of(
+                    moves.begin(), moves.end(),
+                    [](const Move& move) { return move.type != ROOK_QUIET; }));
+                expect(std::all_of(moves.begin(), moves.end(),
+                                   [](const Move& move) {
+                                       return move.type != ROOK_CAPTURE;
+                                   }));
+            });
+
+            it("Testing 2kr3r/pppq1p2/3b1npB/3ppb2/1QBnP3/5N2/PPP1NPPP/R3K2R b "
+               "KQ - 0 13",
+               [&]() {
+                   board.parseFEN(
+                       "2kr3r/pppq1p2/3b1npB/3ppb2/1QBnP3/5N2/PPP1NPPP/R3K2R b "
+                       "KQ - 0 13");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{d8, e8, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{d8, f8, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{d8, g8, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{h8, h6, ROOK_CAPTURE}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{h8, h7, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{h8, e8, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{h8, f8, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{h8, g8, ROOK_QUIET}) != moves.end());
+               });
+
+            it("Testing "
+               "2kr3r/ppp2p2/3b1npB/1q1pp3/1QB1P1P1/1n3N2/PPP1NPbP/3RK1R1 w - "
+               "- 3 17",
+               [&]() {
+                   board.parseFEN(
+                       "2kr3r/ppp2p2/3b1npB/1q1pp3/1QB1P1P1/1n3N2/PPP1NPbP/"
+                       "3RK1R1 w - - 3 17");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{d1, a1, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{d1, b1, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{d1, c1, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{d1, d2, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{d1, d3, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{d1, d4, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{d1, d5, ROOK_CAPTURE}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{g1, f1, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{g1, h1, ROOK_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{g1, g2, ROOK_CAPTURE}) != moves.end());
+               });
+        });
     });
 }
 
