@@ -867,10 +867,29 @@ Bitboard Engine::getAttacksBoard(const ChessboardStatus* const status,
     switch (piece) {
         case KNIGHT:
             return knightAttacksMasks[square];
+        case BISHOP:
+            return getSingleBishopAttacks(square, status->boards[ALL_PIECES]);
+        case ROOK:
+            return getSingleRookAttacks(square, status->boards[ALL_PIECES]);
 
         default:
             return Bitboard();
     }
+}
+
+MoveType getMoveType(Piece piece, bool isQuiet) {
+    const std::map<Piece, MoveType> captureMoveMap = {
+        {KNIGHT, KNIGHT_CAPTURE}, {KING, KING_CAPTURE},
+        {ROOK, ROOK_CAPTURE},     {QUEEN, QUEEN_CAPTURE},
+        {BISHOP, BISHOP_CAPTURE},
+    };
+
+    const std::map<Piece, MoveType> quietMoveMap = {
+        {KNIGHT, KNIGHT_QUIET}, {KING, KING_QUIET},     {ROOK, ROOK_QUIET},
+        {QUEEN, QUEEN_QUIET},   {BISHOP, BISHOP_QUIET},
+    };
+
+    return isQuiet ? quietMoveMap.at(piece) : captureMoveMap.at(piece);
 }
 
 std::vector<Move> Engine::generateSliderAndLeaperMoves(
@@ -889,18 +908,14 @@ std::vector<Move> Engine::generateSliderAndLeaperMoves(
         Bitboard attacks =
             getAttacksBoard(status, piece, from) & ~(status->boards[sideBoard]);
 
-        // std::cout << getAttacksBoard(status, piece, from).toString()
-        //           << std::endl;
-        // std::cout << (~(status->boards[sideBoard])).toString() << std::endl;
-        // std::cout << attacks.toString() << std::endl;
         while (attacks.getValue()) {
             Square to =
                 static_cast<Square>(attacks.leastSignificantBeatIndex());
 
             if (status->boards[opponentBoard].getBit(to)) {
-                moves.push_back(Move{from, to, KNIGHT_CAPTURE});
+                moves.push_back(Move{from, to, getMoveType(piece, false)});
             } else {
-                moves.push_back(Move{from, to, KNIGHT_QUIET});
+                moves.push_back(Move{from, to, getMoveType(piece, true)});
             }
 
             attacks.clearBit(to);
@@ -926,9 +941,12 @@ std::vector<Move> Engine::generateAllMoves(
         generateSliderAndLeaperMoves(status, KNIGHT);
     moves.insert(moves.end(), knightMoves.begin(), knightMoves.end());
 
-    // Generate bishop moves
+    std::vector<Move> bishopMoves =
+        generateSliderAndLeaperMoves(status, BISHOP);
+    moves.insert(moves.end(), bishopMoves.begin(), bishopMoves.end());
 
-    // Generate rook moves
+    std::vector<Move> rookMoves = generateSliderAndLeaperMoves(status, ROOK);
+    moves.insert(moves.end(), rookMoves.begin(), rookMoves.end());
 
     // Generate queen moves
 
@@ -937,24 +955,6 @@ std::vector<Move> Engine::generateAllMoves(
 
 void Engine::__printMoves(std::vector<Move> moves) {
     std::cout << "Moves: \n";
-    // std::map<MoveType, std::string> moveDescriptionMap = {
-    //     {PAWN_PUSH, "Pawn push"},
-    //     {PAWN_DOUBLE_PUSH, "Double pawn push"},
-    //     {PAWN_PROMOTION_TO_BISHOP, "Pawn promotion to Bishop"},
-    //     {PAWN_PROMOTION_TO_ROOK, "Pawn promotion to Rook"},
-    //     {PAWN_PROMOTION_TO_KNIGHT, "Pawn promotion to Knight"},
-    //     {PAWN_PROMOTION_TO_QUEEN, "Pawn promotion to Queen"},
-    //     {PAWN_CAPTURE, "Pawn capture"},
-    //     {PAWN_CAPTURE_ENPASSANT, "Pawn capture enpassant"},
-    //     {PAWN_CAPTURE_PROMOTION_TO_BISHOP, "Pawn capture promotion to
-    //     Bishop"}, {PAWN_CAPTURE_PROMOTION_TO_ROOK, "Pawn capture promotion to
-    //     Rook"}, {PAWN_CAPTURE_PROMOTION_TO_KNIGHT, "Pawn capture promotion to
-    //     Knight"}, {PAWN_CAPTURE_PROMOTION_TO_QUEEN, "Pawn capture promotion
-    //     to Queen"}, {CASTLE_KINGSIDE, "Castle kingside"}, {CASTLE_QUEENSIDE,
-    //     "Castle queenside"}, {KNIGHT_QUIET, "Knight quiet move"},
-    //     {KNIGHT_CAPTURE, "Knight capture"},
-    // };
-    //
     std::map<MoveType, std::string> moveDescriptionMap = {
         {PAWN_PUSH, "PAWN_PUSH"},
         {PAWN_DOUBLE_PUSH, "PAWN_DOUBLE_PUSH"},
@@ -972,12 +972,17 @@ void Engine::__printMoves(std::vector<Move> moves) {
         {CASTLE_QUEENSIDE, "CASTLE_QUEENSIDE"},
         {KNIGHT_QUIET, "KNIGHT_QUIET"},
         {KNIGHT_CAPTURE, "KNIGHT_CAPTURE"},
+        {BISHOP_QUIET, "BISHOP_QUIET"},
+        {BISHOP_CAPTURE, "BISHOP_CAPTURE"},
+        {ROOK_QUIET, "ROOK_QUIET"},
+        {ROOK_CAPTURE, "ROOK_CAPTURE"},
+        {QUEEN_QUIET, "QUEEN_QUIET"},
+        {QUEEN_CAPTURE, "QUEEN_CAPTURE"},
+        {KING_QUIET, "KING_QUIET"},
+        {KING_CAPTURE, "KING_CAPTURE"},
     };
 
     for (auto move : moves) {
-        // std::cout << "[" << squareMap.at(move.sourceSquare) << " -> "
-        //           << squareMap.at(move.targetSquare) << "] "
-        //           << moveDescriptionMap.at(move.type) << std::endl;
         std::cout << " Move{" << squareMap.at(move.sourceSquare) << ", "
                   << squareMap.at(move.targetSquare) << ", "
                   << moveDescriptionMap.at(move.type) << "}" << std::endl;

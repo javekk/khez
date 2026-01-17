@@ -19,6 +19,18 @@ enum MoveType {
 
     KNIGHT_QUIET,
     KNIGHT_CAPTURE,
+
+    BISHOP_QUIET,
+    BISHOP_CAPTURE,
+
+    ROOK_QUIET,
+    ROOK_CAPTURE,
+
+    QUEEN_QUIET,
+    QUEEN_CAPTURE,
+
+    KING_QUIET,
+    KING_CAPTURE,
 };
 
 struct Move {
