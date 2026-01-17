@@ -1314,6 +1314,86 @@ void test_move_generations() {
                                     Move{g1, g2, ROOK_CAPTURE}) != moves.end());
                });
         });
+
+        describe("Testing queen moves generation", [&]() {
+            it("Testing initial position white to play", [&]() {
+                board.setupInitialPosition();
+                moves = engine.generateAllMoves(&board.status);
+                expect(std::all_of(
+                    moves.begin(), moves.end(),
+                    [](const Move& move) { return move.type != QUEEN_QUIET; }));
+                expect(std::all_of(moves.begin(), moves.end(),
+                                   [](const Move& move) {
+                                       return move.type != QUEEN_CAPTURE;
+                                   }));
+            });
+
+            it("Testing "
+               "2kr3r/ppp2p2/3b1npB/1q1pp3/1QB1P1P1/1n3N2/PPP1NPbP/3RK1R1 w - "
+               "- 3 17",
+               [&]() {
+                   board.parseFEN(
+                       "2kr3r/ppp2p2/3b1npB/1q1pp3/1QB1P1P1/1n3N2/PPP1NPbP/"
+                       "3RK1R1 w - - 3 17");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b4, d2, QUEEN_QUIET}) != moves.end());
+
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b4, a3, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b4, b3, QUEEN_CAPTURE}) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b4, c3, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b4, a4, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b4, a5, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b4, b5, QUEEN_CAPTURE}) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b4, c5, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b4, d6, QUEEN_CAPTURE}) !=
+                          moves.end());
+               });
+
+            it("Testing "
+               "2kr3r/ppp2p2/3b1npB/1q1pp3/2B1P1P1/1Q3N2/PPP1NPbP/3RK1R1 b - - "
+               "0 17",
+               [&]() {
+                   board.parseFEN(
+                       "2kr3r/ppp2p2/3b1npB/1q1pp3/2B1P1P1/1Q3N2/PPP1NPbP/"
+                       "3RK1R1 b - - 0 17");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b5, b3, QUEEN_CAPTURE}) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b5, a4, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b5, b4, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b5, c4, QUEEN_CAPTURE}) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b5, a5, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b5, c5, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b5, a6, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b5, b6, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b5, c6, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b5, d7, QUEEN_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{b5, e8, QUEEN_QUIET}) != moves.end());
+               });
+        });
     });
 }
 

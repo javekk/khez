@@ -871,6 +871,8 @@ Bitboard Engine::getAttacksBoard(const ChessboardStatus* const status,
             return getSingleBishopAttacks(square, status->boards[ALL_PIECES]);
         case ROOK:
             return getSingleRookAttacks(square, status->boards[ALL_PIECES]);
+        case QUEEN:
+            return getSingleQueenAttacks(square, status->boards[ALL_PIECES]);
 
         default:
             return Bitboard();
@@ -948,7 +950,8 @@ std::vector<Move> Engine::generateAllMoves(
     std::vector<Move> rookMoves = generateSliderAndLeaperMoves(status, ROOK);
     moves.insert(moves.end(), rookMoves.begin(), rookMoves.end());
 
-    // Generate queen moves
+    std::vector<Move> queenMoves = generateSliderAndLeaperMoves(status, QUEEN);
+    moves.insert(moves.end(), queenMoves.begin(), queenMoves.end());
 
     return moves;
 }
