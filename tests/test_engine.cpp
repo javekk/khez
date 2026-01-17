@@ -1090,6 +1090,88 @@ void test_move_generations() {
                                       }));
                });
         });
+
+        describe("Testing knight moves generation", [&]() {
+            it("Testing initial position white to play", [&]() {
+                board.setupInitialPosition();
+                moves = engine.generateAllMoves(&board.status);
+                expect(std::find(moves.begin(), moves.end(),
+                                 Move{g1, h3, KNIGHT_QUIET}) != moves.end());
+                expect(std::find(moves.begin(), moves.end(),
+                                 Move{g1, f3, KNIGHT_QUIET}) != moves.end());
+                expect(std::find(moves.begin(), moves.end(),
+                                 Move{b1, a3, KNIGHT_QUIET}) != moves.end());
+                expect(std::find(moves.begin(), moves.end(),
+                                 Move{b1, c3, KNIGHT_QUIET}) != moves.end());
+            });
+
+            it("Testing "
+               "r3k2r/pppq1ppp/2n2n2/2bppb2/2BPP3/2N1BN2/PPPQ1PPP/R3K2R b KQkq "
+               "- 11 8",
+               [&]() {
+                   board.parseFEN(
+                       "r3k2r/pppq1ppp/2n2n2/2bppb2/2BPP3/2N1BN2/PPPQ1PPP/"
+                       "R3K2R b KQkq - 11 8");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{c6, b4, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{c6, d4, KNIGHT_CAPTURE}) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{c6, a5, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{c6, e7, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{c6, b8, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{c6, d8, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{f6, e4, KNIGHT_CAPTURE}) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{f6, g4, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{f6, h5, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{f6, g8, KNIGHT_QUIET}) != moves.end());
+               });
+
+            it("Testing "
+               "2kr3r/pppq1p1p/3b1np1/3ppb2/2BnP3/4BN2/PPPQNPPP/R3K2R w KQ - 0 "
+               "12",
+               [&]() {
+                   board.parseFEN(
+                       "2kr3r/pppq1p1p/3b1np1/3ppb2/2BnP3/4BN2/PPPQNPPP/R3K2R "
+                       "w KQ - 0 12");
+                   moves = engine.generateAllMoves(&board.status);
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e2, c1, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e2, g1, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e2, c3, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e2, g3, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e2, d4, KNIGHT_CAPTURE}) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{e2, f4, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{f3, g1, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{f3, d4, KNIGHT_CAPTURE}) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{f3, h4, KNIGHT_QUIET}) != moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{f3, e5, KNIGHT_CAPTURE}) !=
+                          moves.end());
+                   expect(std::find(moves.begin(), moves.end(),
+                                    Move{f3, g5, KNIGHT_QUIET}) != moves.end());
+               });
+        });
     });
 }
 

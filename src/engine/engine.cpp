@@ -454,6 +454,7 @@ Bitboard Engine::getSingleRookAttacks(Square square, Bitboard occupancies) {
 #pragma endregion
 
 #pragma region Sliding Pieces Logic
+
 Bitboard Engine::setOccupancy(int index, Bitboard attacksMask) {
     Bitboard occupancyMask;
     int attacksMaskPopCount = attacksMask.popCount();
@@ -787,11 +788,7 @@ bool Engine::canWhiteCastleKingSide(const ChessboardStatus* const status) {
     // I do not check g1 (where the king lands) that is resposability
     // of the makeMove function
 
-    if (emptyRank && noAttacks) {
-        return true;
-    }
-
-    return false;
+    return (emptyRank && noAttacks);
 }
 
 bool Engine::canWhiteCastleQueenSide(const ChessboardStatus* const status) {
@@ -807,11 +804,7 @@ bool Engine::canWhiteCastleQueenSide(const ChessboardStatus* const status) {
     // I do not check c1 (where the king lands) that is resposability
     // of the makeMove function
 
-    if (emptyRank && noAttacks) {
-        return true;
-    }
-
-    return false;
+    return (emptyRank && noAttacks);
 }
 
 bool Engine::canBlackCastleKingSide(const ChessboardStatus* const status) {
@@ -826,11 +819,7 @@ bool Engine::canBlackCastleKingSide(const ChessboardStatus* const status) {
     // I do not check g8 (where the king lands) that is resposability
     // of the makeMove function
 
-    if (emptyRank && noAttacks) {
-        return true;
-    }
-
-    return false;
+    return (emptyRank && noAttacks);
 }
 
 bool Engine::canBlackCastleQueenSide(const ChessboardStatus* const status) {
@@ -846,11 +835,7 @@ bool Engine::canBlackCastleQueenSide(const ChessboardStatus* const status) {
     // I do not check c1 (where the king lands) that is resposability
     // of the makeMove function
 
-    if (emptyRank && noAttacks) {
-        return true;
-    }
-
-    return false;
+    return (emptyRank && noAttacks);
 }
 
 std::vector<Move> Engine::generateKingCastlingMoves(
@@ -877,6 +862,56 @@ std::vector<Move> Engine::generateKingCastlingMoves(
     return moves;
 }
 
+Bitboard Engine::getAttacksBoard(const ChessboardStatus* const status,
+                                 Piece piece, Square square) {
+    switch (piece) {
+        case KNIGHT:
+            return knightAttacksMasks[square];
+
+        default:
+            return Bitboard();
+    }
+}
+
+std::vector<Move> Engine::generateSliderAndLeaperMoves(
+    const ChessboardStatus* const status, Piece piece) {
+    std::vector<Move> moves;
+    Color sideToMove = status->side.value();
+
+    Bitboard pieceBoard =
+        status->boards[sideColorToPieceBoardMap.at({sideToMove, piece})];
+    PieceBoard sideBoard = (sideToMove == WHITE) ? WHITE_ALL : BLACK_ALL;
+    PieceBoard opponentBoard = (sideToMove == WHITE) ? BLACK_ALL : WHITE_ALL;
+
+    while (pieceBoard.getValue()) {
+        Square from =
+            static_cast<Square>(pieceBoard.leastSignificantBeatIndex());
+        Bitboard attacks =
+            getAttacksBoard(status, piece, from) & ~(status->boards[sideBoard]);
+
+        // std::cout << getAttacksBoard(status, piece, from).toString()
+        //           << std::endl;
+        // std::cout << (~(status->boards[sideBoard])).toString() << std::endl;
+        // std::cout << attacks.toString() << std::endl;
+        while (attacks.getValue()) {
+            Square to =
+                static_cast<Square>(attacks.leastSignificantBeatIndex());
+
+            if (status->boards[opponentBoard].getBit(to)) {
+                moves.push_back(Move{from, to, KNIGHT_CAPTURE});
+            } else {
+                moves.push_back(Move{from, to, KNIGHT_QUIET});
+            }
+
+            attacks.clearBit(to);
+        }
+
+        pieceBoard.clearBit(from);
+    }
+
+    return moves;
+};
+
 std::vector<Move> Engine::generateAllMoves(
     const ChessboardStatus* const status) {
     std::vector<Move> moves;
@@ -887,7 +922,9 @@ std::vector<Move> Engine::generateAllMoves(
     std::vector<Move> kingMoves = generateKingMoves(status);
     moves.insert(moves.end(), kingMoves.begin(), kingMoves.end());
 
-    // Generate knight moves
+    std::vector<Move> knightMoves =
+        generateSliderAndLeaperMoves(status, KNIGHT);
+    moves.insert(moves.end(), knightMoves.begin(), knightMoves.end());
 
     // Generate bishop moves
 
@@ -900,26 +937,50 @@ std::vector<Move> Engine::generateAllMoves(
 
 void Engine::__printMoves(std::vector<Move> moves) {
     std::cout << "Moves: \n";
+    // std::map<MoveType, std::string> moveDescriptionMap = {
+    //     {PAWN_PUSH, "Pawn push"},
+    //     {PAWN_DOUBLE_PUSH, "Double pawn push"},
+    //     {PAWN_PROMOTION_TO_BISHOP, "Pawn promotion to Bishop"},
+    //     {PAWN_PROMOTION_TO_ROOK, "Pawn promotion to Rook"},
+    //     {PAWN_PROMOTION_TO_KNIGHT, "Pawn promotion to Knight"},
+    //     {PAWN_PROMOTION_TO_QUEEN, "Pawn promotion to Queen"},
+    //     {PAWN_CAPTURE, "Pawn capture"},
+    //     {PAWN_CAPTURE_ENPASSANT, "Pawn capture enpassant"},
+    //     {PAWN_CAPTURE_PROMOTION_TO_BISHOP, "Pawn capture promotion to
+    //     Bishop"}, {PAWN_CAPTURE_PROMOTION_TO_ROOK, "Pawn capture promotion to
+    //     Rook"}, {PAWN_CAPTURE_PROMOTION_TO_KNIGHT, "Pawn capture promotion to
+    //     Knight"}, {PAWN_CAPTURE_PROMOTION_TO_QUEEN, "Pawn capture promotion
+    //     to Queen"}, {CASTLE_KINGSIDE, "Castle kingside"}, {CASTLE_QUEENSIDE,
+    //     "Castle queenside"}, {KNIGHT_QUIET, "Knight quiet move"},
+    //     {KNIGHT_CAPTURE, "Knight capture"},
+    // };
+    //
     std::map<MoveType, std::string> moveDescriptionMap = {
-        {PAWN_PUSH, "Pawn push"},
-        {PAWN_DOUBLE_PUSH, "Double pawn push"},
-        {PAWN_PROMOTION_TO_BISHOP, "Pawn promotion to Bishop"},
-        {PAWN_PROMOTION_TO_ROOK, "Pawn promotion to Rook"},
-        {PAWN_PROMOTION_TO_KNIGHT, "Pawn promotion to Knight"},
-        {PAWN_PROMOTION_TO_QUEEN, "Pawn promotion to Queen"},
-        {PAWN_CAPTURE, "Pawn capture"},
-        {PAWN_CAPTURE_ENPASSANT, "Pawn capture enpassant"},
-        {PAWN_CAPTURE_PROMOTION_TO_BISHOP, "Pawn capture promotion to Bishop"},
-        {PAWN_CAPTURE_PROMOTION_TO_ROOK, "Pawn capture promotion to Rook"},
-        {PAWN_CAPTURE_PROMOTION_TO_KNIGHT, "Pawn capture promotion to Knight"},
-        {PAWN_CAPTURE_PROMOTION_TO_QUEEN, "Pawn capture promotion to Queen"},
-        {CASTLE_KINGSIDE, "Castle kingside"},
-        {CASTLE_QUEENSIDE, "Castle queenside"},
+        {PAWN_PUSH, "PAWN_PUSH"},
+        {PAWN_DOUBLE_PUSH, "PAWN_DOUBLE_PUSH"},
+        {PAWN_PROMOTION_TO_BISHOP, "PAWN_PROMOTION_TO_BISHOP"},
+        {PAWN_PROMOTION_TO_ROOK, "PAWN_PROMOTION_TO_ROOK"},
+        {PAWN_PROMOTION_TO_KNIGHT, "PAWN_PROMOTION_TO_KNIGHT"},
+        {PAWN_PROMOTION_TO_QUEEN, "PAWN_PROMOTION_TO_QUEEN"},
+        {PAWN_CAPTURE, "PAWN_CAPTURE"},
+        {PAWN_CAPTURE_ENPASSANT, "PAWN_CAPTURE_ENPASSANT"},
+        {PAWN_CAPTURE_PROMOTION_TO_BISHOP, "PAWN_CAPTURE_PROMOTION_TO_BISHOP"},
+        {PAWN_CAPTURE_PROMOTION_TO_ROOK, "PAWN_CAPTURE_PROMOTION_TO_ROOK"},
+        {PAWN_CAPTURE_PROMOTION_TO_KNIGHT, "PAWN_CAPTURE_PROMOTION_TO_KNIGHT"},
+        {PAWN_CAPTURE_PROMOTION_TO_QUEEN, "PAWN_CAPTURE_PROMOTION_TO_QUEEN"},
+        {CASTLE_KINGSIDE, "CASTLE_KINGSIDE"},
+        {CASTLE_QUEENSIDE, "CASTLE_QUEENSIDE"},
+        {KNIGHT_QUIET, "KNIGHT_QUIET"},
+        {KNIGHT_CAPTURE, "KNIGHT_CAPTURE"},
     };
+
     for (auto move : moves) {
-        std::cout << "[" << squareMap.at(move.sourceSquare) << " -> "
-                  << squareMap.at(move.targetSquare) << "] "
-                  << moveDescriptionMap.at(move.type) << std::endl;
+        // std::cout << "[" << squareMap.at(move.sourceSquare) << " -> "
+        //           << squareMap.at(move.targetSquare) << "] "
+        //           << moveDescriptionMap.at(move.type) << std::endl;
+        std::cout << " Move{" << squareMap.at(move.sourceSquare) << ", "
+                  << squareMap.at(move.targetSquare) << ", "
+                  << moveDescriptionMap.at(move.type) << "}" << std::endl;
     }
 
     std::cout << "Found " << moves.size() << " pseudo legal moves!"

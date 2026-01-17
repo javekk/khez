@@ -4,6 +4,7 @@
 
 #include "../bitboard/bitboard.h"
 #include "../lib/color.h"
+#include "../lib/piece.h"
 #include "../lib/square.h"
 
 enum PieceBoard {
@@ -26,6 +27,9 @@ enum PieceBoard {
     ALL_PIECES,
     BOARDS_COUNTER,  // Must be last - used only for size
 };
+
+extern const std::map<std::pair<Color, Piece>, PieceBoard>
+    sideColorToPieceBoardMap;
 
 enum Castle {
     WHITE_KINGSIDE = 0b0001,

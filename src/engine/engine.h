@@ -7,6 +7,7 @@
 #include "../chessboard/chessboard-status.h"
 #include "../lib/color.h"
 #include "../lib/move.h"
+#include "../lib/piece.h"
 #include "../lib/sliding-piece.h"
 #include "../lib/square.h"
 
@@ -83,4 +84,9 @@ class Engine {
     bool canWhiteCastleQueenSide(const ChessboardStatus* const status);
     bool canBlackCastleKingSide(const ChessboardStatus* const status);
     bool canBlackCastleQueenSide(const ChessboardStatus* const status);
+
+    std::vector<Move> generateSliderAndLeaperMoves(
+        const ChessboardStatus* const status, Piece piece);
+    Bitboard getAttacksBoard(const ChessboardStatus* const status, Piece piece,
+                             Square square);
 };

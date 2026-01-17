@@ -110,16 +110,7 @@ void ChessBoard::setPieceAt(const Square square, const Piece piece,
                             const Color color) {
     assert(square >= 0 && square < 64);
 
-    std::map<std::pair<Color, Piece>, int> indexMap = {
-        {{WHITE, PAWN}, WHITE_PAWNS},     {{WHITE, BISHOP}, WHITE_BISHOPS},
-        {{WHITE, KNIGHT}, WHITE_KNIGHTS}, {{WHITE, ROOK}, WHITE_ROOKS},
-        {{WHITE, KING}, WHITE_KING},      {{WHITE, QUEEN}, WHITE_QUEEN},
-        {{BLACK, PAWN}, BLACK_PAWNS},     {{BLACK, BISHOP}, BLACK_BISHOPS},
-        {{BLACK, KNIGHT}, BLACK_KNIGHTS}, {{BLACK, ROOK}, BLACK_ROOKS},
-        {{BLACK, KING}, BLACK_KING},      {{BLACK, QUEEN}, BLACK_QUEEN},
-    };
-
-    status.boards[indexMap.at({color, piece})].setBit(square);
+    status.boards[sideColorToPieceBoardMap.at({color, piece})].setBit(square);
     updateAllOccupancyBoards();
 }
 
