@@ -7,4 +7,5 @@ enum Piece {
     BISHOP,
     QUEEN,
     KING,
+    EMPTY,
 };

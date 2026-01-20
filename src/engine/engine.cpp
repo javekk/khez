@@ -964,37 +964,9 @@ std::vector<Move> Engine::generateAllMoves(
 
 void Engine::__printMoves(std::vector<Move> moves) {
     std::cout << "Moves: \n";
-    std::map<MoveType, std::string> moveDescriptionMap = {
-        {PAWN_PUSH, "PAWN_PUSH"},
-        {PAWN_DOUBLE_PUSH, "PAWN_DOUBLE_PUSH"},
-        {PAWN_PROMOTION_TO_BISHOP, "PAWN_PROMOTION_TO_BISHOP"},
-        {PAWN_PROMOTION_TO_ROOK, "PAWN_PROMOTION_TO_ROOK"},
-        {PAWN_PROMOTION_TO_KNIGHT, "PAWN_PROMOTION_TO_KNIGHT"},
-        {PAWN_PROMOTION_TO_QUEEN, "PAWN_PROMOTION_TO_QUEEN"},
-        {PAWN_CAPTURE, "PAWN_CAPTURE"},
-        {PAWN_CAPTURE_ENPASSANT, "PAWN_CAPTURE_ENPASSANT"},
-        {PAWN_CAPTURE_PROMOTION_TO_BISHOP, "PAWN_CAPTURE_PROMOTION_TO_BISHOP"},
-        {PAWN_CAPTURE_PROMOTION_TO_ROOK, "PAWN_CAPTURE_PROMOTION_TO_ROOK"},
-        {PAWN_CAPTURE_PROMOTION_TO_KNIGHT, "PAWN_CAPTURE_PROMOTION_TO_KNIGHT"},
-        {PAWN_CAPTURE_PROMOTION_TO_QUEEN, "PAWN_CAPTURE_PROMOTION_TO_QUEEN"},
-        {CASTLE_KINGSIDE, "CASTLE_KINGSIDE"},
-        {CASTLE_QUEENSIDE, "CASTLE_QUEENSIDE"},
-        {KNIGHT_QUIET, "KNIGHT_QUIET"},
-        {KNIGHT_CAPTURE, "KNIGHT_CAPTURE"},
-        {BISHOP_QUIET, "BISHOP_QUIET"},
-        {BISHOP_CAPTURE, "BISHOP_CAPTURE"},
-        {ROOK_QUIET, "ROOK_QUIET"},
-        {ROOK_CAPTURE, "ROOK_CAPTURE"},
-        {QUEEN_QUIET, "QUEEN_QUIET"},
-        {QUEEN_CAPTURE, "QUEEN_CAPTURE"},
-        {KING_QUIET, "KING_QUIET"},
-        {KING_CAPTURE, "KING_CAPTURE"},
-    };
 
     for (auto move : moves) {
-        std::cout << " Move{" << squareMap.at(move.sourceSquare) << ", "
-                  << squareMap.at(move.targetSquare) << ", "
-                  << moveDescriptionMap.at(move.type) << "}" << std::endl;
+        std::cout << move.toString() << std::endl;
     }
 
     std::cout << "Found " << moves.size() << " pseudo legal moves!"

@@ -21,7 +21,8 @@ int main() {
 
     ChessBoard board;
     board.parseFEN(
-        "2kr3r/pQp2p2/5npB/3pp3/2B1P1P1/2b2N2/PPP1NP1P/3R1KR1 b - - 0 20");
+        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
+        "R3K2R b KQkq - 0 0");
 
     cout << board.toStringComplete();
     engine.__printMoves(engine.generateAllMoves(&board.status));

@@ -1,3 +1,4 @@
+#include "piece.h"
 #include "square.h"
 
 enum MoveType {
@@ -33,13 +34,25 @@ enum MoveType {
     KING_CAPTURE,
 };
 
-struct Move {
-    Square sourceSquare;
-    Square targetSquare;
+class Move {
+   public:
+    Square from;
+    Square to;
+
     MoveType type;
 
-    bool operator==(const Move& other) const {
-        return sourceSquare == other.sourceSquare &&
-               targetSquare == other.targetSquare && type == other.type;
-    }
+    Piece piece;
+    Piece promoted;
+    bool isCapture;
+    bool isDoublePush;
+    bool isEnpassant;
+    bool isCastling;
+
+    Move(Square from, Square to, MoveType type);
+    Move(u_int32_t binary);
+
+    std::string toString() const;
+
+    bool operator==(const Move& other) const;
+    u_int32_t getBinaryMove() const;
 };
