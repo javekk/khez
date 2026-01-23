@@ -25,5 +25,5 @@ int main() {
         "R3K2R b KQkq - 0 0");
 
     cout << board.toStringComplete();
-    engine.__printMoves(engine.generateAllMoves(&board.status));
+    engine.__printMoves(engine.generateAllMovesAsMoveList(&board.status));
 }

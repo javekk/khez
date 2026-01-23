@@ -71,15 +71,19 @@ std::map<MoveType, std::string> moveDescriptionMap = {
     {KING_CAPTURE, "KING_CAPTURE"},
 };
 
-Move::Move(Square from, Square to, MoveType type)
-    : from(from),
-      to(to),
-      type(type),
-      promoted(EMPTY),
-      isCapture(false),
-      isDoublePush(false),
-      isEnpassant(false),
-      isCastling(false) {
+Move::Move(Square from, Square to, MoveType type) {
+    // Use the static createBinary function and then the binary constructor
+    *this = Move(createBinary(from, to, type));
+}
+
+u_int32_t Move::createBinary(Square from, Square to, MoveType type) {
+    Piece piece = EMPTY;
+    Piece promoted = EMPTY;
+    bool isCapture = false;
+    bool isDoublePush = false;
+    bool isEnpassant = false;
+    bool isCastling = false;
+
     // Piece
     switch (type) {
         case PAWN_PUSH:
@@ -170,6 +174,10 @@ Move::Move(Square from, Square to, MoveType type)
         default:
             break;
     }
+
+    return (from) | (to << 6) | ((piece != EMPTY ? piece : 0) << 12) |
+           ((promoted != EMPTY ? promoted : EMPTY) << 16) | (isCapture << 20) |
+           (isDoublePush << 21) | (isEnpassant << 22) | (isCastling << 23);
 }
 
 Move::Move(u_int32_t binary) {
@@ -202,7 +210,7 @@ std::string Move::toString() const {
 
     int padding = 56 - moveStr.length();
 
-    std::bitset<24> binaryMove(getBinaryMove());
+    std::bitset<24> binaryMove(toBinary());
     std::string binary = binaryMove.to_string();
     std::string formatted;
     for (size_t i = 0; i < binary.length(); ++i) {
@@ -219,7 +227,7 @@ bool Move::operator==(const Move& other) const {
     return from == other.from && to == other.to && type == other.type;
 }
 
-u_int32_t Move::getBinaryMove() const {
+u_int32_t Move::toBinary() const {
     /*
         0000 0000 0000 0000 0011 1111    source square       0x3f
         0000 0000 0000 1111 1100 0000    target square       0xfc0

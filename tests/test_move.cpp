@@ -202,7 +202,7 @@ void run_move_tests() {
         describe("Testing binary encoding and decoding", []() {
             it("Testing pawn push encoding", []() {
                 Move move(e2, e4, PAWN_DOUBLE_PUSH);
-                u_int32_t binary = move.getBinaryMove();
+                u_int32_t binary = move.toBinary();
                 Move decoded(binary);
 
                 expect(decoded.from == e2);
@@ -214,7 +214,7 @@ void run_move_tests() {
 
             it("Testing knight capture encoding", []() {
                 Move move(c3, d5, KNIGHT_CAPTURE);
-                u_int32_t binary = move.getBinaryMove();
+                u_int32_t binary = move.toBinary();
                 Move decoded(binary);
 
                 expect(decoded.from == c3);
@@ -225,7 +225,7 @@ void run_move_tests() {
 
             it("Testing promotion encoding", []() {
                 Move move(e7, e8, PAWN_PROMOTION_TO_QUEEN);
-                u_int32_t binary = move.getBinaryMove();
+                u_int32_t binary = move.toBinary();
                 Move decoded(binary);
 
                 expect(decoded.piece == PAWN);
@@ -236,7 +236,7 @@ void run_move_tests() {
 
             it("Testing castle encoding", []() {
                 Move move(e1, g1, CASTLE_KINGSIDE);
-                u_int32_t binary = move.getBinaryMove();
+                u_int32_t binary = move.toBinary();
                 Move decoded(binary);
 
                 expect(decoded.piece == KING);
@@ -247,7 +247,7 @@ void run_move_tests() {
 
             it("Testing en passant encoding", []() {
                 Move move(e5, d6, PAWN_CAPTURE_ENPASSANT);
-                u_int32_t binary = move.getBinaryMove();
+                u_int32_t binary = move.toBinary();
                 Move decoded(binary);
 
                 expect(decoded.piece == PAWN);
@@ -270,7 +270,7 @@ void run_move_tests() {
                 };
 
                 for (const auto& original : moves) {
-                    u_int32_t binary = original.getBinaryMove();
+                    u_int32_t binary = original.toBinary();
                     Move decoded(binary);
                     expect(original == decoded);
                 }

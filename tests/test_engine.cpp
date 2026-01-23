@@ -626,7 +626,7 @@ void test_move_generations() {
         describe("Testing quite pawn move generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMoves(&board.status);
+                moves = engine.generateAllMovesAsMoveList(&board.status);
                 expect(std::find(moves.begin(), moves.end(),
                                  Move{a2, a3, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
@@ -674,7 +674,7 @@ void test_move_generations() {
                 board.parseFEN(
                     "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq e3 0 "
                     "1");
-                moves = engine.generateAllMoves(&board.status);
+                moves = engine.generateAllMovesAsMoveList(&board.status);
                 expect(std::find(moves.begin(), moves.end(),
                                  Move{a7, a6, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
@@ -725,7 +725,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
                        "R3K2R b KQkq - 0 0");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{b4, b3, PAWN_PUSH}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -758,7 +758,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
                        "R3K2R w KQkq - 0 0");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{a2, a3, PAWN_PUSH}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -786,7 +786,7 @@ void test_move_generations() {
         describe("Testing pawn capture move generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMoves(&board.status);
+                moves = engine.generateAllMovesAsMoveList(&board.status);
                 expect(std::all_of(moves.begin(), moves.end(),
                                    [](const Move& move) {
                                        return move.type != PAWN_CAPTURE;
@@ -816,7 +816,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
                        "R3K2R w KQkq - 0 0");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     (Move{d5, e6, PAWN_CAPTURE})) !=
                           moves.end());
@@ -845,7 +845,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
                        "R3K2R b KQkq - 0 0");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     (Move{b4, c3, PAWN_CAPTURE})) !=
                           moves.end());
@@ -874,7 +874,7 @@ void test_move_generations() {
         describe("Testing enpassant capture", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMoves(&board.status);
+                moves = engine.generateAllMovesAsMoveList(&board.status);
                 expect(std::all_of(
                     moves.begin(), moves.end(), [](const Move& move) {
                         return move.type != PAWN_CAPTURE_ENPASSANT;
@@ -885,7 +885,7 @@ void test_move_generations() {
                "e3 0 1",
                [&]() {
                    board.setupInitialPosition();
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::all_of(
                        moves.begin(), moves.end(), [](const Move& move) {
                            return move.type != PAWN_CAPTURE_ENPASSANT;
@@ -899,7 +899,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "rnbqk2r/p1pp1pbp/5n2/PpP1p1p1/4P3/8/1P1P1PPP/RNBQKBNR "
                        "w KQkq b6 0 6");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     (Move{a5, b6, PAWN_CAPTURE_ENPASSANT})) !=
                           moves.end());
@@ -915,7 +915,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "rnbqkbnr/1p1p1ppp/8/4p3/pPp1P3/5NP1/P1PPQPBP/RNB1K2R b "
                        "KQkq b3 0 6");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     (Move{a4, b3, PAWN_CAPTURE_ENPASSANT})) !=
                           moves.end());
@@ -928,7 +928,7 @@ void test_move_generations() {
         describe("Testing castle moves", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMoves(&board.status);
+                moves = engine.generateAllMovesAsMoveList(&board.status);
                 expect(std::all_of(moves.begin(), moves.end(),
                                    [](const Move& move) {
                                        return move.type != CASTLE_KINGSIDE;
@@ -945,7 +945,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K2R w KQk "
                        "- 0 20");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e1, g1, CASTLE_KINGSIDE}) !=
                           moves.end());
@@ -960,7 +960,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K2R w - "
                        "- 0 20");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::all_of(moves.begin(), moves.end(),
                                       [](const Move& move) {
                                           return move.type != CASTLE_KINGSIDE;
@@ -977,7 +977,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K2R w Kk "
                        "- 0 20");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e1, g1, CASTLE_KINGSIDE}) !=
                           moves.end());
@@ -993,7 +993,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K1BR w Kk "
                        "- 0 20");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::all_of(moves.begin(), moves.end(),
                                       [](const Move& move) {
                                           return move.type != CASTLE_KINGSIDE;
@@ -1011,7 +1011,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K1BR w Kk "
                        "- 0 20");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::all_of(moves.begin(), moves.end(),
                                       [](const Move& move) {
                                           return move.type != CASTLE_KINGSIDE;
@@ -1028,7 +1028,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq "
                        "e3 0 1");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::all_of(moves.begin(), moves.end(),
                                       [](const Move& move) {
                                           return move.type != CASTLE_KINGSIDE;
@@ -1046,7 +1046,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pppq1ppp/2n2n2/2bppb2/2BPP3/2N1BN2/PPPQ1PPP/"
                        "R3K2R b KQkq - 11 8");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e8, g8, CASTLE_KINGSIDE}) !=
                           moves.end());
@@ -1062,7 +1062,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/"
                        "R1BQK2R b KQkq - 5 4");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e8, g8, CASTLE_KINGSIDE}) !=
                           moves.end());
@@ -1079,7 +1079,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "rnbqk2r/1ppp1ppp/p4n2/4p3/2B1P3/BPN2N2/P1PP1PPP/R2QK2R "
                        "b KQkq - 0 6");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::all_of(moves.begin(), moves.end(),
                                       [](const Move& move) {
                                           return move.type != CASTLE_KINGSIDE;
@@ -1094,7 +1094,7 @@ void test_move_generations() {
         describe("Testing knight moves generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMoves(&board.status);
+                moves = engine.generateAllMovesAsMoveList(&board.status);
                 expect(std::find(moves.begin(), moves.end(),
                                  Move{g1, h3, KNIGHT_QUIET}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
@@ -1112,7 +1112,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pppq1ppp/2n2n2/2bppb2/2BPP3/2N1BN2/PPPQ1PPP/"
                        "R3K2R b KQkq - 11 8");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{c6, b4, KNIGHT_QUIET}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1144,7 +1144,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/pppq1p1p/3b1np1/3ppb2/2BnP3/4BN2/PPPQNPPP/R3K2R "
                        "w KQ - 0 12");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e2, c1, KNIGHT_QUIET}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1176,7 +1176,7 @@ void test_move_generations() {
         describe("Testing bishop moves generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMoves(&board.status);
+                moves = engine.generateAllMovesAsMoveList(&board.status);
                 expect(std::all_of(moves.begin(), moves.end(),
                                    [](const Move& move) {
                                        return move.type != BISHOP_QUIET;
@@ -1194,7 +1194,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/pppq1p1p/3b1np1/3ppb2/2BnP3/4BN2/PPPQNPPP/R3K2R "
                        "w KQ - 0 12");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e3, d4, BISHOP_CAPTURE}) !=
                           moves.end());
@@ -1224,7 +1224,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/pppq1p1p/3b1np1/3ppb2/1QBnP3/4BN2/PPP1NPPP/R3K2R "
                        "b KQ - 1 12");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{f5, h3, BISHOP_QUIET}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1249,7 +1249,7 @@ void test_move_generations() {
         describe("Testing rook moves generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMoves(&board.status);
+                moves = engine.generateAllMovesAsMoveList(&board.status);
                 expect(std::all_of(
                     moves.begin(), moves.end(),
                     [](const Move& move) { return move.type != ROOK_QUIET; }));
@@ -1265,7 +1265,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/pppq1p2/3b1npB/3ppb2/1QBnP3/5N2/PPP1NPPP/R3K2R b "
                        "KQ - 0 13");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{d8, e8, ROOK_QUIET}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1291,7 +1291,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/ppp2p2/3b1npB/1q1pp3/1QB1P1P1/1n3N2/PPP1NPbP/"
                        "3RK1R1 w - - 3 17");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{d1, a1, ROOK_QUIET}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1318,7 +1318,7 @@ void test_move_generations() {
         describe("Testing queen moves generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMoves(&board.status);
+                moves = engine.generateAllMovesAsMoveList(&board.status);
                 expect(std::all_of(
                     moves.begin(), moves.end(),
                     [](const Move& move) { return move.type != QUEEN_QUIET; }));
@@ -1335,7 +1335,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/ppp2p2/3b1npB/1q1pp3/1QB1P1P1/1n3N2/PPP1NPbP/"
                        "3RK1R1 w - - 3 17");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{b4, d2, QUEEN_QUIET}) != moves.end());
 
@@ -1367,7 +1367,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/ppp2p2/3b1npB/1q1pp3/2B1P1P1/1Q3N2/PPP1NPbP/"
                        "3RK1R1 b - - 0 17");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{b5, b3, QUEEN_CAPTURE}) !=
                           moves.end());
@@ -1398,7 +1398,7 @@ void test_move_generations() {
         describe("Testing king moves generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMoves(&board.status);
+                moves = engine.generateAllMovesAsMoveList(&board.status);
                 expect(std::all_of(
                     moves.begin(), moves.end(),
                     [](const Move& move) { return move.type != KING_QUIET; }));
@@ -1415,7 +1415,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/ppp2p2/3b1npB/1q1pp3/2B1P1P1/1Q3N2/PPP1NP1P/"
                        "3RKbR1 w - - 1 18");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e1, f1, KING_CAPTURE}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1428,7 +1428,7 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/pQp2p2/5npB/3pp3/2B1P1P1/2b2N2/PPP1NP1P/3R1KR1 b "
                        "- - 0 20");
-                   moves = engine.generateAllMoves(&board.status);
+                   moves = engine.generateAllMovesAsMoveList(&board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{c8, b7, KING_CAPTURE}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),

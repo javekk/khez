@@ -54,5 +54,7 @@ class Move {
     std::string toString() const;
 
     bool operator==(const Move& other) const;
-    u_int32_t getBinaryMove() const;
+    u_int32_t toBinary() const;
+
+    static u_int32_t createBinary(Square from, Square to, MoveType type);
 };

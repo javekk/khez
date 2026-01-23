@@ -593,79 +593,74 @@ bool isOnRank(Square square, int rank) {
     return (square >= (rank - 1) * 8) && (square < rank * 8);
 }
 
-void addPromotionMoves(Square from, Square to, std::vector<Move>& moves) {
+void addPromotionMoves(Square from, Square to, std::vector<u_int32_t>& moves) {
     bool isCapture = from % 8 != to % 8;
 
-    moves.push_back(Move{
+    moves.push_back(Move::createBinary(
         from, to,
-        isCapture ? PAWN_CAPTURE_PROMOTION_TO_QUEEN : PAWN_PROMOTION_TO_QUEEN});
-    moves.push_back(Move{
+        isCapture ? PAWN_CAPTURE_PROMOTION_TO_QUEEN : PAWN_PROMOTION_TO_QUEEN));
+    moves.push_back(Move::createBinary(
         from, to,
-        isCapture ? PAWN_CAPTURE_PROMOTION_TO_ROOK : PAWN_PROMOTION_TO_ROOK});
-    moves.push_back(Move{from, to,
-                         isCapture ? PAWN_CAPTURE_PROMOTION_TO_BISHOP
-                                   : PAWN_PROMOTION_TO_BISHOP});
-    moves.push_back(Move{from, to,
-                         isCapture ? PAWN_CAPTURE_PROMOTION_TO_KNIGHT
-                                   : PAWN_PROMOTION_TO_KNIGHT});
+        isCapture ? PAWN_CAPTURE_PROMOTION_TO_ROOK : PAWN_PROMOTION_TO_ROOK));
+    moves.push_back(Move::createBinary(from, to,
+                                       isCapture
+                                           ? PAWN_CAPTURE_PROMOTION_TO_BISHOP
+                                           : PAWN_PROMOTION_TO_BISHOP));
+    moves.push_back(Move::createBinary(from, to,
+                                       isCapture
+                                           ? PAWN_CAPTURE_PROMOTION_TO_KNIGHT
+                                           : PAWN_PROMOTION_TO_KNIGHT));
 }
 
-void addPawnPushMove(Square from, Square to, std::vector<Move>& moves) {
+void addPawnPushMove(Square from, Square to, std::vector<u_int32_t>& moves) {
     bool isCapture = from % 8 != to % 8;
     bool isDoublePush = (!isCapture) && (abs((to / 8) - (from / 8)) == 2);
     MoveType moveType = isDoublePush ? PAWN_DOUBLE_PUSH
                                      : (isCapture ? PAWN_CAPTURE : PAWN_PUSH);
-    moves.push_back(Move{from, to, moveType});
+    moves.push_back(Move::createBinary(from, to, moveType));
 }
 
-std::vector<Move> generateWhitePawnCaptures(const ChessboardStatus* status,
-                                            Square from, Square to) {
-    std::vector<Move> moves;
-
+void generateWhitePawnCaptures(const ChessboardStatus* status, Square from,
+                               Square to, std::vector<u_int32_t>& moves) {
     if (to == status->enpassant) {
-        moves.push_back(Move{from, to, PAWN_CAPTURE_ENPASSANT});
-        return moves;
+        moves.push_back(Move::createBinary(from, to, PAWN_CAPTURE_ENPASSANT));
+        return;
     }
 
     if (isOnRank(from, 7)) {
         addPromotionMoves(from, to, moves);
-        return moves;
+        return;
     }
     addPawnPushMove(from, to, moves);
-    return moves;
 }
 
-std::vector<Move> generateBlackPawnCaptures(const ChessboardStatus* status,
-                                            Square from, Square to) {
-    std::vector<Move> moves;
-
+void generateBlackPawnCaptures(const ChessboardStatus* status, Square from,
+                               Square to, std::vector<u_int32_t>& moves) {
     if (to == status->enpassant) {
-        moves.push_back(Move{from, to, PAWN_CAPTURE_ENPASSANT});
-        return moves;
+        moves.push_back(Move::createBinary(from, to, PAWN_CAPTURE_ENPASSANT));
+        return;
     }
 
     if (isOnRank(from, 2)) {
         addPromotionMoves(from, to, moves);
-        return moves;
+        return;
     }
 
     addPawnPushMove(from, to, moves);
-    return moves;
 }
 
-std::vector<Move> generateWhitePawnQuietMoves(const ChessboardStatus* status,
-                                              Square from) {
+void generateWhitePawnQuietMoves(const ChessboardStatus* status, Square from,
+                                 std::vector<u_int32_t>& moves) {
     const Bitboard& allPieces = status->boards[ALL_PIECES];
     Square to = static_cast<Square>(from + 8);
-    std::vector<Move> moves;
 
     if (to > h8 || allPieces.getBit(to)) {
-        return moves;
+        return;
     }
 
     if (isOnRank(from, 7)) {
         addPromotionMoves(from, to, moves);
-        return moves;
+        return;
     }
 
     addPawnPushMove(from, to, moves);
@@ -676,22 +671,20 @@ std::vector<Move> generateWhitePawnQuietMoves(const ChessboardStatus* status,
             addPawnPushMove(from, doublePushTo, moves);
         }
     }
-    return moves;
 }
 
-std::vector<Move> generateBlackPawnQuietMoves(const ChessboardStatus* status,
-                                              Square from) {
+void generateBlackPawnQuietMoves(const ChessboardStatus* status, Square from,
+                                 std::vector<u_int32_t>& moves) {
     const Bitboard& allPieces = status->boards[ALL_PIECES];
     Square to = static_cast<Square>(from - 8);
-    std::vector<Move> moves;
 
     if (to < a1 || allPieces.getBit(to)) {
-        return moves;
+        return;
     }
 
     if (isOnRank(from, 2)) {
         addPromotionMoves(from, to, moves);
-        return moves;
+        return;
     }
 
     addPawnPushMove(from, to, moves);
@@ -702,16 +695,14 @@ std::vector<Move> generateBlackPawnQuietMoves(const ChessboardStatus* status,
             addPawnPushMove(from, doublePushTo, moves);
         }
     }
-    return moves;
 }
 
-std::vector<Move> Engine::generatePawnMoves(
-    const ChessboardStatus* const status) {
+void Engine::generatePawnMoves(const ChessboardStatus* const status,
+                               std::vector<u_int32_t>& moves) {
     Color sideToMove = status->side.value();
     PieceBoard pawnPiece = (sideToMove == WHITE) ? WHITE_PAWNS : BLACK_PAWNS;
     Bitboard pawns = status->boards[pawnPiece];
 
-    std::vector<Move> moves;
     while (pawns.getValue()) {
         Square from = static_cast<Square>(pawns.leastSignificantBeatIndex());
 
@@ -719,25 +710,22 @@ std::vector<Move> Engine::generatePawnMoves(
         generatePawnCaptureMoves(status, from, moves);
         pawns.clearBit(from);
     }
-    return moves;
 }
 
 void Engine::generatePawnQuietMoves(const ChessboardStatus* const status,
-                                    Square from, std::vector<Move>& moves) {
+                                    Square from,
+                                    std::vector<u_int32_t>& moves) {
     Color sideToMove = status->side.value();
     if (sideToMove == WHITE) {
-        std::vector<Move> whiteMoves =
-            generateWhitePawnQuietMoves(status, from);
-        moves.insert(moves.end(), whiteMoves.begin(), whiteMoves.end());
+        generateWhitePawnQuietMoves(status, from, moves);
     } else {
-        std::vector<Move> blackMoves =
-            generateBlackPawnQuietMoves(status, from);
-        moves.insert(moves.end(), blackMoves.begin(), blackMoves.end());
+        generateBlackPawnQuietMoves(status, from, moves);
     }
 }
 
 void Engine::generatePawnCaptureMoves(const ChessboardStatus* const status,
-                                      Square from, std::vector<Move>& moves) {
+                                      Square from,
+                                      std::vector<u_int32_t>& moves) {
     Color sideToMove = status->side.value();
     PieceBoard attackedSide = (sideToMove == WHITE) ? BLACK_ALL : WHITE_ALL;
     Bitboard attacks =
@@ -754,30 +742,18 @@ void Engine::generatePawnCaptureMoves(const ChessboardStatus* const status,
     while (allCapture.getValue()) {
         Square to = static_cast<Square>(allCapture.leastSignificantBeatIndex());
         if (sideToMove == WHITE) {
-            std::vector<Move> whiteMoves =
-                generateWhitePawnCaptures(status, from, to);
-            moves.insert(moves.end(), whiteMoves.begin(), whiteMoves.end());
+            generateWhitePawnCaptures(status, from, to, moves);
         } else {
-            std::vector<Move> blackMoves =
-                generateBlackPawnCaptures(status, from, to);
-            moves.insert(moves.end(), blackMoves.begin(), blackMoves.end());
+            generateBlackPawnCaptures(status, from, to, moves);
         }
         allCapture.clearBit(to);
     }
 }
 
-std::vector<Move> Engine::generateKingMoves(
-    const ChessboardStatus* const status) {
-    std::vector<Move> moves;
-
-    std::vector<Move> normalKingMoves =
-        generateSliderAndLeaperMoves(status, KING);
-    moves.insert(moves.end(), normalKingMoves.begin(), normalKingMoves.end());
-
-    std::vector<Move> castlingMoves = generateKingCastlingMoves(status);
-    moves.insert(moves.end(), castlingMoves.begin(), castlingMoves.end());
-
-    return moves;
+void Engine::generateKingMoves(const ChessboardStatus* const status,
+                               std::vector<u_int32_t>& moves) {
+    generateSliderAndLeaperMoves(status, KING, moves);
+    generateKingCastlingMoves(status, moves);
 }
 
 bool Engine::canWhiteCastleKingSide(const ChessboardStatus* const status) {
@@ -789,8 +765,8 @@ bool Engine::canWhiteCastleKingSide(const ChessboardStatus* const status) {
                      !status->boards[ALL_PIECES].getBit(g1);
     bool noAttacks = !isSquareUnderAttackBy(status, e1, BLACK) &&
                      !isSquareUnderAttackBy(status, f1, BLACK);
-    // I do not check g1 (where the king lands) that is resposability
-    // of the makeMove function
+    // I do not check g1 (where the king lands) that is
+    // resposability of the makeMove function
 
     return (emptyRank && noAttacks);
 }
@@ -805,8 +781,8 @@ bool Engine::canWhiteCastleQueenSide(const ChessboardStatus* const status) {
                      !status->boards[ALL_PIECES].getBit(b1);
     bool noAttacks = !isSquareUnderAttackBy(status, e1, BLACK) &&
                      !isSquareUnderAttackBy(status, d1, BLACK);
-    // I do not check c1 (where the king lands) that is resposability
-    // of the makeMove function
+    // I do not check c1 (where the king lands) that is
+    // resposability of the makeMove function
 
     return (emptyRank && noAttacks);
 }
@@ -820,8 +796,8 @@ bool Engine::canBlackCastleKingSide(const ChessboardStatus* const status) {
                      !status->boards[ALL_PIECES].getBit(g8);
     bool noAttacks = !isSquareUnderAttackBy(status, e8, WHITE) &&
                      !isSquareUnderAttackBy(status, f8, WHITE);
-    // I do not check g8 (where the king lands) that is resposability
-    // of the makeMove function
+    // I do not check g8 (where the king lands) that is
+    // resposability of the makeMove function
 
     return (emptyRank && noAttacks);
 }
@@ -836,34 +812,31 @@ bool Engine::canBlackCastleQueenSide(const ChessboardStatus* const status) {
                      !status->boards[ALL_PIECES].getBit(b8);
     bool noAttacks = !isSquareUnderAttackBy(status, e8, WHITE) &&
                      !isSquareUnderAttackBy(status, d8, WHITE);
-    // I do not check c1 (where the king lands) that is resposability
-    // of the makeMove function
+    // I do not check c1 (where the king lands) that is
+    // resposability of the makeMove function
 
     return (emptyRank && noAttacks);
 }
 
-std::vector<Move> Engine::generateKingCastlingMoves(
-    const ChessboardStatus* const status) {
-    std::vector<Move> moves;
+void Engine::generateKingCastlingMoves(const ChessboardStatus* const status,
+                                       std::vector<u_int32_t>& moves) {
     Color sideToMove = status->side.value();
 
     if (sideToMove == WHITE) {
         if (canWhiteCastleKingSide(status)) {
-            moves.push_back(Move{e1, g1, CASTLE_KINGSIDE});
+            moves.push_back(Move::createBinary(e1, g1, CASTLE_KINGSIDE));
         }
         if (canWhiteCastleQueenSide(status)) {
-            moves.push_back(Move{e1, c1, CASTLE_QUEENSIDE});
+            moves.push_back(Move::createBinary(e1, c1, CASTLE_QUEENSIDE));
         }
     } else {
         if (canBlackCastleKingSide(status)) {
-            moves.push_back(Move{e8, g8, CASTLE_KINGSIDE});
+            moves.push_back(Move::createBinary(e8, g8, CASTLE_KINGSIDE));
         }
         if (canBlackCastleQueenSide(status)) {
-            moves.push_back(Move{e8, c8, CASTLE_QUEENSIDE});
+            moves.push_back(Move::createBinary(e8, c8, CASTLE_QUEENSIDE));
         }
     }
-
-    return moves;
 }
 
 Bitboard Engine::getAttacksBoard(const ChessboardStatus* const status,
@@ -900,9 +873,9 @@ MoveType getMoveType(Piece piece, bool isQuiet) {
     return isQuiet ? quietMoveMap.at(piece) : captureMoveMap.at(piece);
 }
 
-std::vector<Move> Engine::generateSliderAndLeaperMoves(
-    const ChessboardStatus* const status, Piece piece) {
-    std::vector<Move> moves;
+void Engine::generateSliderAndLeaperMoves(const ChessboardStatus* const status,
+                                          Piece piece,
+                                          std::vector<u_int32_t>& moves) {
     Color sideToMove = status->side.value();
 
     Bitboard pieceBoard =
@@ -921,9 +894,11 @@ std::vector<Move> Engine::generateSliderAndLeaperMoves(
                 static_cast<Square>(attacks.leastSignificantBeatIndex());
 
             if (status->boards[opponentBoard].getBit(to)) {
-                moves.push_back(Move{from, to, getMoveType(piece, false)});
+                moves.push_back(
+                    Move::createBinary(from, to, getMoveType(piece, false)));
             } else {
-                moves.push_back(Move{from, to, getMoveType(piece, true)});
+                moves.push_back(
+                    Move::createBinary(from, to, getMoveType(piece, true)));
             }
 
             attacks.clearBit(to);
@@ -931,34 +906,30 @@ std::vector<Move> Engine::generateSliderAndLeaperMoves(
 
         pieceBoard.clearBit(from);
     }
+}
+
+std::vector<u_int32_t> Engine::generateAllMoves(
+    const ChessboardStatus* const status) {
+    std::vector<u_int32_t> moves;
+
+    generatePawnMoves(status, moves);
+    generateKingMoves(status, moves);
+    generateSliderAndLeaperMoves(status, KNIGHT, moves);
+    generateSliderAndLeaperMoves(status, BISHOP, moves);
+    generateSliderAndLeaperMoves(status, ROOK, moves);
+    generateSliderAndLeaperMoves(status, QUEEN, moves);
 
     return moves;
-};
+}
 
-std::vector<Move> Engine::generateAllMoves(
+std::vector<Move> Engine::generateAllMovesAsMoveList(
     const ChessboardStatus* const status) {
+    std::vector<u_int32_t> binaryMoves = generateAllMoves(status);
     std::vector<Move> moves;
-
-    std::vector<Move> pawnMoves = generatePawnMoves(status);
-    moves.insert(moves.end(), pawnMoves.begin(), pawnMoves.end());
-
-    std::vector<Move> kingMoves = generateKingMoves(status);
-    moves.insert(moves.end(), kingMoves.begin(), kingMoves.end());
-
-    std::vector<Move> knightMoves =
-        generateSliderAndLeaperMoves(status, KNIGHT);
-    moves.insert(moves.end(), knightMoves.begin(), knightMoves.end());
-
-    std::vector<Move> bishopMoves =
-        generateSliderAndLeaperMoves(status, BISHOP);
-    moves.insert(moves.end(), bishopMoves.begin(), bishopMoves.end());
-
-    std::vector<Move> rookMoves = generateSliderAndLeaperMoves(status, ROOK);
-    moves.insert(moves.end(), rookMoves.begin(), rookMoves.end());
-
-    std::vector<Move> queenMoves = generateSliderAndLeaperMoves(status, QUEEN);
-    moves.insert(moves.end(), queenMoves.begin(), queenMoves.end());
-
+    moves.reserve(binaryMoves.size());
+    for (u_int32_t binary : binaryMoves) {
+        moves.push_back(Move(binary));
+    }
     return moves;
 }
 

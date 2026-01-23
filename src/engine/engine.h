@@ -47,7 +47,8 @@ class Engine {
 
     // Move generation from status
 
-    std::vector<Move> generateAllMoves(const ChessboardStatus* const status);
+    std::vector<u_int32_t> generateAllMoves(const ChessboardStatus* const status);
+    std::vector<Move> generateAllMovesAsMoveList(const ChessboardStatus* const status);
     void __printMoves(std::vector<Move> moves);
 
    private:
@@ -71,22 +72,22 @@ class Engine {
 
     // Move generation from status
 
-    std::vector<Move> generatePawnMoves(const ChessboardStatus* const status);
+    void generatePawnMoves(const ChessboardStatus* const status, std::vector<u_int32_t>& moves);
     void generatePawnQuietMoves(const ChessboardStatus* const status,
-                                Square from, std::vector<Move>& moves);
+                                Square from, std::vector<u_int32_t>& moves);
     void generatePawnCaptureMoves(const ChessboardStatus* const status,
-                                  Square from, std::vector<Move>& moves);
+                                  Square from, std::vector<u_int32_t>& moves);
 
-    std::vector<Move> generateKingMoves(const ChessboardStatus* const status);
-    std::vector<Move> generateKingCastlingMoves(
-        const ChessboardStatus* const status);
+    void generateKingMoves(const ChessboardStatus* const status, std::vector<u_int32_t>& moves);
+    void generateKingCastlingMoves(
+        const ChessboardStatus* const status, std::vector<u_int32_t>& moves);
     bool canWhiteCastleKingSide(const ChessboardStatus* const status);
     bool canWhiteCastleQueenSide(const ChessboardStatus* const status);
     bool canBlackCastleKingSide(const ChessboardStatus* const status);
     bool canBlackCastleQueenSide(const ChessboardStatus* const status);
 
-    std::vector<Move> generateSliderAndLeaperMoves(
-        const ChessboardStatus* const status, Piece piece);
+    void generateSliderAndLeaperMoves(
+        const ChessboardStatus* const status, Piece piece, std::vector<u_int32_t>& moves);
     Bitboard getAttacksBoard(const ChessboardStatus* const status, Piece piece,
                              Square square);
 };
