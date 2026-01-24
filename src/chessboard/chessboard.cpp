@@ -32,7 +32,9 @@ void ChessBoard::emptyBoard() {
     status.availableCastle = 0b1111;
     status.enpassant.reset();
     status.halfmoveCounter = 0;
-    status.fullmoveNumber = 0;
+    status.fullmoveNumber = 1;
+    moveHistory.clear();
+    statusHistory.clear();
 }
 
 void ChessBoard::setupInitialPosition() {
@@ -54,10 +56,6 @@ void ChessBoard::setupInitialPosition() {
     updateAllOccupancyBoards();
 
     status.side = WHITE;
-    status.availableCastle = 0b1111;
-    status.enpassant.reset();
-    status.halfmoveCounter = 0;
-    status.fullmoveNumber = 0;
 }
 
 std::vector<std::string> split(std::string s, const char* delim) {
@@ -104,6 +102,116 @@ void ChessBoard::parseFEN(const std::string FEN) {
     status.fullmoveNumber = result[5][0] - '0';
 
     updateAllOccupancyBoards();
+}
+
+void ChessBoard::makeMove(Move move) {
+    // Do not care if the move it's legal, just make it. The Engine::makeMove
+    // will take care of that
+    moveHistory.push_back(move);
+    statusHistory.push_back(status);
+
+    clearPieceAt(move.from);
+
+    if (move.isCapture) {
+        if (!move.isEnpassant) {
+            clearPieceAt(move.to);
+            setPieceAt(move.to, move.piece, status.side.value());
+
+            if (move.promoted != EMPTY) {
+                clearPieceAt(move.to);
+                setPieceAt(move.to, move.promoted, status.side.value());
+            }
+        } else {
+            int file = status.side.value() == WHITE ? -8 : +8;
+            clearPieceAt(static_cast<Square>(status.enpassant.value() + file));
+            setPieceAt(move.to, move.piece, status.side.value());
+        }
+    } else {
+        setPieceAt(move.to, move.piece, status.side.value());
+
+        if (move.promoted != EMPTY) {
+            clearPieceAt(move.to);
+            setPieceAt(move.to, move.promoted, status.side.value());
+        }
+
+        if (move.isCastling) {
+            if (status.side == WHITE) {
+                status.availableCastle &= (~WHITE_KINGSIDE & ~WHITE_QUEENSIDE);
+                if (move.to == g1) {  // White kingside
+                    clearPieceAt(h1);
+                    setPieceAt(f1, 'R');
+                }
+
+                if (move.to == c1) {  // White queenside
+                    clearPieceAt(a1);
+                    setPieceAt(d1, 'R');
+                }
+            } else {
+                status.availableCastle &= (~BLACK_KINGSIDE & ~BLACK_QUEENSIDE);
+                if (move.to == g8) {  // Black kingside
+                    clearPieceAt(h8);
+                    setPieceAt(f8, 'r');
+                }
+
+                if (move.to == c8) {  // Black queenside
+                    clearPieceAt(a8);
+                    setPieceAt(d8, 'r');
+                }
+            }
+        }
+
+        if (move.isDoublePush) {
+            int file = status.side.value() == WHITE ? -8 : +8;
+            status.enpassant = static_cast<Square>(move.to + file);
+        }
+    }
+
+    if (move.type != PAWN_DOUBLE_PUSH) {
+        status.enpassant.reset();
+    }
+
+    if (status.availableCastle) {
+        if (move.piece == KING) {
+            if (status.side == WHITE) {
+                status.availableCastle &= (~WHITE_KINGSIDE & ~WHITE_QUEENSIDE);
+            } else {
+                status.availableCastle &= (~BLACK_KINGSIDE & ~BLACK_QUEENSIDE);
+            }
+        }
+        if (move.piece == ROOK) {
+            if (move.from == a1) {
+                status.availableCastle &= ~WHITE_QUEENSIDE;
+            }
+            if (move.from == h1) {
+                status.availableCastle &= ~WHITE_KINGSIDE;
+            }
+            if (move.from == a8) {
+                status.availableCastle &= ~BLACK_QUEENSIDE;
+            }
+            if (move.from == h8) {
+                status.availableCastle &= ~BLACK_KINGSIDE;
+            }
+        }
+    }
+
+    if (move.piece == PAWN || move.isCapture) {
+        status.halfmoveCounter = 0;
+    } else {
+        status.halfmoveCounter++;
+    }
+
+    if (status.side == BLACK) {
+        status.fullmoveNumber++;
+    }
+    status.side = ((status.side.value() == WHITE) ? BLACK : WHITE);
+}
+
+void ChessBoard::undoLastMove() {
+    ChessboardStatus previuousStatus = statusHistory.back();
+    status = previuousStatus;
+
+    statusHistory.pop_back();
+    moveHistory.pop_back();
 }
 
 void ChessBoard::setPieceAt(const Square square, const Piece piece,
@@ -213,7 +321,7 @@ std::string ChessBoard::availableCastleToString() const {
 
 std::string ChessBoard::toStringComplete() const {
     std::ostringstream oss;
-
+    oss << "===========================" << std::endl;
     oss << toString() << std::endl;
     oss << "Side: " << (*status.side == Color::BLACK ? "Black" : "White")
         << std::endl;
@@ -223,6 +331,7 @@ std::string ChessBoard::toStringComplete() const {
                 ? squareMap.at(status.enpassant.value())
                 : " ")
         << std::endl;
+    oss << "===========================" << std::endl;
 
     return oss.str();
 }

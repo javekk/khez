@@ -21,9 +21,17 @@ int main() {
 
     ChessBoard board;
     board.parseFEN(
-        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
-        "R3K2R b KQkq - 0 0");
+        "rnb1kbnr/pppp1ppp/8/4p3/4P1q1/8/PPPPQPPP/RNB1KBNR w KQkq "
+        "- 0 3");
+    std::vector<Move> moves = engine.generateAllMovesAsMoveList(&board.status);
+    engine.__printMoves(moves);
 
-    cout << board.toStringComplete();
-    engine.__printMoves(engine.generateAllMovesAsMoveList(&board.status));
+    for (auto move : moves) {
+        cout << board.toStringComplete();
+        cout << move.toString() << endl;
+        board.makeMove(move);
+        cout << board.toStringComplete();
+        board.undoLastMove();
+        getchar();
+    }
 }

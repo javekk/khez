@@ -2,9 +2,11 @@
 
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "../bitboard/bitboard.h"
 #include "../lib/color.h"
+#include "../lib/move.h"
 #include "../lib/piece.h"
 #include "../lib/square.h"
 #include "chessboard-status.h"
@@ -15,15 +17,21 @@ class ChessBoard {
 
     ChessboardStatus status;
 
+    std::vector<Move> moveHistory;
+    std::vector<ChessboardStatus> statusHistory;
+
     void emptyBoard();
     void setupInitialPosition();
     void parseFEN(const std::string FEN);
 
+    void makeMove(Move move);
+    void undoLastMove();
+
     void setPieceAt(const Square square, const Piece piece, const Color color);
     void setPieceAt(const Square square, const char piece);
     void clearPieceAt(const Square square);
-
     char getPieceAt(const Square square) const;
+
     std::string toString() const;
     std::string getPieceAtFancy(const Square square) const;
     std::string toStringFancy() const;
