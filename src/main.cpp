@@ -21,17 +21,26 @@ int main() {
 
     ChessBoard board;
     board.parseFEN(
-        "rnb1kbnr/pppp1ppp/8/4p3/4P1q1/8/PPPPQPPP/RNB1KBNR w KQkq "
-        "- 0 3");
+        "r1b2rk1/pppp1pbp/2n3p1/4p1q1/2B1Q3/3P4/PPPK1PPP/RN4NR w - - 0 9");
     std::vector<Move> moves = engine.generateAllMovesAsMoveList(&board.status);
     engine.__printMoves(moves);
 
     for (auto move : moves) {
         cout << board.toStringComplete();
+
         cout << move.toString() << endl;
-        board.makeMove(move);
+
+        bool isLegal = engine.makeMove(&board, move);
+
         cout << board.toStringComplete();
-        board.undoLastMove();
+
+        if (!isLegal) {
+            cout << "Not a legal move!" << endl;
+        } else {
+            cout << "Legal move" << endl;
+            board.undoLastMove();
+        }
+
         getchar();
     }
 }

@@ -1440,6 +1440,59 @@ void test_move_generations() {
     });
 }
 
+void test_make_move() {
+    Engine engine;
+    engine.init();
+    ChessBoard board;
+
+    describe("Testing make move function", [&]() {
+        it("Testing initial position white to play", [&]() {
+            board.setupInitialPosition();
+            Move move{a2, a4, PAWN_DOUBLE_PUSH};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(hasMoved);
+            expect(board.getPieceAt(a2) == '.');
+            expect(board.getPieceAt(a4) == 'P');
+        });
+
+        it("Testing illegal pawn push", [&]() {
+            board.parseFEN(
+                "rnbqkbnr/pppp1ppp/8/4p2Q/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 1 "
+                "2");
+            Move move{f7, f6, PAWN_PUSH};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(!hasMoved);
+            expect(board.getPieceAt(h5) == 'Q');  // White queen pins the pawn
+            expect(board.getPieceAt(f7) == 'p');
+            expect(board.getPieceAt(f6) == '.');
+
+            // restore the previous status
+            expect(board.status.side == BLACK);
+            expect(board.status.fullmoveNumber == 1);
+        });
+
+        it("Testing kings under checks (only move that moves the king out of "
+           "checks)",
+           [&]() {
+               board.parseFEN(
+                   "r1b2rk1/pppp1pbp/2n3p1/4p1q1/2B1Q3/3P4/PPPK1PPP/RN4NR w - "
+                   "- 0 9");
+
+               Move move1{a2, a3, PAWN_PUSH};
+               bool hasMoved1 = engine.makeMove(&board, move1);
+               expect(!hasMoved1);
+
+               Move move2{a2, a4, PAWN_DOUBLE_PUSH};
+               bool hasMoved2 = engine.makeMove(&board, move2);
+               expect(!hasMoved2);
+
+               Move move3{f2, f4, PAWN_DOUBLE_PUSH};
+               bool hasMoved3 = engine.makeMove(&board, move3);
+               expect(hasMoved3);  // Moves the king out of check
+           });
+    });
+}
+
 void run_engine_tests() {
     describe("Testing engine", []() {
         test_pawn_attacks_generation();
@@ -1456,5 +1509,6 @@ void run_engine_tests() {
         test_square_under_attacks();
 
         test_move_generations();
+        test_make_move();
     });
 }

@@ -5,6 +5,7 @@
 
 #include "../bitboard/bitboard.h"
 #include "../chessboard/chessboard-status.h"
+#include "../chessboard/chessboard.h"
 #include "../lib/color.h"
 #include "../lib/move.h"
 #include "../lib/piece.h"
@@ -47,9 +48,13 @@ class Engine {
 
     // Move generation from status
 
-    std::vector<u_int32_t> generateAllMoves(const ChessboardStatus* const status);
-    std::vector<Move> generateAllMovesAsMoveList(const ChessboardStatus* const status);
+    std::vector<u_int32_t> generateAllMoves(
+        const ChessboardStatus* const status);
+    std::vector<Move> generateAllMovesAsMoveList(
+        const ChessboardStatus* const status);
     void __printMoves(std::vector<Move> moves);
+
+    bool makeMove(ChessBoard* const chessboard, Move move);
 
    private:
     // Masks
@@ -72,22 +77,25 @@ class Engine {
 
     // Move generation from status
 
-    void generatePawnMoves(const ChessboardStatus* const status, std::vector<u_int32_t>& moves);
+    void generatePawnMoves(const ChessboardStatus* const status,
+                           std::vector<u_int32_t>& moves);
     void generatePawnQuietMoves(const ChessboardStatus* const status,
                                 Square from, std::vector<u_int32_t>& moves);
     void generatePawnCaptureMoves(const ChessboardStatus* const status,
                                   Square from, std::vector<u_int32_t>& moves);
 
-    void generateKingMoves(const ChessboardStatus* const status, std::vector<u_int32_t>& moves);
-    void generateKingCastlingMoves(
-        const ChessboardStatus* const status, std::vector<u_int32_t>& moves);
+    void generateKingMoves(const ChessboardStatus* const status,
+                           std::vector<u_int32_t>& moves);
+    void generateKingCastlingMoves(const ChessboardStatus* const status,
+                                   std::vector<u_int32_t>& moves);
     bool canWhiteCastleKingSide(const ChessboardStatus* const status);
     bool canWhiteCastleQueenSide(const ChessboardStatus* const status);
     bool canBlackCastleKingSide(const ChessboardStatus* const status);
     bool canBlackCastleQueenSide(const ChessboardStatus* const status);
 
-    void generateSliderAndLeaperMoves(
-        const ChessboardStatus* const status, Piece piece, std::vector<u_int32_t>& moves);
+    void generateSliderAndLeaperMoves(const ChessboardStatus* const status,
+                                      Piece piece,
+                                      std::vector<u_int32_t>& moves);
     Bitboard getAttacksBoard(const ChessboardStatus* const status, Piece piece,
                              Square square);
 };

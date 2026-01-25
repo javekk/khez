@@ -944,4 +944,24 @@ void Engine::__printMoves(std::vector<Move> moves) {
               << std::endl;
 }
 
+bool Engine::makeMove(ChessBoard* const chessboard, Move move) {
+    Color sideBeforeMove = chessboard->status.side.value();
+
+    chessboard->makeMove(move);
+
+    int king =
+        (sideBeforeMove == WHITE)
+            ? chessboard->status.boards[WHITE_KING].leastSignificantBeatIndex()
+            : chessboard->status.boards[BLACK_KING].leastSignificantBeatIndex();
+
+    bool isLegalMove = !isSquareUnderAttackBy(
+        &chessboard->status, static_cast<Square>(king),
+        chessboard->status.side.value());  // Side after move
+
+    if (!isLegalMove) {
+        chessboard->undoLastMove();
+    }
+    return isLegalMove;
+}
+
 #pragma endregion
