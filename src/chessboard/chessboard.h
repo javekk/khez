@@ -47,4 +47,8 @@ class ChessBoard {
 
     void updateAllOccupancyBoards();
     void parseFENCastling(const std::string FEN_castling);
+
+    void makeMoveCapture(Move& move);
+    void makeMoveQuite(Move& move);
+    void makeMoveCastlingChecks(Move& move);
 };

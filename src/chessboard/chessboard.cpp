@@ -113,97 +113,113 @@ void ChessBoard::makeMove(Move move) {
     clearPieceAt(move.from);
 
     if (move.isCapture) {
-        if (!move.isEnpassant) {
-            clearPieceAt(move.to);
-            setPieceAt(move.to, move.piece, status.side.value());
-
-            if (move.promoted != EMPTY) {
-                clearPieceAt(move.to);
-                setPieceAt(move.to, move.promoted, status.side.value());
-            }
-        } else {
-            int file = status.side.value() == WHITE ? -8 : +8;
-            clearPieceAt(static_cast<Square>(status.enpassant.value() + file));
-            setPieceAt(move.to, move.piece, status.side.value());
-        }
+        makeMoveCapture(move);
     } else {
-        setPieceAt(move.to, move.piece, status.side.value());
-
-        if (move.promoted != EMPTY) {
-            clearPieceAt(move.to);
-            setPieceAt(move.to, move.promoted, status.side.value());
-        }
-
-        if (move.isCastling) {
-            if (status.side == WHITE) {
-                status.availableCastle &= (~WHITE_KINGSIDE & ~WHITE_QUEENSIDE);
-                if (move.to == g1) {  // White kingside
-                    clearPieceAt(h1);
-                    setPieceAt(f1, 'R');
-                }
-
-                if (move.to == c1) {  // White queenside
-                    clearPieceAt(a1);
-                    setPieceAt(d1, 'R');
-                }
-            } else {
-                status.availableCastle &= (~BLACK_KINGSIDE & ~BLACK_QUEENSIDE);
-                if (move.to == g8) {  // Black kingside
-                    clearPieceAt(h8);
-                    setPieceAt(f8, 'r');
-                }
-
-                if (move.to == c8) {  // Black queenside
-                    clearPieceAt(a8);
-                    setPieceAt(d8, 'r');
-                }
-            }
-        }
-
-        if (move.isDoublePush) {
-            int file = status.side.value() == WHITE ? -8 : +8;
-            status.enpassant = static_cast<Square>(move.to + file);
-        }
+        makeMoveQuite(move);
     }
 
+    // Promotion
+    if (move.promoted != EMPTY) {
+        clearPieceAt(move.to);
+        setPieceAt(move.to, move.promoted, status.side.value());
+    }
+
+    // reset enpassant
     if (move.type != PAWN_DOUBLE_PUSH) {
         status.enpassant.reset();
     }
 
     if (status.availableCastle) {
-        if (move.piece == KING) {
-            if (status.side == WHITE) {
-                status.availableCastle &= (~WHITE_KINGSIDE & ~WHITE_QUEENSIDE);
-            } else {
-                status.availableCastle &= (~BLACK_KINGSIDE & ~BLACK_QUEENSIDE);
-            }
-        }
-        if (move.piece == ROOK) {
-            if (move.from == a1) {
-                status.availableCastle &= ~WHITE_QUEENSIDE;
-            }
-            if (move.from == h1) {
-                status.availableCastle &= ~WHITE_KINGSIDE;
-            }
-            if (move.from == a8) {
-                status.availableCastle &= ~BLACK_QUEENSIDE;
-            }
-            if (move.from == h8) {
-                status.availableCastle &= ~BLACK_KINGSIDE;
-            }
-        }
+        makeMoveCastlingChecks(move);
     }
 
+    // halfmove counter
     if (move.piece == PAWN || move.isCapture) {
         status.halfmoveCounter = 0;
     } else {
         status.halfmoveCounter++;
     }
 
+    // Full move counter
     if (status.side == BLACK) {
         status.fullmoveNumber++;
     }
+
+    // side
     status.side = ((status.side.value() == WHITE) ? BLACK : WHITE);
+}
+
+void ChessBoard::makeMoveCastlingChecks(Move& move) {
+    if (move.piece == KING) {
+        if (status.side == WHITE) {
+            status.availableCastle &= (~WHITE_KINGSIDE & ~WHITE_QUEENSIDE);
+        } else {
+            status.availableCastle &= (~BLACK_KINGSIDE & ~BLACK_QUEENSIDE);
+        }
+    }
+    if (move.piece == ROOK) {
+        if (move.from == a1) {
+            status.availableCastle &= ~WHITE_QUEENSIDE;
+        }
+        if (move.from == h1) {
+            status.availableCastle &= ~WHITE_KINGSIDE;
+        }
+        if (move.from == a8) {
+            status.availableCastle &= ~BLACK_QUEENSIDE;
+        }
+        if (move.from == h8) {
+            status.availableCastle &= ~BLACK_KINGSIDE;
+        }
+    }
+}
+
+void ChessBoard::makeMoveQuite(Move& move) {
+    setPieceAt(move.to, move.piece, status.side.value());
+
+    if (move.promoted != EMPTY) {
+        clearPieceAt(move.to);
+        setPieceAt(move.to, move.promoted, status.side.value());
+    }
+
+    if (move.isCastling) {
+        if (status.side == WHITE) {
+            if (move.to == g1) {  // White kingside
+                clearPieceAt(h1);
+                setPieceAt(f1, 'R');
+            }
+
+            if (move.to == c1) {  // White queenside
+                clearPieceAt(a1);
+                setPieceAt(d1, 'R');
+            }
+        } else {
+            if (move.to == g8) {  // Black kingside
+                clearPieceAt(h8);
+                setPieceAt(f8, 'r');
+            }
+
+            if (move.to == c8) {  // Black queenside
+                clearPieceAt(a8);
+                setPieceAt(d8, 'r');
+            }
+        }
+    }
+
+    if (move.isDoublePush) {
+        int file = status.side.value() == WHITE ? -8 : +8;
+        status.enpassant = static_cast<Square>(move.to + file);
+    }
+}
+
+void ChessBoard::makeMoveCapture(Move& move) {
+    if (move.isEnpassant) {
+        int file = status.side.value() == WHITE ? -8 : +8;
+        clearPieceAt(static_cast<Square>(status.enpassant.value() + file));
+        setPieceAt(move.to, move.piece, status.side.value());
+    } else {
+        clearPieceAt(move.to);
+        setPieceAt(move.to, move.piece, status.side.value());
+    }
 }
 
 void ChessBoard::undoLastMove() {
