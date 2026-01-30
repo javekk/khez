@@ -626,7 +626,8 @@ void test_move_generations() {
         describe("Testing quite pawn move generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMovesAsMoveList(&board.status);
+                moves =
+                    engine.generateAllPseudoLegalMovesAsMoveList(&board.status);
                 expect(std::find(moves.begin(), moves.end(),
                                  Move{a2, a3, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
@@ -674,7 +675,8 @@ void test_move_generations() {
                 board.parseFEN(
                     "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq e3 0 "
                     "1");
-                moves = engine.generateAllMovesAsMoveList(&board.status);
+                moves =
+                    engine.generateAllPseudoLegalMovesAsMoveList(&board.status);
                 expect(std::find(moves.begin(), moves.end(),
                                  Move{a7, a6, PAWN_PUSH}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
@@ -725,7 +727,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
                        "R3K2R b KQkq - 0 0");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{b4, b3, PAWN_PUSH}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -758,7 +761,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
                        "R3K2R w KQkq - 0 0");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{a2, a3, PAWN_PUSH}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -786,7 +790,8 @@ void test_move_generations() {
         describe("Testing pawn capture move generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMovesAsMoveList(&board.status);
+                moves =
+                    engine.generateAllPseudoLegalMovesAsMoveList(&board.status);
                 expect(std::all_of(moves.begin(), moves.end(),
                                    [](const Move& move) {
                                        return move.type != PAWN_CAPTURE;
@@ -816,7 +821,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
                        "R3K2R w KQkq - 0 0");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     (Move{d5, e6, PAWN_CAPTURE})) !=
                           moves.end());
@@ -845,7 +851,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/"
                        "R3K2R b KQkq - 0 0");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     (Move{b4, c3, PAWN_CAPTURE})) !=
                           moves.end());
@@ -874,7 +881,8 @@ void test_move_generations() {
         describe("Testing enpassant capture", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMovesAsMoveList(&board.status);
+                moves =
+                    engine.generateAllPseudoLegalMovesAsMoveList(&board.status);
                 expect(std::all_of(
                     moves.begin(), moves.end(), [](const Move& move) {
                         return move.type != PAWN_CAPTURE_ENPASSANT;
@@ -885,7 +893,8 @@ void test_move_generations() {
                "e3 0 1",
                [&]() {
                    board.setupInitialPosition();
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::all_of(
                        moves.begin(), moves.end(), [](const Move& move) {
                            return move.type != PAWN_CAPTURE_ENPASSANT;
@@ -899,7 +908,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "rnbqk2r/p1pp1pbp/5n2/PpP1p1p1/4P3/8/1P1P1PPP/RNBQKBNR "
                        "w KQkq b6 0 6");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     (Move{a5, b6, PAWN_CAPTURE_ENPASSANT})) !=
                           moves.end());
@@ -915,7 +925,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "rnbqkbnr/1p1p1ppp/8/4p3/pPp1P3/5NP1/P1PPQPBP/RNB1K2R b "
                        "KQkq b3 0 6");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     (Move{a4, b3, PAWN_CAPTURE_ENPASSANT})) !=
                           moves.end());
@@ -928,7 +939,8 @@ void test_move_generations() {
         describe("Testing castle moves", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMovesAsMoveList(&board.status);
+                moves =
+                    engine.generateAllPseudoLegalMovesAsMoveList(&board.status);
                 expect(std::all_of(moves.begin(), moves.end(),
                                    [](const Move& move) {
                                        return move.type != CASTLE_KINGSIDE;
@@ -945,7 +957,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K2R w KQk "
                        "- 0 20");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e1, g1, CASTLE_KINGSIDE}) !=
                           moves.end());
@@ -960,7 +973,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K2R w - "
                        "- 0 20");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::all_of(moves.begin(), moves.end(),
                                       [](const Move& move) {
                                           return move.type != CASTLE_KINGSIDE;
@@ -977,7 +991,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K2R w Kk "
                        "- 0 20");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e1, g1, CASTLE_KINGSIDE}) !=
                           moves.end());
@@ -993,7 +1008,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K1BR w Kk "
                        "- 0 20");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::all_of(moves.begin(), moves.end(),
                                       [](const Move& move) {
                                           return move.type != CASTLE_KINGSIDE;
@@ -1011,7 +1027,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "4k2r/pp3ppp/1rp5/2Ppqb2/2B1n2N/2N1Q3/P4PPP/R3K1BR w Kk "
                        "- 0 20");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::all_of(moves.begin(), moves.end(),
                                       [](const Move& move) {
                                           return move.type != CASTLE_KINGSIDE;
@@ -1028,7 +1045,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq "
                        "e3 0 1");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::all_of(moves.begin(), moves.end(),
                                       [](const Move& move) {
                                           return move.type != CASTLE_KINGSIDE;
@@ -1046,7 +1064,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pppq1ppp/2n2n2/2bppb2/2BPP3/2N1BN2/PPPQ1PPP/"
                        "R3K2R b KQkq - 11 8");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e8, g8, CASTLE_KINGSIDE}) !=
                           moves.end());
@@ -1062,7 +1081,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/"
                        "R1BQK2R b KQkq - 5 4");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e8, g8, CASTLE_KINGSIDE}) !=
                           moves.end());
@@ -1079,7 +1099,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "rnbqk2r/1ppp1ppp/p4n2/4p3/2B1P3/BPN2N2/P1PP1PPP/R2QK2R "
                        "b KQkq - 0 6");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::all_of(moves.begin(), moves.end(),
                                       [](const Move& move) {
                                           return move.type != CASTLE_KINGSIDE;
@@ -1094,7 +1115,8 @@ void test_move_generations() {
         describe("Testing knight moves generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMovesAsMoveList(&board.status);
+                moves =
+                    engine.generateAllPseudoLegalMovesAsMoveList(&board.status);
                 expect(std::find(moves.begin(), moves.end(),
                                  Move{g1, h3, KNIGHT_QUIET}) != moves.end());
                 expect(std::find(moves.begin(), moves.end(),
@@ -1112,7 +1134,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "r3k2r/pppq1ppp/2n2n2/2bppb2/2BPP3/2N1BN2/PPPQ1PPP/"
                        "R3K2R b KQkq - 11 8");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{c6, b4, KNIGHT_QUIET}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1144,7 +1167,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/pppq1p1p/3b1np1/3ppb2/2BnP3/4BN2/PPPQNPPP/R3K2R "
                        "w KQ - 0 12");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e2, c1, KNIGHT_QUIET}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1176,7 +1200,8 @@ void test_move_generations() {
         describe("Testing bishop moves generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMovesAsMoveList(&board.status);
+                moves =
+                    engine.generateAllPseudoLegalMovesAsMoveList(&board.status);
                 expect(std::all_of(moves.begin(), moves.end(),
                                    [](const Move& move) {
                                        return move.type != BISHOP_QUIET;
@@ -1194,7 +1219,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/pppq1p1p/3b1np1/3ppb2/2BnP3/4BN2/PPPQNPPP/R3K2R "
                        "w KQ - 0 12");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e3, d4, BISHOP_CAPTURE}) !=
                           moves.end());
@@ -1224,7 +1250,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/pppq1p1p/3b1np1/3ppb2/1QBnP3/4BN2/PPP1NPPP/R3K2R "
                        "b KQ - 1 12");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{f5, h3, BISHOP_QUIET}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1249,7 +1276,8 @@ void test_move_generations() {
         describe("Testing rook moves generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMovesAsMoveList(&board.status);
+                moves =
+                    engine.generateAllPseudoLegalMovesAsMoveList(&board.status);
                 expect(std::all_of(
                     moves.begin(), moves.end(),
                     [](const Move& move) { return move.type != ROOK_QUIET; }));
@@ -1265,7 +1293,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/pppq1p2/3b1npB/3ppb2/1QBnP3/5N2/PPP1NPPP/R3K2R b "
                        "KQ - 0 13");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{d8, e8, ROOK_QUIET}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1291,7 +1320,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/ppp2p2/3b1npB/1q1pp3/1QB1P1P1/1n3N2/PPP1NPbP/"
                        "3RK1R1 w - - 3 17");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{d1, a1, ROOK_QUIET}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1318,7 +1348,8 @@ void test_move_generations() {
         describe("Testing queen moves generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMovesAsMoveList(&board.status);
+                moves =
+                    engine.generateAllPseudoLegalMovesAsMoveList(&board.status);
                 expect(std::all_of(
                     moves.begin(), moves.end(),
                     [](const Move& move) { return move.type != QUEEN_QUIET; }));
@@ -1335,7 +1366,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/ppp2p2/3b1npB/1q1pp3/1QB1P1P1/1n3N2/PPP1NPbP/"
                        "3RK1R1 w - - 3 17");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{b4, d2, QUEEN_QUIET}) != moves.end());
 
@@ -1367,7 +1399,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/ppp2p2/3b1npB/1q1pp3/2B1P1P1/1Q3N2/PPP1NPbP/"
                        "3RK1R1 b - - 0 17");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{b5, b3, QUEEN_CAPTURE}) !=
                           moves.end());
@@ -1398,7 +1431,8 @@ void test_move_generations() {
         describe("Testing king moves generation", [&]() {
             it("Testing initial position white to play", [&]() {
                 board.setupInitialPosition();
-                moves = engine.generateAllMovesAsMoveList(&board.status);
+                moves =
+                    engine.generateAllPseudoLegalMovesAsMoveList(&board.status);
                 expect(std::all_of(
                     moves.begin(), moves.end(),
                     [](const Move& move) { return move.type != KING_QUIET; }));
@@ -1415,7 +1449,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/ppp2p2/3b1npB/1q1pp3/2B1P1P1/1Q3N2/PPP1NP1P/"
                        "3RKbR1 w - - 1 18");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{e1, f1, KING_CAPTURE}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1428,7 +1463,8 @@ void test_move_generations() {
                    board.parseFEN(
                        "2kr3r/pQp2p2/5npB/3pp3/2B1P1P1/2b2N2/PPP1NP1P/3R1KR1 b "
                        "- - 0 20");
-                   moves = engine.generateAllMovesAsMoveList(&board.status);
+                   moves = engine.generateAllPseudoLegalMovesAsMoveList(
+                       &board.status);
                    expect(std::find(moves.begin(), moves.end(),
                                     Move{c8, b7, KING_CAPTURE}) != moves.end());
                    expect(std::find(moves.begin(), moves.end(),
@@ -1468,7 +1504,7 @@ void test_make_move() {
 
             // restore the previous status
             expect(board.status.side == BLACK);
-            expect(board.status.fullmoveNumber == 1);
+            expect(board.status.fullmoveNumber == 2);
         });
 
         it("Testing kings under checks (only move that moves the king out of "
@@ -1488,8 +1524,181 @@ void test_make_move() {
 
                Move move3{f2, f4, PAWN_DOUBLE_PUSH};
                bool hasMoved3 = engine.makeMove(&board, move3);
-               expect(hasMoved3);  // Moves the king out of check
+               expect(hasMoved3);
            });
+
+        it("Testing en passant capture", [&]() {
+            board.parseFEN(
+                "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6");
+            Move move{e5, f6, PAWN_CAPTURE_ENPASSANT};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(hasMoved);
+            expect(board.getPieceAt(e5) == '.');
+            expect(board.getPieceAt(f6) == 'P');
+            expect(board.getPieceAt(f5) == '.');
+        });
+
+        it("Testing kingside castling white", [&]() {
+            board.parseFEN("r3k2r/8/8/8/8/8/8/R3K2R w KQkq -");
+            Move move{e1, g1, CASTLE_KINGSIDE};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(hasMoved);
+            expect(board.getPieceAt(e1) == '.');
+            expect(board.getPieceAt(g1) == 'K');
+            expect(board.getPieceAt(h1) == '.');
+            expect(board.getPieceAt(f1) == 'R');
+        });
+
+        it("Testing queenside castling white", [&]() {
+            board.parseFEN("r3k2r/8/8/8/8/8/8/R3K2R w KQkq -");
+            Move move{e1, c1, CASTLE_QUEENSIDE};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(hasMoved);
+            expect(board.getPieceAt(e1) == '.');
+            expect(board.getPieceAt(c1) == 'K');
+            expect(board.getPieceAt(a1) == '.');
+            expect(board.getPieceAt(d1) == 'R');
+        });
+
+        it("Testing pawn promotion to queen", [&]() {
+            board.parseFEN("4k3/P7/8/8/8/8/8/4K3 w - -");
+            Move move{a7, a8, PAWN_PROMOTION_TO_QUEEN};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(hasMoved);
+            expect(board.getPieceAt(a7) == '.');
+            expect(board.getPieceAt(a8) == 'Q');
+        });
+
+        it("Testing pawn capture promotion to knight", [&]() {
+            board.parseFEN("4k3/8/8/8/8/8/6p1/5r1K b - -");
+            Move move{g2, f1, PAWN_CAPTURE_PROMOTION_TO_KNIGHT};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(hasMoved);
+            expect(board.getPieceAt(g2) == '.');
+            expect(board.getPieceAt(f1) == 'n');
+        });
+
+        it("Testing en passant with state tracking", [&]() {
+            board.parseFEN(
+                "rnbqkbnr/ppp1pppp/8/8/3pP3/8/PPPP1PPP/RNBQKBNR b KQkq e3");
+
+            expect(board.status.enpassant.has_value());
+            expect(board.status.enpassant.value() == e3);
+            expect(board.getPieceAt(e4) == 'P');
+            expect(board.getPieceAt(d4) == 'p');
+
+            Move move{d4, e3, PAWN_CAPTURE_ENPASSANT};
+            bool hasMoved = engine.makeMove(&board, move);
+
+            expect(hasMoved);
+            expect(board.getPieceAt(d4) == '.');
+            expect(board.getPieceAt(e3) == 'p');
+            expect(board.getPieceAt(e4) == '.');
+            expect(!board.status.enpassant.has_value());
+        });
+
+        it("Testing double push sets en passant square", [&]() {
+            board.parseFEN(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -");
+
+            expect(!board.status.enpassant.has_value());
+            expect(board.getPieceAt(e2) == 'P');
+            expect(board.getPieceAt(e4) == '.');
+
+            Move move{e2, e4, PAWN_DOUBLE_PUSH};
+            bool hasMoved = engine.makeMove(&board, move);
+
+            expect(hasMoved);
+            expect(board.getPieceAt(e2) == '.');
+            expect(board.getPieceAt(e4) == 'P');
+            expect(board.status.enpassant.has_value());
+            expect(board.status.enpassant.value() == e3);
+        });
+
+        it("Testing en passant resets after normal move", [&]() {
+            board.parseFEN(
+                "rnbqkbnr/ppp1pppp/8/8/3pP3/8/PPPP1PPP/RNBQKBNR b KQkq e3");
+
+            expect(board.status.enpassant.has_value());
+            expect(board.status.enpassant.value() == e3);
+
+            Move move{b8, c6, KNIGHT_QUIET};
+            bool hasMoved = engine.makeMove(&board, move);
+
+            expect(hasMoved);
+            expect(board.getPieceAt(b8) == '.');
+            expect(board.getPieceAt(c6) == 'n');
+            expect(!board.status.enpassant.has_value());
+        });
+
+        it("Testing castling rights removed after king moves", [&]() {
+            board.parseFEN("r3k2r/8/8/8/8/8/8/R3K2R w KQkq -");
+
+            expect((board.status.availableCastle & WHITE_KINGSIDE) != 0);
+            expect((board.status.availableCastle & WHITE_QUEENSIDE) != 0);
+
+            Move move{e1, e2, KING_QUIET};
+            bool hasMoved = engine.makeMove(&board, move);
+
+            expect(hasMoved);
+            expect((board.status.availableCastle & WHITE_KINGSIDE) == 0);
+            expect((board.status.availableCastle & WHITE_QUEENSIDE) == 0);
+        });
+
+        it("Testing blocking check with piece", [&]() {
+            board.parseFEN("4k3/8/8/8/8/4q3/R7/4K3 w - - 0 1");
+            Move move{a2, e2, ROOK_QUIET};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(hasMoved);
+            expect(board.getPieceAt(e2) == 'R');
+            expect(board.getPieceAt(a2) == '.');
+        });
+
+        it("Testing capture attacker to escape check", [&]() {
+            board.parseFEN("4k3/8/8/8/8/4N3/4q3/4K3 w - -");
+            Move move{e1, e2, KING_CAPTURE};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(hasMoved);
+            expect(board.getPieceAt(e2) == 'K');
+            expect(board.getPieceAt(e1) == '.');
+        });
+
+        it("Testing rook captured removes castling rights", [&]() {
+            board.parseFEN("r3k2r/8/8/8/8/8/7q/R3K2R w KQkq -");
+            expect((board.status.availableCastle & WHITE_KINGSIDE) != 0);
+            Move move{h1, h2, ROOK_CAPTURE};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(hasMoved);
+            expect((board.status.availableCastle & WHITE_KINGSIDE) == 0);
+            expect((board.status.availableCastle & WHITE_QUEENSIDE) != 0);
+        });
+
+        it("Testing king cannot move into check", [&]() {
+            board.parseFEN("4k3/8/8/8/8/8/4r3/4K3 w - -");
+            Move move{e1, f2, KING_QUIET};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(!hasMoved);
+            expect(board.getPieceAt(e1) == 'K');
+            expect(board.status.side == WHITE);
+        });
+
+        it("Testing pinned piece cannot move", [&]() {
+            board.parseFEN("4k3/8/8/8/8/4r3/4N3/4K3 w - -");
+            Move move{e2, d4, KNIGHT_QUIET};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(!hasMoved);
+            expect(board.getPieceAt(e2) == 'N');
+            expect(board.status.side == WHITE);
+        });
+
+        it("Testing discovered check is illegal", [&]() {
+            board.parseFEN("8/8/8/8/8/2KPr3/8/k7 w - -");
+            Move move{d3, d4, PAWN_PUSH};
+            bool hasMoved = engine.makeMove(&board, move);
+            expect(!hasMoved);
+            expect(board.getPieceAt(d3) == 'P');
+            expect(board.status.side == WHITE);
+        });
     });
 }
 

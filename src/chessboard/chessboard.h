@@ -6,6 +6,7 @@
 
 #include "../bitboard/bitboard.h"
 #include "../lib/color.h"
+#include "../lib/masks.h"
 #include "../lib/move.h"
 #include "../lib/piece.h"
 #include "../lib/square.h"

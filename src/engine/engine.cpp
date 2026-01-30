@@ -1,6 +1,7 @@
 #include "engine.h"
 
 #include <bitset>
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 
@@ -908,7 +909,7 @@ void Engine::generateSliderAndLeaperMoves(const ChessboardStatus* const status,
     }
 }
 
-std::vector<u_int32_t> Engine::generateAllMoves(
+std::vector<u_int32_t> Engine::generateAllPseudoLegalMoves(
     const ChessboardStatus* const status) {
     std::vector<u_int32_t> moves;
 
@@ -922,9 +923,9 @@ std::vector<u_int32_t> Engine::generateAllMoves(
     return moves;
 }
 
-std::vector<Move> Engine::generateAllMovesAsMoveList(
+std::vector<Move> Engine::generateAllPseudoLegalMovesAsMoveList(
     const ChessboardStatus* const status) {
-    std::vector<u_int32_t> binaryMoves = generateAllMoves(status);
+    std::vector<u_int32_t> binaryMoves = generateAllPseudoLegalMoves(status);
     std::vector<Move> moves;
     moves.reserve(binaryMoves.size());
     for (u_int32_t binary : binaryMoves) {
@@ -940,8 +941,7 @@ void Engine::__printMoves(std::vector<Move> moves) {
         std::cout << move.toString() << std::endl;
     }
 
-    std::cout << "Found " << moves.size() << " pseudo legal moves!"
-              << std::endl;
+    std::cout << "Total moves " << moves.size() << std::endl;
 }
 
 bool Engine::makeMove(ChessBoard* const chessboard, Move move) {
@@ -962,6 +962,54 @@ bool Engine::makeMove(ChessBoard* const chessboard, Move move) {
         chessboard->undoLastMove();
     }
     return isLegalMove;
+}
+
+long long int Engine::perftDriver(const ChessBoard& chessboard,
+                                  const int depth) {
+    if (depth == 0) {
+        return 1;
+    }
+
+    std::vector<u_int32_t> moves =
+        generateAllPseudoLegalMoves(&chessboard.status);
+    long long int nodes = 0;
+
+    for (const auto& move : moves) {
+        ChessBoard boardAfterMove = chessboard;
+        if (makeMove(&boardAfterMove, move)) {
+            nodes += perftDriver(boardAfterMove, depth - 1);
+        }
+    }
+    return nodes;
+}
+
+void Engine::perfTest(const ChessBoard& chessboard, const int depth) {
+    auto startTime = std::chrono::high_resolution_clock::now();
+
+    std::vector<Move> rootMoves =
+        generateAllPseudoLegalMovesAsMoveList(&chessboard.status);
+
+    long long int totalNodes = 0;
+    for (auto move : rootMoves) {
+        ChessBoard boardAfterMove = chessboard;
+        if (makeMove(&boardAfterMove, move)) {
+            long long int moveCount = perftDriver(boardAfterMove, depth - 1);
+            Move m(move);
+            std::cout << m.toString() << ": " << moveCount << std::endl;
+            totalNodes += moveCount;
+        }
+    }
+
+    auto endTime = std::chrono::high_resolution_clock::now();
+
+    std::cout << std::endl
+              << "Depth: " << depth << std::endl
+              << "Total nodes: " << totalNodes << std::endl
+              << "Time: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(
+                     endTime - startTime)
+                     .count()
+              << "ms" << std::endl;
 }
 
 #pragma endregion

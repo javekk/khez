@@ -29,3 +29,5 @@ extern const int bishopRelevantOccupanciesCounts[64];
 
 extern const u_int64_t bishopMagicNumbers[64];
 extern const u_int64_t rookMagicNumbers[64];
+
+extern const int castlingRights[64];

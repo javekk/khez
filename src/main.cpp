@@ -13,34 +13,17 @@ using namespace std;
 #include "lib/square.h"
 
 int main() {
-    std::cout << "Khez Chess Engine - Bitboard Demo\n";
-    std::cout << "=================================\n\n";
+    cout << "Khez Chess Engine - Bitboard Demo\n";
+    cout << "=================================\n\n";
 
     Engine engine;
     engine.init();
 
     ChessBoard board;
     board.parseFEN(
-        "r1b2rk1/pppp1pbp/2n3p1/4p1q1/2B1Q3/3P4/PPPK1PPP/RN4NR w - - 0 9");
-    std::vector<Move> moves = engine.generateAllMovesAsMoveList(&board.status);
-    engine.__printMoves(moves);
+        "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
 
-    for (auto move : moves) {
-        cout << board.toStringComplete();
+    int depth = 4;
 
-        cout << move.toString() << endl;
-
-        bool isLegal = engine.makeMove(&board, move);
-
-        cout << board.toStringComplete();
-
-        if (!isLegal) {
-            cout << "Not a legal move!" << endl;
-        } else {
-            cout << "Legal move" << endl;
-            board.undoLastMove();
-        }
-
-        getchar();
-    }
+    engine.perfTest(board, depth);
 }

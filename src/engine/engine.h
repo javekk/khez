@@ -48,13 +48,16 @@ class Engine {
 
     // Move generation from status
 
-    std::vector<u_int32_t> generateAllMoves(
+    std::vector<u_int32_t> generateAllPseudoLegalMoves(
         const ChessboardStatus* const status);
-    std::vector<Move> generateAllMovesAsMoveList(
+    std::vector<Move> generateAllPseudoLegalMovesAsMoveList(
         const ChessboardStatus* const status);
     void __printMoves(std::vector<Move> moves);
 
     bool makeMove(ChessBoard* const chessboard, Move move);
+
+    long long int perftDriver(const ChessBoard& chessboard, const int depth);
+    void perfTest(const ChessBoard& chessboard, const int depth);
 
    private:
     // Masks

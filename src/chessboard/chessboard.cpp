@@ -98,8 +98,10 @@ void ChessBoard::parseFEN(const std::string FEN) {
         status.enpassant = inverseSquareMap.at(result[3]);
     }
 
-    status.halfmoveCounter = result[4][0] - '0';
-    status.fullmoveNumber = result[5][0] - '0';
+    status.halfmoveCounter =
+        (result.size() > 4 && !result[4].empty()) ? std::stoi(result[4]) : 0;
+    status.fullmoveNumber =
+        (result.size() > 5 && !result[5].empty()) ? std::stoi(result[5]) : 1;
 
     updateAllOccupancyBoards();
 }
@@ -150,27 +152,8 @@ void ChessBoard::makeMove(Move move) {
 }
 
 void ChessBoard::makeMoveCastlingChecks(Move& move) {
-    if (move.piece == KING) {
-        if (status.side == WHITE) {
-            status.availableCastle &= (~WHITE_KINGSIDE & ~WHITE_QUEENSIDE);
-        } else {
-            status.availableCastle &= (~BLACK_KINGSIDE & ~BLACK_QUEENSIDE);
-        }
-    }
-    if (move.piece == ROOK) {
-        if (move.from == a1) {
-            status.availableCastle &= ~WHITE_QUEENSIDE;
-        }
-        if (move.from == h1) {
-            status.availableCastle &= ~WHITE_KINGSIDE;
-        }
-        if (move.from == a8) {
-            status.availableCastle &= ~BLACK_QUEENSIDE;
-        }
-        if (move.from == h8) {
-            status.availableCastle &= ~BLACK_KINGSIDE;
-        }
-    }
+    status.availableCastle &= castlingRights[move.from];
+    status.availableCastle &= castlingRights[move.to];
 }
 
 void ChessBoard::makeMoveQuite(Move& move) {
