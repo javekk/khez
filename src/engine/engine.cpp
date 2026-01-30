@@ -52,7 +52,7 @@ void Engine::generatePawnMaskAttacks() {
     }
 }
 
-Bitboard Engine::getSinglePawnAttacks(Square square, Color color) {
+inline Bitboard Engine::getSinglePawnAttacks(Square square, Color color) {
     return pawnAttacksMasks[color][square];
 }
 
@@ -94,7 +94,7 @@ void Engine::generateKnightMaskMoves() {
     }
 }
 
-Bitboard Engine::getSingleKnightAttacks(Square square) {
+inline Bitboard Engine::getSingleKnightAttacks(Square square) {
     return knightAttacksMasks[square];
 }
 
@@ -135,7 +135,7 @@ void Engine::generateKingMaskMoves() {
     }
 }
 
-Bitboard Engine::getSingleKingAttacks(Square square) {
+inline Bitboard Engine::getSingleKingAttacks(Square square) {
     return kingAttacksMasks[square];
 }
 
@@ -292,7 +292,7 @@ Bitboard Engine::generateSingleBishopAttacks(Square square, Bitboard blocks) {
     return attacks;
 }
 
-Bitboard Engine::getSingleBishopAttacks(Square square, Bitboard occupancies) {
+inline Bitboard Engine::getSingleBishopAttacks(Square square, Bitboard occupancies) {
     Bitboard t1 = occupancies & bishopRelevantOccupanciesMasks[square];
     Bitboard t2 = Bitboard(t1.getValue() * bishopMagicNumbers[square]);
     Bitboard t3 = Bitboard(t2.getValue() >>
@@ -444,7 +444,7 @@ Bitboard Engine::generateSingleRookAttacks(Square square, Bitboard blocks) {
     return attacks;
 }
 
-Bitboard Engine::getSingleRookAttacks(Square square, Bitboard occupancies) {
+inline Bitboard Engine::getSingleRookAttacks(Square square, Bitboard occupancies) {
     Bitboard t1 = occupancies & rookRelevantOccupanciesMasks[square];
     Bitboard t2 = Bitboard(t1.getValue() * rookMagicNumbers[square]);
     Bitboard t3 =
@@ -514,7 +514,7 @@ void Engine::generateSliderPiecesAttacks(SlidingPiece piece) {
 
 #pragma region Queen
 
-Bitboard Engine::getSingleQueenAttacks(Square square, Bitboard occupancies) {
+inline Bitboard Engine::getSingleQueenAttacks(Square square, Bitboard occupancies) {
     Bitboard attacks;
     attacks |= getSingleBishopAttacks(square, occupancies);
     attacks |= getSingleRookAttacks(square, occupancies);
