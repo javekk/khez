@@ -106,11 +106,13 @@ void ChessBoard::parseFEN(const std::string FEN) {
     updateAllOccupancyBoards();
 }
 
-void ChessBoard::makeMove(Move move) {
+void ChessBoard::makeMove(Move move, bool trackHistory) {
     // Do not care if the move it's legal, just make it. The Engine::makeMove
     // will take care of that
-    moveHistory.push_back(move);
-    statusHistory.push_back(status);
+    if (trackHistory) {
+        moveHistory.push_back(move);
+        statusHistory.push_back(status);
+    }
 
     clearPieceAt(move.from);
 

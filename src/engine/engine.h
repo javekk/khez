@@ -56,8 +56,8 @@ class Engine {
 
     bool makeMove(ChessBoard* const chessboard, Move move);
 
-    long long int perftDriver(const ChessBoard& chessboard, const int depth);
-    void perfTest(const ChessBoard& chessboard, const int depth);
+    long long int perftDriver(ChessBoard& chessboard, const int depth);
+    void perfTest(ChessBoard& chessboard, const int depth);
 
    private:
     // Masks

@@ -947,7 +947,10 @@ void Engine::__printMoves(std::vector<Move> moves) {
 bool Engine::makeMove(ChessBoard* const chessboard, Move move) {
     Color sideBeforeMove = chessboard->status.side.value();
 
-    chessboard->makeMove(move);
+    // Save status before making move (no history tracking)
+    ChessboardStatus savedStatus = chessboard->status;
+
+    chessboard->makeMove(move, false);  // Don't track history
 
     int king =
         (sideBeforeMove == WHITE)
@@ -959,12 +962,17 @@ bool Engine::makeMove(ChessBoard* const chessboard, Move move) {
         chessboard->status.side.value());  // Side after move
 
     if (!isLegalMove) {
-        chessboard->undoLastMove();
+        // Restore status instead of undoLastMove
+        chessboard->status = savedStatus;
+    } else {
+        // For legal moves, manually add to history (since we skipped it)
+        chessboard->moveHistory.push_back(move);
+        chessboard->statusHistory.push_back(savedStatus);
     }
     return isLegalMove;
 }
 
-long long int Engine::perftDriver(const ChessBoard& chessboard,
+long long int Engine::perftDriver(ChessBoard& chessboard,
                                   const int depth) {
     if (depth == 0) {
         return 1;
@@ -975,15 +983,15 @@ long long int Engine::perftDriver(const ChessBoard& chessboard,
     long long int nodes = 0;
 
     for (const auto& move : moves) {
-        ChessBoard boardAfterMove = chessboard;
-        if (makeMove(&boardAfterMove, move)) {
-            nodes += perftDriver(boardAfterMove, depth - 1);
+        if (makeMove(&chessboard, move)) {
+            nodes += perftDriver(chessboard, depth - 1);
+            chessboard.undoLastMove();
         }
     }
     return nodes;
 }
 
-void Engine::perfTest(const ChessBoard& chessboard, const int depth) {
+void Engine::perfTest(ChessBoard& chessboard, const int depth) {
     auto startTime = std::chrono::high_resolution_clock::now();
 
     std::vector<Move> rootMoves =
@@ -991,12 +999,12 @@ void Engine::perfTest(const ChessBoard& chessboard, const int depth) {
 
     long long int totalNodes = 0;
     for (auto move : rootMoves) {
-        ChessBoard boardAfterMove = chessboard;
-        if (makeMove(&boardAfterMove, move)) {
-            long long int moveCount = perftDriver(boardAfterMove, depth - 1);
+        if (makeMove(&chessboard, move)) {
+            long long int moveCount = perftDriver(chessboard, depth - 1);
             Move m(move);
             std::cout << m.toString() << ": " << moveCount << std::endl;
             totalNodes += moveCount;
+            chessboard.undoLastMove();
         }
     }
 
