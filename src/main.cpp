@@ -19,11 +19,10 @@ int main() {
     Engine engine;
     engine.init();
 
-    ChessBoard board;
-    board.parseFEN(
+    engine.parseFEN(
         "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
 
     int depth = 4;
 
-    engine.perfTest(board, depth);
+    engine.perfTest(depth);
 }

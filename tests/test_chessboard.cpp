@@ -204,7 +204,7 @@ void run_chessboard_tests() {
 
                 Move move(e2, e4, PAWN_DOUBLE_PUSH);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(e2) == '.');
                 expect(board.getPieceAt(e4) == 'P');
@@ -231,7 +231,7 @@ void run_chessboard_tests() {
 
                 Move move(g1, f3, KNIGHT_QUIET);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(g1) == '.');
                 expect(board.getPieceAt(f3) == 'N');
@@ -257,7 +257,7 @@ void run_chessboard_tests() {
 
                 Move move(e4, d5, PAWN_CAPTURE);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(e4) == '.');
                 expect(board.getPieceAt(d5) == 'P');
@@ -278,7 +278,7 @@ void run_chessboard_tests() {
 
                 Move move(e5, f6, PAWN_CAPTURE_ENPASSANT);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(e5) == '.');
                 expect(board.getPieceAt(f6) == 'P');
@@ -302,7 +302,7 @@ void run_chessboard_tests() {
 
                 Move move(e1, g1, CASTLE_KINGSIDE);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(e1) == '.');
                 expect(board.getPieceAt(f1) == 'R');
@@ -327,7 +327,7 @@ void run_chessboard_tests() {
 
                 Move move(e1, c1, CASTLE_QUEENSIDE);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(e1) == '.');
                 expect(board.getPieceAt(d1) == 'R');
@@ -354,7 +354,7 @@ void run_chessboard_tests() {
 
                 Move move(e8, g8, CASTLE_KINGSIDE);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(e8) == '.');
                 expect(board.getPieceAt(f8) == 'r');
@@ -379,7 +379,7 @@ void run_chessboard_tests() {
 
                 Move move(e8, c8, CASTLE_QUEENSIDE);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(e8) == '.');
                 expect(board.getPieceAt(d8) == 'r');
@@ -405,7 +405,7 @@ void run_chessboard_tests() {
 
                 Move move(a7, a8, PAWN_PROMOTION_TO_QUEEN);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(a7) == '.');
                 expect(board.getPieceAt(a8) == 'Q');
@@ -424,7 +424,7 @@ void run_chessboard_tests() {
 
                 Move move(a7, b8, PAWN_CAPTURE_PROMOTION_TO_KNIGHT);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(a7) == '.');
                 expect(board.getPieceAt(b8) == 'N');
@@ -444,7 +444,7 @@ void run_chessboard_tests() {
 
                 Move move(a1, a3, ROOK_QUIET);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(a1) == '.');
                 expect(board.getPieceAt(a3) == 'R');
@@ -465,7 +465,7 @@ void run_chessboard_tests() {
 
                 Move move(e1, f1, KING_QUIET);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(e1) == '.');
                 expect(board.getPieceAt(f1) == 'K');
@@ -489,9 +489,9 @@ void run_chessboard_tests() {
                 Move move2(e7, e5, PAWN_DOUBLE_PUSH);
                 Move move3(g1, f3, KNIGHT_QUIET);
 
-                board.makeMove(move1);
-                board.makeMove(move2);
-                board.makeMove(move3);
+                board.makePsuedoLegalMove(move1);
+                board.makePsuedoLegalMove(move2);
+                board.makePsuedoLegalMove(move3);
 
                 expect(board.getPieceAt(f3) == 'N');
                 expect(board.getPieceAt(e4) == 'P');
@@ -526,7 +526,7 @@ void run_chessboard_tests() {
 
                 Move move(c4, e6, BISHOP_CAPTURE);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(c4) == '.');
                 expect(board.getPieceAt(e6) == 'B');
@@ -547,7 +547,7 @@ void run_chessboard_tests() {
 
                 Move move(e2, g4, QUEEN_CAPTURE);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(e2) == '.');
                 expect(board.getPieceAt(g4) == 'Q');
@@ -568,7 +568,7 @@ void run_chessboard_tests() {
 
                 Move move(g1, f3, KNIGHT_QUIET);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(f3) == 'N');
                 expect(!board.status.enpassant.has_value());
@@ -589,7 +589,7 @@ void run_chessboard_tests() {
 
                    Move move(h1, h8, ROOK_CAPTURE);
 
-                   board.makeMove(move);
+                   board.makePsuedoLegalMove(move);
 
                    expect(board.getPieceAt(h1) == '.');
                    expect(board.getPieceAt(h8) == 'R');
@@ -610,7 +610,7 @@ void run_chessboard_tests() {
 
                    Move move(d2, d4, PAWN_DOUBLE_PUSH);
 
-                   board.makeMove(move);
+                   board.makePsuedoLegalMove(move);
 
                    expect(board.getPieceAt(d4) == 'P');
                    expect(board.status.enpassant.has_value());
@@ -632,7 +632,7 @@ void run_chessboard_tests() {
 
                    Move move(c7, c5, PAWN_DOUBLE_PUSH);
 
-                   board.makeMove(move);
+                   board.makePsuedoLegalMove(move);
 
                    expect(board.getPieceAt(c5) == 'p');
                    expect(board.status.enpassant.has_value());
@@ -650,7 +650,7 @@ void run_chessboard_tests() {
 
                 Move move(a7, a8, PAWN_PROMOTION_TO_ROOK);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(a7) == '.');
                 expect(board.getPieceAt(a8) == 'R');
@@ -667,7 +667,7 @@ void run_chessboard_tests() {
 
                 Move move(a7, a8, PAWN_PROMOTION_TO_BISHOP);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(a7) == '.');
                 expect(board.getPieceAt(a8) == 'B');
@@ -684,7 +684,7 @@ void run_chessboard_tests() {
 
                 Move move(a2, a1, PAWN_PROMOTION_TO_QUEEN);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(a2) == '.');
                 expect(board.getPieceAt(a1) == 'q');
@@ -701,7 +701,7 @@ void run_chessboard_tests() {
 
                 Move move(a7, b8, PAWN_CAPTURE_PROMOTION_TO_QUEEN);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(a7) == '.');
                 expect(board.getPieceAt(b8) == 'Q');
@@ -718,7 +718,7 @@ void run_chessboard_tests() {
 
                 Move move(a7, b8, PAWN_CAPTURE_PROMOTION_TO_ROOK);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(a7) == '.');
                 expect(board.getPieceAt(b8) == 'R');
@@ -735,7 +735,7 @@ void run_chessboard_tests() {
 
                 Move move(a7, b8, PAWN_CAPTURE_PROMOTION_TO_BISHOP);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.getPieceAt(a7) == '.');
                 expect(board.getPieceAt(b8) == 'B');
@@ -754,7 +754,7 @@ void run_chessboard_tests() {
 
                 Move move(e2, e4, PAWN_DOUBLE_PUSH);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.status.halfmoveCounter == 0);
 
@@ -771,7 +771,7 @@ void run_chessboard_tests() {
 
                 Move move(e4, d5, PAWN_CAPTURE);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.status.halfmoveCounter == 0);
 
@@ -787,7 +787,7 @@ void run_chessboard_tests() {
 
                 Move move(g1, f3, KNIGHT_QUIET);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.status.halfmoveCounter == 3);
 
@@ -804,7 +804,7 @@ void run_chessboard_tests() {
 
                 Move move(e7, e5, PAWN_DOUBLE_PUSH);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.status.fullmoveNumber == 2);
 
@@ -820,7 +820,7 @@ void run_chessboard_tests() {
 
                 Move move(e2, e4, PAWN_DOUBLE_PUSH);
 
-                board.makeMove(move);
+                board.makePsuedoLegalMove(move);
 
                 expect(board.status.fullmoveNumber == 1);
 
@@ -838,19 +838,19 @@ void run_chessboard_tests() {
                 Move move3(g1, f3, KNIGHT_QUIET);
                 Move move4(b8, c6, KNIGHT_QUIET);
 
-                board.makeMove(move1);
+                board.makePsuedoLegalMove(move1);
                 expect(board.status.halfmoveCounter == 0);
                 expect(board.status.fullmoveNumber == 1);
 
-                board.makeMove(move2);
+                board.makePsuedoLegalMove(move2);
                 expect(board.status.halfmoveCounter == 0);
                 expect(board.status.fullmoveNumber == 2);
 
-                board.makeMove(move3);
+                board.makePsuedoLegalMove(move3);
                 expect(board.status.halfmoveCounter == 1);
                 expect(board.status.fullmoveNumber == 2);
 
-                board.makeMove(move4);
+                board.makePsuedoLegalMove(move4);
                 expect(board.status.halfmoveCounter == 2);
                 expect(board.status.fullmoveNumber == 3);
 

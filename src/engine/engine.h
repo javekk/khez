@@ -14,14 +14,15 @@
 
 class Engine {
    public:
+    ChessBoard board;
+
     void init();
 
-    Bitboard setOccupancy(int index, Bitboard attacksMask);
+    void emptyBoard();
+    void setupInitialPosition();
+    void parseFEN(const std::string FEN);
 
-    bool isSquareUnderAttackBy(const ChessboardStatus* const status,
-                               Square square, Color color);
-    void __printAttackedSquare(const ChessboardStatus* const status,
-                               Color color);
+    Bitboard setOccupancy(int index, Bitboard attacksMask);
 
     // Masks
 
@@ -46,18 +47,19 @@ class Engine {
 
     void generateSliderPiecesAttacks(SlidingPiece piece);
 
-    // Move generation from status
+    // Move generation
 
-    std::vector<u_int32_t> generateAllPseudoLegalMoves(
-        const ChessboardStatus* const status);
-    std::vector<Move> generateAllPseudoLegalMovesAsMoveList(
-        const ChessboardStatus* const status);
+    std::vector<u_int32_t> generateAllPseudoLegalMoves();
+    std::vector<Move> generateAllPseudoLegalMovesAsMoveList();
     void __printMoves(std::vector<Move> moves);
 
-    bool makeMove(ChessBoard* const chessboard, Move move);
+    bool makeMove(Move move);
 
-    long long int perftDriver(ChessBoard& chessboard, const int depth);
-    void perfTest(ChessBoard& chessboard, const int depth);
+    bool isSquareUnderAttackBy(Square square, Color color);
+    void __printAttackedSquare(Color color);
+
+    long long int perftDriver(const int depth);
+    void perfTest(const int depth);
 
    private:
     // Masks
@@ -80,25 +82,18 @@ class Engine {
 
     // Move generation from status
 
-    void generatePawnMoves(const ChessboardStatus* const status,
-                           std::vector<u_int32_t>& moves);
-    void generatePawnQuietMoves(const ChessboardStatus* const status,
-                                Square from, std::vector<u_int32_t>& moves);
-    void generatePawnCaptureMoves(const ChessboardStatus* const status,
-                                  Square from, std::vector<u_int32_t>& moves);
+    void generatePawnMoves(std::vector<u_int32_t>& moves);
+    void generatePawnQuietMoves(Square from, std::vector<u_int32_t>& moves);
+    void generatePawnCaptureMoves(Square from, std::vector<u_int32_t>& moves);
 
-    void generateKingMoves(const ChessboardStatus* const status,
-                           std::vector<u_int32_t>& moves);
-    void generateKingCastlingMoves(const ChessboardStatus* const status,
-                                   std::vector<u_int32_t>& moves);
-    bool canWhiteCastleKingSide(const ChessboardStatus* const status);
-    bool canWhiteCastleQueenSide(const ChessboardStatus* const status);
-    bool canBlackCastleKingSide(const ChessboardStatus* const status);
-    bool canBlackCastleQueenSide(const ChessboardStatus* const status);
+    void generateKingMoves(std::vector<u_int32_t>& moves);
+    void generateKingCastlingMoves(std::vector<u_int32_t>& moves);
+    bool canWhiteCastleKingSide();
+    bool canWhiteCastleQueenSide();
+    bool canBlackCastleKingSide();
+    bool canBlackCastleQueenSide();
 
-    void generateSliderAndLeaperMoves(const ChessboardStatus* const status,
-                                      Piece piece,
+    void generateSliderAndLeaperMoves(Piece piece,
                                       std::vector<u_int32_t>& moves);
-    Bitboard getAttacksBoard(const ChessboardStatus* const status, Piece piece,
-                             Square square);
+    Bitboard getAttacksBoard(Piece piece, Square square);
 };

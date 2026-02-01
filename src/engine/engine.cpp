@@ -18,6 +18,12 @@ void Engine::init() {
     generateSliderPiecesAttacks(IS_ROOK);
 }
 
+void Engine::emptyBoard() { board.emptyBoard(); }
+
+void Engine::setupInitialPosition() { board.setupInitialPosition(); }
+
+void Engine::parseFEN(const std::string FEN) { board.parseFEN(FEN); }
+
 #pragma region pawns
 
 Bitboard whitePawnWestAttack(Bitboard pawn) { return (pawn & notAFile) >> 7; }
@@ -292,7 +298,8 @@ Bitboard Engine::generateSingleBishopAttacks(Square square, Bitboard blocks) {
     return attacks;
 }
 
-inline Bitboard Engine::getSingleBishopAttacks(Square square, Bitboard occupancies) {
+inline Bitboard Engine::getSingleBishopAttacks(Square square,
+                                               Bitboard occupancies) {
     Bitboard t1 = occupancies & bishopRelevantOccupanciesMasks[square];
     Bitboard t2 = Bitboard(t1.getValue() * bishopMagicNumbers[square]);
     Bitboard t3 = Bitboard(t2.getValue() >>
@@ -444,7 +451,8 @@ Bitboard Engine::generateSingleRookAttacks(Square square, Bitboard blocks) {
     return attacks;
 }
 
-inline Bitboard Engine::getSingleRookAttacks(Square square, Bitboard occupancies) {
+inline Bitboard Engine::getSingleRookAttacks(Square square,
+                                             Bitboard occupancies) {
     Bitboard t1 = occupancies & rookRelevantOccupanciesMasks[square];
     Bitboard t2 = Bitboard(t1.getValue() * rookMagicNumbers[square]);
     Bitboard t3 =
@@ -514,7 +522,8 @@ void Engine::generateSliderPiecesAttacks(SlidingPiece piece) {
 
 #pragma region Queen
 
-inline Bitboard Engine::getSingleQueenAttacks(Square square, Bitboard occupancies) {
+inline Bitboard Engine::getSingleQueenAttacks(Square square,
+                                              Bitboard occupancies) {
     Bitboard attacks;
     attacks |= getSingleBishopAttacks(square, occupancies);
     attacks |= getSingleRookAttacks(square, occupancies);
@@ -526,8 +535,8 @@ inline Bitboard Engine::getSingleQueenAttacks(Square square, Bitboard occupancie
 
 #pragma region Attacks
 
-bool Engine::isSquareUnderAttackBy(const ChessboardStatus* const status,
-                                   Square square, Color color) {
+bool Engine::isSquareUnderAttackBy(Square square, Color color) {
+    ChessboardStatus* status = &board.status;
     if ((color == WHITE) &&
         (getSinglePawnAttacks(square, BLACK) & status->boards[WHITE_PAWNS])
             .getValue()) {
@@ -573,13 +582,12 @@ bool Engine::isSquareUnderAttackBy(const ChessboardStatus* const status,
     return false;
 }
 
-void Engine::__printAttackedSquare(const ChessboardStatus* const status,
-                                   Color color) {
+void Engine::__printAttackedSquare(Color color) {
     std::string _color = color == WHITE ? "White" : "Black";
     std::cout << _color << " is attacking : [ ";
     for (int square = 0; square < 64; square++) {
         Square _square = static_cast<Square>(square);
-        if (isSquareUnderAttackBy(status, _square, color)) {
+        if (isSquareUnderAttackBy(_square, color)) {
             std::cout << squareMap.at(_square) << " ";
         }
     }
@@ -621,8 +629,9 @@ void addPawnPushMove(Square from, Square to, std::vector<u_int32_t>& moves) {
     moves.push_back(Move::createBinary(from, to, moveType));
 }
 
-void generateWhitePawnCaptures(const ChessboardStatus* status, Square from,
-                               Square to, std::vector<u_int32_t>& moves) {
+void generateWhitePawnCaptures(const ChessboardStatus* const status,
+                               Square from, Square to,
+                               std::vector<u_int32_t>& moves) {
     if (to == status->enpassant) {
         moves.push_back(Move::createBinary(from, to, PAWN_CAPTURE_ENPASSANT));
         return;
@@ -635,8 +644,9 @@ void generateWhitePawnCaptures(const ChessboardStatus* status, Square from,
     addPawnPushMove(from, to, moves);
 }
 
-void generateBlackPawnCaptures(const ChessboardStatus* status, Square from,
-                               Square to, std::vector<u_int32_t>& moves) {
+void generateBlackPawnCaptures(const ChessboardStatus* const status,
+                               Square from, Square to,
+                               std::vector<u_int32_t>& moves) {
     if (to == status->enpassant) {
         moves.push_back(Move::createBinary(from, to, PAWN_CAPTURE_ENPASSANT));
         return;
@@ -650,8 +660,8 @@ void generateBlackPawnCaptures(const ChessboardStatus* status, Square from,
     addPawnPushMove(from, to, moves);
 }
 
-void generateWhitePawnQuietMoves(const ChessboardStatus* status, Square from,
-                                 std::vector<u_int32_t>& moves) {
+void generateWhitePawnQuietMoves(const ChessboardStatus* const status,
+                                 Square from, std::vector<u_int32_t>& moves) {
     const Bitboard& allPieces = status->boards[ALL_PIECES];
     Square to = static_cast<Square>(from + 8);
 
@@ -674,8 +684,8 @@ void generateWhitePawnQuietMoves(const ChessboardStatus* status, Square from,
     }
 }
 
-void generateBlackPawnQuietMoves(const ChessboardStatus* status, Square from,
-                                 std::vector<u_int32_t>& moves) {
+void generateBlackPawnQuietMoves(const ChessboardStatus* const status,
+                                 Square from, std::vector<u_int32_t>& moves) {
     const Bitboard& allPieces = status->boards[ALL_PIECES];
     Square to = static_cast<Square>(from - 8);
 
@@ -698,44 +708,41 @@ void generateBlackPawnQuietMoves(const ChessboardStatus* status, Square from,
     }
 }
 
-void Engine::generatePawnMoves(const ChessboardStatus* const status,
-                               std::vector<u_int32_t>& moves) {
-    Color sideToMove = status->side.value();
+void Engine::generatePawnMoves(std::vector<u_int32_t>& moves) {
+    Color sideToMove = board.status.side.value();
     PieceBoard pawnPiece = (sideToMove == WHITE) ? WHITE_PAWNS : BLACK_PAWNS;
-    Bitboard pawns = status->boards[pawnPiece];
+    Bitboard pawns = board.status.boards[pawnPiece];
 
     while (pawns.getValue()) {
         Square from = static_cast<Square>(pawns.leastSignificantBeatIndex());
 
-        generatePawnQuietMoves(status, from, moves);
-        generatePawnCaptureMoves(status, from, moves);
+        generatePawnQuietMoves(from, moves);
+        generatePawnCaptureMoves(from, moves);
         pawns.clearBit(from);
     }
 }
 
-void Engine::generatePawnQuietMoves(const ChessboardStatus* const status,
-                                    Square from,
+void Engine::generatePawnQuietMoves(Square from,
                                     std::vector<u_int32_t>& moves) {
-    Color sideToMove = status->side.value();
+    Color sideToMove = board.status.side.value();
     if (sideToMove == WHITE) {
-        generateWhitePawnQuietMoves(status, from, moves);
+        generateWhitePawnQuietMoves(&board.status, from, moves);
     } else {
-        generateBlackPawnQuietMoves(status, from, moves);
+        generateBlackPawnQuietMoves(&board.status, from, moves);
     }
 }
 
-void Engine::generatePawnCaptureMoves(const ChessboardStatus* const status,
-                                      Square from,
+void Engine::generatePawnCaptureMoves(Square from,
                                       std::vector<u_int32_t>& moves) {
-    Color sideToMove = status->side.value();
+    Color sideToMove = board.status.side.value();
     PieceBoard attackedSide = (sideToMove == WHITE) ? BLACK_ALL : WHITE_ALL;
     Bitboard attacks =
-        pawnAttacksMasks[sideToMove][from] & status->boards[attackedSide];
+        pawnAttacksMasks[sideToMove][from] & board.status.boards[attackedSide];
 
     Bitboard enpassantAttacks;
-    if (status->enpassant.has_value()) {
+    if (board.status.enpassant.has_value()) {
         enpassantAttacks = pawnAttacksMasks[sideToMove][from] &
-                           Bitboard::fromSquare(status->enpassant.value());
+                           Bitboard::fromSquare(board.status.enpassant.value());
     }
 
     Bitboard allCapture = attacks | enpassantAttacks;
@@ -743,114 +750,114 @@ void Engine::generatePawnCaptureMoves(const ChessboardStatus* const status,
     while (allCapture.getValue()) {
         Square to = static_cast<Square>(allCapture.leastSignificantBeatIndex());
         if (sideToMove == WHITE) {
-            generateWhitePawnCaptures(status, from, to, moves);
+            generateWhitePawnCaptures(&board.status, from, to, moves);
         } else {
-            generateBlackPawnCaptures(status, from, to, moves);
+            generateBlackPawnCaptures(&board.status, from, to, moves);
         }
         allCapture.clearBit(to);
     }
 }
 
-void Engine::generateKingMoves(const ChessboardStatus* const status,
-                               std::vector<u_int32_t>& moves) {
-    generateSliderAndLeaperMoves(status, KING, moves);
-    generateKingCastlingMoves(status, moves);
+void Engine::generateKingMoves(std::vector<u_int32_t>& moves) {
+    generateSliderAndLeaperMoves(KING, moves);
+    generateKingCastlingMoves(moves);
 }
 
-bool Engine::canWhiteCastleKingSide(const ChessboardStatus* const status) {
-    if (!(status->availableCastle & WHITE_KINGSIDE)) {
+bool Engine::canWhiteCastleKingSide() {
+    if (!(board.status.availableCastle & WHITE_KINGSIDE)) {
         return false;
     }
 
-    bool emptyRank = !status->boards[ALL_PIECES].getBit(f1) &&
-                     !status->boards[ALL_PIECES].getBit(g1);
-    bool noAttacks = !isSquareUnderAttackBy(status, e1, BLACK) &&
-                     !isSquareUnderAttackBy(status, f1, BLACK);
+    bool emptyRank = !board.status.boards[ALL_PIECES].getBit(f1) &&
+                     !board.status.boards[ALL_PIECES].getBit(g1);
+    bool noAttacks =
+        !isSquareUnderAttackBy(e1, BLACK) && !isSquareUnderAttackBy(f1, BLACK);
     // I do not check g1 (where the king lands) that is
     // resposability of the makeMove function
 
     return (emptyRank && noAttacks);
 }
 
-bool Engine::canWhiteCastleQueenSide(const ChessboardStatus* const status) {
-    if (!(status->availableCastle & WHITE_QUEENSIDE)) {
+bool Engine::canWhiteCastleQueenSide() {
+    if (!(board.status.availableCastle & WHITE_QUEENSIDE)) {
         return false;
     }
 
-    bool emptyRank = !status->boards[ALL_PIECES].getBit(d1) &&
-                     !status->boards[ALL_PIECES].getBit(c1) &&
-                     !status->boards[ALL_PIECES].getBit(b1);
-    bool noAttacks = !isSquareUnderAttackBy(status, e1, BLACK) &&
-                     !isSquareUnderAttackBy(status, d1, BLACK);
+    bool emptyRank = !board.status.boards[ALL_PIECES].getBit(d1) &&
+                     !board.status.boards[ALL_PIECES].getBit(c1) &&
+                     !board.status.boards[ALL_PIECES].getBit(b1);
+    bool noAttacks =
+        !isSquareUnderAttackBy(e1, BLACK) && !isSquareUnderAttackBy(d1, BLACK);
     // I do not check c1 (where the king lands) that is
     // resposability of the makeMove function
 
     return (emptyRank && noAttacks);
 }
 
-bool Engine::canBlackCastleKingSide(const ChessboardStatus* const status) {
-    if (!(status->availableCastle & BLACK_KINGSIDE)) {
+bool Engine::canBlackCastleKingSide() {
+    if (!(board.status.availableCastle & BLACK_KINGSIDE)) {
         return false;
     }
 
-    bool emptyRank = !status->boards[ALL_PIECES].getBit(f8) &&
-                     !status->boards[ALL_PIECES].getBit(g8);
-    bool noAttacks = !isSquareUnderAttackBy(status, e8, WHITE) &&
-                     !isSquareUnderAttackBy(status, f8, WHITE);
+    bool emptyRank = !board.status.boards[ALL_PIECES].getBit(f8) &&
+                     !board.status.boards[ALL_PIECES].getBit(g8);
+    bool noAttacks =
+        !isSquareUnderAttackBy(e8, WHITE) && !isSquareUnderAttackBy(f8, WHITE);
     // I do not check g8 (where the king lands) that is
     // resposability of the makeMove function
 
     return (emptyRank && noAttacks);
 }
 
-bool Engine::canBlackCastleQueenSide(const ChessboardStatus* const status) {
-    if (!(status->availableCastle & BLACK_QUEENSIDE)) {
+bool Engine::canBlackCastleQueenSide() {
+    if (!(board.status.availableCastle & BLACK_QUEENSIDE)) {
         return false;
     }
 
-    bool emptyRank = !status->boards[ALL_PIECES].getBit(d8) &&
-                     !status->boards[ALL_PIECES].getBit(c8) &&
-                     !status->boards[ALL_PIECES].getBit(b8);
-    bool noAttacks = !isSquareUnderAttackBy(status, e8, WHITE) &&
-                     !isSquareUnderAttackBy(status, d8, WHITE);
+    bool emptyRank = !board.status.boards[ALL_PIECES].getBit(d8) &&
+                     !board.status.boards[ALL_PIECES].getBit(c8) &&
+                     !board.status.boards[ALL_PIECES].getBit(b8);
+    bool noAttacks =
+        !isSquareUnderAttackBy(e8, WHITE) && !isSquareUnderAttackBy(d8, WHITE);
     // I do not check c1 (where the king lands) that is
     // resposability of the makeMove function
 
     return (emptyRank && noAttacks);
 }
 
-void Engine::generateKingCastlingMoves(const ChessboardStatus* const status,
-                                       std::vector<u_int32_t>& moves) {
-    Color sideToMove = status->side.value();
+void Engine::generateKingCastlingMoves(std::vector<u_int32_t>& moves) {
+    Color sideToMove = board.status.side.value();
 
     if (sideToMove == WHITE) {
-        if (canWhiteCastleKingSide(status)) {
+        if (canWhiteCastleKingSide()) {
             moves.push_back(Move::createBinary(e1, g1, CASTLE_KINGSIDE));
         }
-        if (canWhiteCastleQueenSide(status)) {
+        if (canWhiteCastleQueenSide()) {
             moves.push_back(Move::createBinary(e1, c1, CASTLE_QUEENSIDE));
         }
     } else {
-        if (canBlackCastleKingSide(status)) {
+        if (canBlackCastleKingSide()) {
             moves.push_back(Move::createBinary(e8, g8, CASTLE_KINGSIDE));
         }
-        if (canBlackCastleQueenSide(status)) {
+        if (canBlackCastleQueenSide()) {
             moves.push_back(Move::createBinary(e8, c8, CASTLE_QUEENSIDE));
         }
     }
 }
 
-Bitboard Engine::getAttacksBoard(const ChessboardStatus* const status,
-                                 Piece piece, Square square) {
+Bitboard Engine::getAttacksBoard(Piece piece, Square square) {
     switch (piece) {
         case KNIGHT:
             return getSingleKnightAttacks(square);
         case BISHOP:
-            return getSingleBishopAttacks(square, status->boards[ALL_PIECES]);
+            return getSingleBishopAttacks(square,
+                                          board.status.boards[ALL_PIECES]);
         case ROOK:
-            return getSingleRookAttacks(square, status->boards[ALL_PIECES]);
+            return getSingleRookAttacks(square,
+                                        board.status.boards[ALL_PIECES]);
         case QUEEN:
-            return getSingleQueenAttacks(square, status->boards[ALL_PIECES]);
+            return getSingleQueenAttacks(square,
+                                         board.status.boards[ALL_PIECES]);
         case KING:
             return getSingleKingAttacks(square);
 
@@ -874,13 +881,12 @@ MoveType getMoveType(Piece piece, bool isQuiet) {
     return isQuiet ? quietMoveMap.at(piece) : captureMoveMap.at(piece);
 }
 
-void Engine::generateSliderAndLeaperMoves(const ChessboardStatus* const status,
-                                          Piece piece,
+void Engine::generateSliderAndLeaperMoves(Piece piece,
                                           std::vector<u_int32_t>& moves) {
-    Color sideToMove = status->side.value();
+    Color sideToMove = board.status.side.value();
 
     Bitboard pieceBoard =
-        status->boards[sideColorToPieceBoardMap.at({sideToMove, piece})];
+        board.status.boards[sideColorToPieceBoardMap.at({sideToMove, piece})];
     PieceBoard sideBoard = (sideToMove == WHITE) ? WHITE_ALL : BLACK_ALL;
     PieceBoard opponentBoard = (sideToMove == WHITE) ? BLACK_ALL : WHITE_ALL;
 
@@ -888,13 +894,13 @@ void Engine::generateSliderAndLeaperMoves(const ChessboardStatus* const status,
         Square from =
             static_cast<Square>(pieceBoard.leastSignificantBeatIndex());
         Bitboard attacks =
-            getAttacksBoard(status, piece, from) & ~(status->boards[sideBoard]);
+            getAttacksBoard(piece, from) & ~(board.status.boards[sideBoard]);
 
         while (attacks.getValue()) {
             Square to =
                 static_cast<Square>(attacks.leastSignificantBeatIndex());
 
-            if (status->boards[opponentBoard].getBit(to)) {
+            if (board.status.boards[opponentBoard].getBit(to)) {
                 moves.push_back(
                     Move::createBinary(from, to, getMoveType(piece, false)));
             } else {
@@ -909,23 +915,21 @@ void Engine::generateSliderAndLeaperMoves(const ChessboardStatus* const status,
     }
 }
 
-std::vector<u_int32_t> Engine::generateAllPseudoLegalMoves(
-    const ChessboardStatus* const status) {
+std::vector<u_int32_t> Engine::generateAllPseudoLegalMoves() {
     std::vector<u_int32_t> moves;
 
-    generatePawnMoves(status, moves);
-    generateKingMoves(status, moves);
-    generateSliderAndLeaperMoves(status, KNIGHT, moves);
-    generateSliderAndLeaperMoves(status, BISHOP, moves);
-    generateSliderAndLeaperMoves(status, ROOK, moves);
-    generateSliderAndLeaperMoves(status, QUEEN, moves);
+    generatePawnMoves(moves);
+    generateKingMoves(moves);
+    generateSliderAndLeaperMoves(KNIGHT, moves);
+    generateSliderAndLeaperMoves(BISHOP, moves);
+    generateSliderAndLeaperMoves(ROOK, moves);
+    generateSliderAndLeaperMoves(QUEEN, moves);
 
     return moves;
 }
 
-std::vector<Move> Engine::generateAllPseudoLegalMovesAsMoveList(
-    const ChessboardStatus* const status) {
-    std::vector<u_int32_t> binaryMoves = generateAllPseudoLegalMoves(status);
+std::vector<Move> Engine::generateAllPseudoLegalMovesAsMoveList() {
+    std::vector<u_int32_t> binaryMoves = generateAllPseudoLegalMoves();
     std::vector<Move> moves;
     moves.reserve(binaryMoves.size());
     for (u_int32_t binary : binaryMoves) {
@@ -944,67 +948,56 @@ void Engine::__printMoves(std::vector<Move> moves) {
     std::cout << "Total moves " << moves.size() << std::endl;
 }
 
-bool Engine::makeMove(ChessBoard* const chessboard, Move move) {
-    Color sideBeforeMove = chessboard->status.side.value();
+bool Engine::makeMove(Move move) {
+    Color sideBeforeMove = board.status.side.value();
 
-    // Save status before making move (no history tracking)
-    ChessboardStatus savedStatus = chessboard->status;
-
-    chessboard->makeMove(move, false);  // Don't track history
+    board.makePsuedoLegalMove(move);
 
     int king =
         (sideBeforeMove == WHITE)
-            ? chessboard->status.boards[WHITE_KING].leastSignificantBeatIndex()
-            : chessboard->status.boards[BLACK_KING].leastSignificantBeatIndex();
+            ? board.status.boards[WHITE_KING].leastSignificantBeatIndex()
+            : board.status.boards[BLACK_KING].leastSignificantBeatIndex();
 
-    bool isLegalMove = !isSquareUnderAttackBy(
-        &chessboard->status, static_cast<Square>(king),
-        chessboard->status.side.value());  // Side after move
+    bool isLegalMove =
+        !isSquareUnderAttackBy(static_cast<Square>(king),
+                               board.status.side.value());  // Side after move
 
     if (!isLegalMove) {
-        // Restore status instead of undoLastMove
-        chessboard->status = savedStatus;
-    } else {
-        // For legal moves, manually add to history (since we skipped it)
-        chessboard->moveHistory.push_back(move);
-        chessboard->statusHistory.push_back(savedStatus);
+        board.undoLastMove();
     }
     return isLegalMove;
 }
 
-long long int Engine::perftDriver(ChessBoard& chessboard,
-                                  const int depth) {
+long long int Engine::perftDriver(const int depth) {
     if (depth == 0) {
         return 1;
     }
 
-    std::vector<u_int32_t> moves =
-        generateAllPseudoLegalMoves(&chessboard.status);
+    std::vector<u_int32_t> moves = generateAllPseudoLegalMoves();
     long long int nodes = 0;
 
     for (const auto& move : moves) {
-        if (makeMove(&chessboard, move)) {
-            nodes += perftDriver(chessboard, depth - 1);
-            chessboard.undoLastMove();
+        if (makeMove(move)) {
+            nodes += perftDriver(depth - 1);
+            board.undoLastMove();
         }
     }
     return nodes;
 }
 
-void Engine::perfTest(ChessBoard& chessboard, const int depth) {
+void Engine::perfTest(const int depth) {
     auto startTime = std::chrono::high_resolution_clock::now();
 
-    std::vector<Move> rootMoves =
-        generateAllPseudoLegalMovesAsMoveList(&chessboard.status);
+    std::vector<Move> rootMoves = generateAllPseudoLegalMovesAsMoveList();
 
     long long int totalNodes = 0;
     for (auto move : rootMoves) {
-        if (makeMove(&chessboard, move)) {
-            long long int moveCount = perftDriver(chessboard, depth - 1);
+        if (makeMove(move)) {
+            long long int moveCount = perftDriver(depth - 1);
             Move m(move);
             std::cout << m.toString() << ": " << moveCount << std::endl;
             totalNodes += moveCount;
-            chessboard.undoLastMove();
+            board.undoLastMove();
         }
     }
 

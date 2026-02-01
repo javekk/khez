@@ -25,7 +25,7 @@ class ChessBoard {
     void setupInitialPosition();
     void parseFEN(const std::string FEN);
 
-    void makeMove(Move move, bool trackHistory = true);
+    void makePsuedoLegalMove(Move move);
     void undoLastMove();
 
     void setPieceAt(const Square square, const Piece piece, const Color color);
