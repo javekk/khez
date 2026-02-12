@@ -4,8 +4,10 @@
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 #include "../lib/color.h"
+#include "../lib/logger.h"
 #include "../lib/masks.h"
 #include "../lib/sliding-piece.h"
 #include "../lib/square.h"
@@ -584,14 +586,18 @@ bool Engine::isSquareUnderAttackBy(Square square, Color color) {
 
 void Engine::__printAttackedSquare(Color color) {
     std::string _color = color == WHITE ? "White" : "Black";
-    std::cout << _color << " is attacking : [ ";
+    std::ostringstream oss;
+
+    oss << _color << " is attacking : [ ";
     for (int square = 0; square < 64; square++) {
         Square _square = static_cast<Square>(square);
         if (isSquareUnderAttackBy(_square, color)) {
-            std::cout << squareMap.at(_square) << " ";
+            oss << squareMap.at(_square) << " ";
         }
     }
-    std::cout << " ]\n";
+    oss << " ]\n";
+
+    logger.info(oss.str());
 }
 
 #pragma endregion
@@ -939,13 +945,16 @@ std::vector<Move> Engine::generateAllPseudoLegalMovesAsMoveList() {
 }
 
 void Engine::__printMoves(std::vector<Move> moves) {
-    std::cout << "Moves: \n";
+    std::ostringstream oss;
+
+    oss << "Moves: \n";
 
     for (auto move : moves) {
-        std::cout << move.toString() << std::endl;
+        oss << move.toString() << std::endl;
     }
 
-    std::cout << "Total moves " << moves.size() << std::endl;
+    oss << "Total moves " << moves.size() << std::endl;
+    logger.info(oss.str());
 }
 
 bool Engine::makeMove(Move move) {
@@ -995,7 +1004,7 @@ void Engine::perfTest(const int depth) {
         if (makeMove(move)) {
             long long int moveCount = perftDriver(depth - 1);
             Move m(move);
-            std::cout << m.toString() << ": " << moveCount << std::endl;
+            logger.debug(m.toString() + ": " + std::to_string(moveCount));
             totalNodes += moveCount;
             board.undoLastMove();
         }
@@ -1003,14 +1012,13 @@ void Engine::perfTest(const int depth) {
 
     auto endTime = std::chrono::high_resolution_clock::now();
 
-    std::cout << std::endl
-              << "Depth: " << depth << std::endl
-              << "Total nodes: " << totalNodes << std::endl
-              << "Time: "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(
-                     endTime - startTime)
-                     .count()
-              << "ms" << std::endl;
+    logger.info(
+        "\n\t\tDepth: " + std::to_string(depth) + "\n" +
+        "\t\tTotal nodes: " + std::to_string(totalNodes) + "\n" + "\t\tTime: " +
+        std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(
+                           endTime - startTime)
+                           .count()) +
+        "ms" + "\n");
 }
 
 #pragma endregion
