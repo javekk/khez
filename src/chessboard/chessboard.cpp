@@ -318,6 +318,7 @@ std::string ChessBoard::availableCastleToString() const {
 
 std::string ChessBoard::toStringComplete() const {
     std::ostringstream oss;
+    oss << std::endl;
     oss << "===========================" << std::endl;
     oss << toString() << std::endl;
     oss << "Side: " << (*status.side == Color::BLACK ? "Black" : "White")
@@ -328,6 +329,9 @@ std::string ChessBoard::toStringComplete() const {
                 ? squareMap.at(status.enpassant.value())
                 : " ")
         << std::endl;
+
+    oss << "Halfmove clock: " << status.halfmoveCounter << std::endl;
+    oss << "Fullmove number: " << status.fullmoveNumber << std::endl;
     oss << "===========================" << std::endl;
 
     return oss.str();

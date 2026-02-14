@@ -223,6 +223,26 @@ std::string Move::toString() const {
     return oss.str();
 }
 
+std::string Move::toStringUCI() const {
+    std::string move = squareMap.at(from) + squareMap.at(to);
+
+    if (promoted) {
+        switch (promoted) {
+            case QUEEN:
+                return move + "q";
+            case KNIGHT:
+                return move + "n";
+            case BISHOP:
+                return move + "b";
+            case ROOK:
+                return move + "r";
+            default:
+                break;
+        }
+    }
+    return move;
+}
+
 bool Move::operator==(const Move& other) const {
     return from == other.from && to == other.to && type == other.type;
 }

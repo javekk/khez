@@ -1,5 +1,6 @@
 #include "engine.h"
 
+#include <algorithm>
 #include <bitset>
 #include <chrono>
 #include <cstdlib>
@@ -972,9 +973,34 @@ bool Engine::makeMove(Move move) {
                                board.status.side.value());  // Side after move
 
     if (!isLegalMove) {
+        logger.warn("Not a legal move, undo!");
         board.undoLastMove();
     }
     return isLegalMove;
+}
+
+bool Engine::parseMove(std::string input) {
+    logger.debug("Parsing move: " + input);
+
+    std::vector<Move> moves = generateAllPseudoLegalMovesAsMoveList();
+
+    std::vector<std::string> movesAsStrings;
+    transform(moves.begin(), moves.end(), back_inserter(movesAsStrings),
+              [](Move move) { return move.toStringUCI(); });
+
+    input[5] = tolower(input[5]);
+
+    auto it = find(movesAsStrings.begin(), movesAsStrings.end(), input);
+
+    if (it != movesAsStrings.end()) {
+        int index = it - movesAsStrings.begin();
+        Move move = moves.at(index);
+        logger.debug("Pseudo legal move founded: " + move.toString());
+        return makeMove(move);
+    }
+
+    logger.warn("Move not found or not well-formed");
+    return false;
 }
 
 long long int Engine::perftDriver(const int depth) {

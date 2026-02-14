@@ -23,10 +23,15 @@ int main() {
     Engine engine;
     engine.init();
 
-    engine.parseFEN(
-        "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+    engine.setupInitialPosition();
 
-    int depth = 4;
+    logger.info(engine.board.toStringComplete());
 
-    engine.perfTest(depth);
+    while (true) {
+        cout << "Waiting form move: ";
+        string move;
+        cin >> move;
+        engine.parseMove(move);
+        logger.info(engine.board.toStringComplete());
+    }
 }

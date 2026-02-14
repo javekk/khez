@@ -34,6 +34,10 @@ std::string levelToString(LogLevel level) {
 void Logger::log(const LogLevel level, const std::string& message) const {
     std::ostringstream oss;
 
+    if (!props_.enabled) {
+        return;
+    }
+
     if (props_.enableTimestamp) {
         time_t timestamp;
         time(&timestamp);

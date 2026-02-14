@@ -12,6 +12,7 @@ enum LogLevel {
 struct LoggerProps {
     LogLevel minLevel = LogLevel::DEBUG;
     bool enableTimestamp = true;
+    bool enabled = true;
 };
 
 class Logger {

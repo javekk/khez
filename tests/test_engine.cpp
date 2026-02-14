@@ -1667,6 +1667,33 @@ void test_make_move() {
     });
 }
 
+void test_parse_move() {
+    describe("Parse move from string", [&]() {
+        Engine engine;
+        engine.init();
+
+        it("Testing initial position white to play", [&]() {
+            engine.setupInitialPosition();
+            bool hasMoved = engine.parseMove("a2a3");
+            expect(hasMoved);
+        });
+
+        it("Testing initial position white to play", [&]() {
+            engine.setupInitialPosition();
+            bool hasMoved = engine.parseMove("a4a3");
+            expect(!hasMoved);
+        });
+
+        it("Testing pawn capture promotion to knight", [&]() {
+            engine.parseFEN("4k3/8/8/8/8/8/6p1/5R1K b - -");
+            bool hasMoved = engine.parseMove("g2f1n");
+            expect(hasMoved);
+            expect(engine.board.getPieceAt(g2) == '.');
+            expect(engine.board.getPieceAt(f1) == 'n');
+        });
+    });
+}
+
 void run_engine_tests() {
     describe("Testing engine", []() {
         test_pawn_attacks_generation();
@@ -1684,5 +1711,6 @@ void run_engine_tests() {
 
         test_move_generations();
         test_make_move();
+        test_parse_move();
     });
 }

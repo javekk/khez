@@ -54,6 +54,7 @@ class Engine {
     void __printMoves(std::vector<Move> moves);
 
     bool makeMove(Move move);
+    bool parseMove(std::string input);
 
     bool isSquareUnderAttackBy(Square square, Color color);
     void __printAttackedSquare(Color color);
