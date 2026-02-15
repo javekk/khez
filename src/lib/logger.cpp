@@ -25,7 +25,7 @@ std::string levelToString(LogLevel level) {
         case WARN:
             return "[" + YELLOW + "WARN" + END + "] ";
         case ERROR:
-            return "[" + GREEN + "INFO" + END + "] ";
+            return "[" + RED + "ERROR" + END + "] ";
         default:
             return "UNKNOWN";
     }

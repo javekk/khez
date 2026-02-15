@@ -54,13 +54,19 @@ class Engine {
     void __printMoves(std::vector<Move> moves);
 
     bool makeMove(Move move);
-    bool parseMove(std::string input);
 
     bool isSquareUnderAttackBy(Square square, Color color);
     void __printAttackedSquare(Color color);
 
+    // perf tests
+
     long long int perftDriver(const int depth);
     void perfTest(const int depth);
+
+    // UCI
+
+    bool parseUCIPosition(std::string input);
+    bool parseUCIMove(std::string input);
 
    private:
     // Masks

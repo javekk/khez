@@ -23,9 +23,15 @@ void Engine::init() {
 
 void Engine::emptyBoard() { board.emptyBoard(); }
 
-void Engine::setupInitialPosition() { board.setupInitialPosition(); }
+void Engine::setupInitialPosition() {
+    logger.debug("Set up initial position");
+    board.setupInitialPosition();
+}
 
-void Engine::parseFEN(const std::string FEN) { board.parseFEN(FEN); }
+void Engine::parseFEN(const std::string FEN) {
+    logger.debug("Parsing FEN: " + FEN);
+    board.parseFEN(FEN);
+}
 
 #pragma region pawns
 
@@ -979,8 +985,10 @@ bool Engine::makeMove(Move move) {
     return isLegalMove;
 }
 
-bool Engine::parseMove(std::string input) {
-    logger.debug("Parsing move: " + input);
+#pragma region UCI
+
+bool Engine::parseUCIMove(std::string move) {
+    logger.debug("Parsing move: " + move);
 
     std::vector<Move> moves = generateAllPseudoLegalMovesAsMoveList();
 
@@ -988,9 +996,9 @@ bool Engine::parseMove(std::string input) {
     transform(moves.begin(), moves.end(), back_inserter(movesAsStrings),
               [](Move move) { return move.toStringUCI(); });
 
-    input[5] = tolower(input[5]);
+    move[5] = tolower(move[5]);
 
-    auto it = find(movesAsStrings.begin(), movesAsStrings.end(), input);
+    auto it = find(movesAsStrings.begin(), movesAsStrings.end(), move);
 
     if (it != movesAsStrings.end()) {
         int index = it - movesAsStrings.begin();
@@ -1002,6 +1010,50 @@ bool Engine::parseMove(std::string input) {
     logger.warn("Move not found or not well-formed");
     return false;
 }
+
+bool Engine::parseUCIPosition(std::string input) {
+    std::istringstream iss(input);
+    std::string token;
+
+    iss >> token;
+    if (token != "position") {
+        logger.error("No position command found: " + token);
+        return false;
+    }
+
+    iss >> token;
+
+    if (token == "startpos") {
+        setupInitialPosition();
+    } else if (token == "fen") {
+        std::string fen;
+        while (iss >> token && token != "moves") {
+            if (!fen.empty()) fen += " ";
+            fen += token;
+        }
+        parseFEN(fen);
+    } else {
+        logger.error("'positon' command with wrong format");
+        return false;
+    }
+
+    while (iss >> token) {
+        if (token == "moves") {
+            continue;
+        }
+
+        if (!parseUCIMove(token)) {
+            logger.error("Could not parse move: " + token);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+#pragma endregion
+
+#pragma region PerfT
 
 long long int Engine::perftDriver(const int depth) {
     if (depth == 0) {

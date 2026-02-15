@@ -1667,30 +1667,104 @@ void test_make_move() {
     });
 }
 
-void test_parse_move() {
-    describe("Parse move from string", [&]() {
+void test_parse_uci_move() {
+    describe("Parse uci move from string", [&]() {
         Engine engine;
         engine.init();
 
         it("Testing initial position white to play", [&]() {
             engine.setupInitialPosition();
-            bool hasMoved = engine.parseMove("a2a3");
+            bool hasMoved = engine.parseUCIMove("a2a3");
             expect(hasMoved);
         });
 
         it("Testing initial position white to play", [&]() {
             engine.setupInitialPosition();
-            bool hasMoved = engine.parseMove("a4a3");
+            bool hasMoved = engine.parseUCIMove("a4a3");
             expect(!hasMoved);
         });
 
         it("Testing pawn capture promotion to knight", [&]() {
             engine.parseFEN("4k3/8/8/8/8/8/6p1/5R1K b - -");
-            bool hasMoved = engine.parseMove("g2f1n");
+            bool hasMoved = engine.parseUCIMove("g2f1n");
             expect(hasMoved);
             expect(engine.board.getPieceAt(g2) == '.');
             expect(engine.board.getPieceAt(f1) == 'n');
         });
+    });
+}
+
+void test_parse_uci_position() {
+    describe("Parse uci position from string", [&]() {
+        Engine engine;
+        engine.init();
+
+        it("Testing random command", [&]() {
+            bool correctInput = engine.parseUCIPosition("ciaone");
+            expect(!correctInput);
+        });
+
+        it("Testing random positon command", [&]() {
+            bool correctInput = engine.parseUCIPosition("position ciaone");
+            expect(!correctInput);
+        });
+
+        it("Testing 'position startpos' command", [&]() {
+            engine.parseFEN("4k3/8/8/8/8/8/6p1/5R1K b - -");
+            bool correctInput = engine.parseUCIPosition("position startpos");
+            expect(correctInput);
+            ChessBoard compaBoard;
+            compaBoard.setupInitialPosition();
+            expect(engine.board.toString() == compaBoard.toString());
+        });
+
+        it("Testing 'position startpos moves e2e4 e7e5' command", [&]() {
+            bool correctInput =
+                engine.parseUCIPosition("position startpos moves e2e4 e7e5");
+            expect(correctInput);
+            expect(engine.board.getPieceAt(e2) == '.');
+            expect(engine.board.getPieceAt(e4) == 'P');
+            expect(engine.board.getPieceAt(e7) == '.');
+            expect(engine.board.getPieceAt(e5) == 'p');
+        });
+
+        it("Testing 'position fen 4k3/8/8/8/8/8/6p1/5R1K w - - 0 1' command",
+           [&]() {
+               bool correctInput = engine.parseUCIPosition(
+                   "position fen 4k3/8/8/8/8/8/6p1/5R1K w - - 0 1");
+               expect(correctInput);
+               ChessBoard compaBoard;
+               compaBoard.parseFEN("4k3/8/8/8/8/8/6p1/5R1K w - - 0 1");
+               expect(engine.board.toString() == compaBoard.toString());
+           });
+
+        it("Testing 'position fen 4k3/8/8/8/8/8/6p1/5R1K w - - 0 1 moves h1g2 "
+           "e8d8' command",
+           [&]() {
+               bool correctInput = engine.parseUCIPosition(
+                   "position fen 4k3/8/8/8/8/8/6p1/5R1K w - - 0 1 moves h1g2 "
+                   "e8d8");
+               expect(correctInput);
+               ChessBoard compaBoard;
+               compaBoard.parseFEN("3k4/8/8/8/8/8/6K1/5R2 w - - 0 1");
+               expect(engine.board.toString() ==
+                      compaBoard.toString());  // ignoring move counters
+           });
+
+        it("Testing 'position fen 4k3/8/8/8/8/8/6p1/5R1K w - - 0 1 moves f1e1 "
+           "e8d8' command (First move is wrong because king is in check)",
+           [&]() {
+               bool correctInput = engine.parseUCIPosition(
+                   "position fen 4k3/8/8/8/8/8/6p1/5R1K w - - 0 1 moves f1e1 "
+                   "e8d8");
+               expect(!correctInput);
+               ChessBoard compaBoard;
+               compaBoard.parseFEN(
+                   "4k3/8/8/8/8/8/6p1/5R1K w - - 0 1");  // the position is
+                                                         // parsed but not the
+                                                         // moves
+               expect(engine.board.toString() == compaBoard.toString());
+           });
     });
 }
 
@@ -1711,6 +1785,7 @@ void run_engine_tests() {
 
         test_move_generations();
         test_make_move();
-        test_parse_move();
+        test_parse_uci_move();
+        test_parse_uci_position();
     });
 }
