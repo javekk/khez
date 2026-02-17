@@ -24,21 +24,6 @@ int main() {
     engine.init();
 
     engine.setupInitialPosition();
-    engine.parseUCIPosition(
-        "position fen 4k3/8/8/8/8/8/6p1/5R1K w - - 0 1 moves f1e1 "
-        "e8d8");
 
-    logger.info(engine.board.toString());
-    engine.parseFEN("4k3/8/8/8/8/8/6p1/5R1K w - - 0 1");
-    logger.info(engine.board.toString());
-
-    logger.info(engine.board.toString());
-
-    while (true) {
-        cout << "Waiting form go: ";
-        string command;
-        getline(cin, command);
-        engine.parseUCIGo(command);
-        logger.info(engine.board.toStringComplete());
-    }
+    engine.UCI();
 }

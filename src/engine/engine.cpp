@@ -985,31 +985,17 @@ bool Engine::makeMove(Move move) {
     return isLegalMove;
 }
 
-#pragma region UCI
+#pragma endregion
 
-bool Engine::parseUCIMove(std::string move) {
-    logger.debug("Parsing move: " + move);
+#pragma region Move Search
 
-    std::vector<Move> moves = generateAllPseudoLegalMovesAsMoveList();
-
-    std::vector<std::string> movesAsStrings;
-    transform(moves.begin(), moves.end(), back_inserter(movesAsStrings),
-              [](Move move) { return move.toStringUCI(); });
-
-    move[5] = tolower(move[5]);
-
-    auto it = find(movesAsStrings.begin(), movesAsStrings.end(), move);
-
-    if (it != movesAsStrings.end()) {
-        int index = it - movesAsStrings.begin();
-        Move move = moves.at(index);
-        logger.debug("Pseudo legal move founded: " + move.toString());
-        return makeMove(move);
-    }
-
-    logger.warn("Move not found or not well-formed");
-    return false;
+Move Engine::searchBestMove(int depth) {
+    return Move{d7, d5, PAWN_DOUBLE_PUSH};
 }
+
+#pragma endregion
+
+#pragma region UCI
 
 bool Engine::parseUCIGo(std::string input) {
     std::istringstream iss(input);
@@ -1032,7 +1018,8 @@ bool Engine::parseUCIGo(std::string input) {
         depth = 6;
     }
 
-    logger.warn("TODO searchPosition");
+    Move bestMove = searchBestMove(depth);
+    std::cout << "bestmove " << bestMove.toStringUCI() << std::endl;
     return true;
 }
 
@@ -1076,6 +1063,64 @@ bool Engine::parseUCIPosition(std::string input) {
     }
 
     return true;
+}
+
+bool Engine::parseUCIMove(std::string move) {
+    logger.debug("Parsing move: " + move);
+
+    std::vector<Move> moves = generateAllPseudoLegalMovesAsMoveList();
+
+    std::vector<std::string> movesAsStrings;
+    transform(moves.begin(), moves.end(), back_inserter(movesAsStrings),
+              [](Move move) { return move.toStringUCI(); });
+
+    move[5] = tolower(move[5]);
+
+    auto it = find(movesAsStrings.begin(), movesAsStrings.end(), move);
+
+    if (it != movesAsStrings.end()) {
+        int index = it - movesAsStrings.begin();
+        Move move = moves.at(index);
+        logger.debug("Pseudo legal move founded: " + move.toString());
+        return makeMove(move);
+    }
+
+    logger.warn("Move not found or not well-formed");
+    return false;
+}
+
+bool Engine::UCIok() {
+    std::cout << "id name Khez" << std::endl;
+    std::cout << "id author Javello" << std::endl;
+    std::cout << "uciok" << std::endl;
+    return false;
+}
+
+void Engine::UCI() {
+    UCIok();
+
+    while (true) {
+        std::string input;
+        getline(std::cin, input);
+
+        std::string command = input.substr(0, input.find(' '));
+        if (command == "isready") {
+            std::cout << "readyok" << std::endl;
+        } else if (command == "position") {
+            parseUCIPosition(input);
+            logger.info(board.toStringComplete());
+        } else if (command == "ucinewgame") {
+            parseUCIPosition("position startpos");
+            logger.info(board.toStringComplete());
+        } else if (command == "go") {
+            parseUCIGo(input);
+            logger.info(board.toStringComplete());
+        } else if (command == "uci") {
+            UCIok();
+        } else if (command == "quit") {
+            break;
+        }
+    }
 }
 
 #pragma endregion

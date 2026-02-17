@@ -58,16 +58,22 @@ class Engine {
     bool isSquareUnderAttackBy(Square square, Color color);
     void __printAttackedSquare(Color color);
 
-    // perf tests
+    // Move search
 
-    long long int perftDriver(const int depth);
-    void perfTest(const int depth);
+    Move searchBestMove(int depth);
 
     // UCI
 
     bool parseUCIGo(std::string input);
     bool parseUCIPosition(std::string input);
     bool parseUCIMove(std::string input);
+    bool UCIok();
+    void UCI();
+
+    // perf tests
+
+    long long int perftDriver(const int depth);
+    void perfTest(const int depth);
 
    private:
     // Masks
