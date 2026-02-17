@@ -65,6 +65,7 @@ class Engine {
 
     // UCI
 
+    bool parseUCIGo(std::string input);
     bool parseUCIPosition(std::string input);
     bool parseUCIMove(std::string input);
 

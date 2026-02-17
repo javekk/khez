@@ -35,10 +35,10 @@ int main() {
     logger.info(engine.board.toString());
 
     while (true) {
-        cout << "Waiting form position: ";
+        cout << "Waiting form go: ";
         string command;
         getline(cin, command);
-        engine.parseUCIPosition(command);
+        engine.parseUCIGo(command);
         logger.info(engine.board.toStringComplete());
     }
 }

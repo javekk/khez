@@ -1011,6 +1011,31 @@ bool Engine::parseUCIMove(std::string move) {
     return false;
 }
 
+bool Engine::parseUCIGo(std::string input) {
+    std::istringstream iss(input);
+    std::string token;
+
+    iss >> token;
+    if (token != "go") {
+        logger.error("No go command found: " + token);
+        return false;
+    }
+
+    iss >> token;
+
+    int depth;
+    if (token == "depth") {
+        iss >> depth;
+        logger.debug("Using depth = " + std::to_string(depth));
+    } else {
+        logger.debug("Using default depth = 6");
+        depth = 6;
+    }
+
+    logger.warn("TODO searchPosition");
+    return true;
+}
+
 bool Engine::parseUCIPosition(std::string input) {
     std::istringstream iss(input);
     std::string token;
@@ -1020,6 +1045,8 @@ bool Engine::parseUCIPosition(std::string input) {
         logger.error("No position command found: " + token);
         return false;
     }
+
+    logger.debug("Parsing position command: " + input);
 
     iss >> token;
 
