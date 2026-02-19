@@ -8,24 +8,25 @@ using namespace std;
 #include "engine/chessboard/chessboard.h"
 #include "engine/chessboard/color.h"
 #include "engine/engine.h"
+#include "lib/args/ command-line-args.h"
 #include "lib/logger/logger.h"
 
 int main(int argc, char* argv[]) {
+    CommandLineParser parser;
+    CommandLineArgs args = parser.parseCommandLine(argc, argv);
+
+    bool uciMode = args.uciMode;
+
+    logger.configure(LoggerProps{
+        minLevel : static_cast<LogLevel>(args.logLevel),
+        enabled : args.logEnable,
+    });
+
     logger.info("=============================================");
     logger.info("=============================================");
     logger.info("===== Khez Chess Engine - Bitboard Demo =====");
     logger.info("=============================================");
     logger.info("=============================================");
-
-    bool uciMode = false;
-
-    if (argc > 2) {
-        for (int i = 0; i < argc; ++i) {
-            if (strcmp(argv[i], "--uci") == 0) {
-                uciMode = true;
-            }
-        }
-    }
 
     Engine engine;
     engine.init();

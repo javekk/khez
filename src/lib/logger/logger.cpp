@@ -38,6 +38,10 @@ void Logger::log(const LogLevel level, const std::string& message) const {
         return;
     }
 
+    if (level < props_.minLevel) {
+        return;
+    }
+
     if (props_.enableTimestamp) {
         time_t timestamp;
         time(&timestamp);
