@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "../src/chessboard/chessboard.h"
-#include "../src/lib/square.h"
+#include "../src/engine/chessboard/chessboard.h"
+#include "../src/engine/chessboard/square.h"
 #include "test_lib.h"
 
 void run_chessboard_tests() {

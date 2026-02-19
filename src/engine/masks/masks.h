@@ -2,8 +2,8 @@
 
 #include <map>
 
-#include "../bitboard/bitboard.h"
-#include "./piece.h"
+#include "../../bitboard/bitboard.h"
+#include "../chessboard/piece.h"
 
 extern const Bitboard whitePawns;
 extern const Bitboard blackPawns;

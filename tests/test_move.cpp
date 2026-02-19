@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "../src/lib/move.h"
+#include "../src/engine/move/move.h"
 #include "test_lib.h"
 
 void run_move_tests() {

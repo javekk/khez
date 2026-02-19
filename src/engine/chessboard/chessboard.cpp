@@ -8,8 +8,6 @@
 #include <sstream>
 #include <vector>
 
-#include "../lib/masks.h"
-
 ChessBoard::ChessBoard() { emptyBoard(); }
 
 void ChessBoard::emptyBoard() {
@@ -94,7 +92,8 @@ void ChessBoard::parseFEN(const std::string FEN) {
 
     status.side = (result[1] == "w" || result[1] == "W") ? WHITE : BLACK;
     parseFENCastling(result[2]);
-    if (result[3] != "-" && inverseSquareMap.find(result[3]) != inverseSquareMap.end()) {
+    if (result[3] != "-" &&
+        inverseSquareMap.find(result[3]) != inverseSquareMap.end()) {
         status.enpassant = inverseSquareMap.at(result[3]);
     }
 

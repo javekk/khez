@@ -7,11 +7,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "../lib/color.h"
-#include "../lib/logger.h"
-#include "../lib/masks.h"
-#include "../lib/sliding-piece.h"
-#include "../lib/square.h"
+#include "../lib/logger/logger.h"
+#include "./masks/masks.h"
 
 void Engine::init() {
     generatePawnMaskAttacks();

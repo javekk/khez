@@ -1,7 +1,7 @@
 #pragma once
 
-#include "piece.h"
-#include "square.h"
+#include "../chessboard/piece.h"
+#include "../chessboard/square.h"
 
 enum MoveType {
     PAWN_PUSH,

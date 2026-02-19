@@ -5,14 +5,10 @@ using namespace std;
 #include <iostream>
 
 #include "bitboard/bitboard.h"
-#include "chessboard/chessboard.h"
+#include "engine/chessboard/chessboard.h"
+#include "engine/chessboard/color.h"
 #include "engine/engine.h"
-#include "lib/color.h"
-#include "lib/logger.h"
-#include "lib/magic.h"
-#include "lib/piece.h"
-#include "lib/random.h"
-#include "lib/square.h"
+#include "lib/logger/logger.h"
 
 int main(int argc, char* argv[]) {
     logger.info("=============================================");

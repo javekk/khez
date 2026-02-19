@@ -4,9 +4,9 @@
 #include <cstdint>
 
 #include "../bitboard/bitboard.h"
+#include "../engine/chessboard/chessboard-status.h"
 #include "../engine/engine.h"
 #include "random.h"
-#include "sliding-piece.h"
 
 class MagicNumberGenerator {
    private:

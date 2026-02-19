@@ -2,10 +2,10 @@
 
 #include <optional>
 
-#include "../bitboard/bitboard.h"
-#include "../lib/color.h"
-#include "../lib/piece.h"
-#include "../lib/square.h"
+#include "../../bitboard/bitboard.h"
+#include "./color.h"
+#include "./piece.h"
+#include "./square.h"
 
 enum PieceBoard {
     WHITE_PAWNS,

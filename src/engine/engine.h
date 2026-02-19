@@ -4,13 +4,13 @@
 #include <vector>
 
 #include "../bitboard/bitboard.h"
-#include "../chessboard/chessboard-status.h"
-#include "../chessboard/chessboard.h"
-#include "../lib/color.h"
-#include "../lib/move.h"
-#include "../lib/piece.h"
-#include "../lib/sliding-piece.h"
-#include "../lib/square.h"
+#include "./chessboard/chessboard-status.h"
+#include "./chessboard/chessboard.h"
+#include "./chessboard/color.h"
+#include "./chessboard/piece.h"
+#include "./chessboard/sliding-piece.h"
+#include "./chessboard/square.h"
+#include "./move/move.h"
 
 class Engine {
    public:

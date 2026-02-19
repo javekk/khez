@@ -4,13 +4,13 @@
 #include <string>
 #include <vector>
 
-#include "../bitboard/bitboard.h"
-#include "../lib/color.h"
-#include "../lib/masks.h"
-#include "../lib/move.h"
-#include "../lib/piece.h"
-#include "../lib/square.h"
-#include "chessboard-status.h"
+#include "../../bitboard/bitboard.h"
+#include "../masks/masks.h"
+#include "../move/move.h"
+#include "./chessboard-status.h"
+#include "./color.h"
+#include "./piece.h"
+#include "./square.h"
 
 class ChessBoard {
    public:

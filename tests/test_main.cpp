@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "../src/lib/logger.h"
+#include "../src/lib/logger/logger.h"
 #include "test_lib.h"
 
 // Forward declarations of test functions

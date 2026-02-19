@@ -3,8 +3,8 @@
 #include <cstring>
 #include <iostream>
 
-#include "masks.h"
-#include "square.h"
+#include "../engine/chessboard/square.h"
+#include "../engine/masks/masks.h"
 
 MagicNumberGenerator::MagicNumberGenerator() {
     prng_ = PseudoRandomNumberGenerator();

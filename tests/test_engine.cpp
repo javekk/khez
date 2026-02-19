@@ -1,12 +1,12 @@
 #include <algorithm>
 #include <iostream>
 
-#include "../src/chessboard/chessboard-status.h"
-#include "../src/chessboard/chessboard.h"
+#include "../src/engine/chessboard/chessboard-status.h"
+#include "../src/engine/chessboard/chessboard.h"
+#include "../src/engine/chessboard/color.h"
+#include "../src/engine/chessboard/square.h"
 #include "../src/engine/engine.h"
-#include "../src/lib/color.h"
-#include "../src/lib/masks.h"
-#include "../src/lib/square.h"
+#include "../src/engine/masks/masks.h"
 #include "test_lib.h"
 
 void test_pawn_attacks_generation() {
@@ -1802,12 +1802,12 @@ void test_evaluate_position() {
                int score = engine.evaluatePosition();
                expect(score == -1200);
            });
-        it("Test rnbqkbnr/pppppppp/8/8/8/8/2PPPPPP/RNB1KBNR w KQkq - 0 1",
+        it("Test r2k2Q1/ppp4p/2n5/4P3/3Pp3/N1P5/PP4PP/R1B1K2R b KQ - 0 16",
            [&]() {
                engine.parseFEN(
-                   "rnbqkbnr/pppppppp/8/8/8/8/2PPPPPP/RNB1KBNR w KQkq - 0 1");
+                   "r2k2Q1/ppp4p/2n5/4P3/3Pp3/N1P5/PP4PP/R1B1K2R b KQ - 0 16");
                int score = engine.evaluatePosition();
-               expect(score == -1200);
+               expect(score == 2050);
            });
     });
 }
