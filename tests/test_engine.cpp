@@ -1768,6 +1768,50 @@ void test_parse_uci_position() {
     });
 }
 
+void test_evaluate_position() {
+    describe("Evaluate Material Score", [&]() {
+        Engine engine;
+        engine.init();
+
+        it("Testing initial position white to play", [&]() {
+            engine.setupInitialPosition();
+            int score = engine.evaluatePosition();
+            expect(score == 0);
+        });
+
+        it("Test rnbqkbnr/2pppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+           [&]() {
+               engine.parseFEN(
+                   "rnbqkbnr/2pppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+               int score = engine.evaluatePosition();
+               expect(score == 200);
+           });
+
+        it("Test rnbqkbnr/pppppppp/8/8/8/8/2PPPPPP/RNBQKBNR w KQkq - 0 1",
+           [&]() {
+               engine.parseFEN(
+                   "rnbqkbnr/pppppppp/8/8/8/8/2PPPPPP/RNBQKBNR w KQkq - 0 1");
+               int score = engine.evaluatePosition();
+               expect(score == -200);
+           });
+
+        it("Test rnbqkbnr/pppppppp/8/8/8/8/2PPPPPP/RNB1KBNR w KQkq - 0 1",
+           [&]() {
+               engine.parseFEN(
+                   "rnbqkbnr/pppppppp/8/8/8/8/2PPPPPP/RNB1KBNR w KQkq - 0 1");
+               int score = engine.evaluatePosition();
+               expect(score == -1200);
+           });
+        it("Test rnbqkbnr/pppppppp/8/8/8/8/2PPPPPP/RNB1KBNR w KQkq - 0 1",
+           [&]() {
+               engine.parseFEN(
+                   "rnbqkbnr/pppppppp/8/8/8/8/2PPPPPP/RNB1KBNR w KQkq - 0 1");
+               int score = engine.evaluatePosition();
+               expect(score == -1200);
+           });
+    });
+}
+
 void run_engine_tests() {
     describe("Testing engine", []() {
         test_pawn_attacks_generation();
@@ -1787,5 +1831,7 @@ void run_engine_tests() {
         test_make_move();
         test_parse_uci_move();
         test_parse_uci_position();
+
+        test_evaluate_position();
     });
 }

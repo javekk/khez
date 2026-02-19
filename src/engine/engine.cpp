@@ -993,6 +993,27 @@ Move Engine::searchBestMove(int depth) {
     return Move{d7, d5, PAWN_DOUBLE_PUSH};
 }
 
+int Engine::evaluatePosition() { return evaluateMaterialScore(); }
+
+inline int Engine::evaluateMaterialScore() {
+    int score = 0;
+
+    for (int bbIndex = 0; bbIndex < 12; bbIndex++) {
+        Bitboard bitboard = board.status.boards[bbIndex];
+        while (!bitboard.isEmpty()) {
+            auto ps =
+                pieceBoardToSideColorMap.at(static_cast<PieceBoard>(bbIndex));
+            Color side = ps.first;
+            Piece piece = ps.second;
+            int pieceScore = materialScoreMap.at(piece);
+            score += (side == WHITE) ? +pieceScore : -pieceScore;
+
+            bitboard.clearBit(bitboard.leastSignificantBeatIndex());
+        }
+    }
+    return score;
+}
+
 #pragma endregion
 
 #pragma region UCI

@@ -61,6 +61,8 @@ class Engine {
     // Move search
 
     Move searchBestMove(int depth);
+    int evaluatePosition();
+    int evaluateMaterialScore();
 
     // UCI
 

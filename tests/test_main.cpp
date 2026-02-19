@@ -15,8 +15,8 @@ int main() {
     describe("♟️  Khez Chess Engine - Test Suite ♟️", []() {
         run_bitboard_tests();
         run_chessboard_tests();
-        run_engine_tests();
         run_move_tests();
+        run_engine_tests();
     });
     return 0;
 }

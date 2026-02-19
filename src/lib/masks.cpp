@@ -126,3 +126,8 @@ const int castlingRights[64] = {
     15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
     15, 15, 15, 15, 15, 15, 15, 15, 7,  15, 15, 15, 3,  15, 15, 11,
 };
+
+const std::map<Piece, int> materialScoreMap = {
+    {PAWN, 100}, {KNIGHT, 300}, {BISHOP, 350},
+    {ROOK, 500}, {QUEEN, 1000}, {KING, 10000},
+};
