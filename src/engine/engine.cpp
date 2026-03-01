@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <bitset>
+#include <cassert>
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
@@ -988,60 +989,57 @@ void Engine::undoMove() { board.undoLastMove(); }
 
 #pragma region Move Search
 
-int Engine::negamax_(int alpha, int beta, int depth, int& cHalfMoveCounter,
-                     u_int32_t& cBestMove) {
+int Engine::negamax_(int alpha, int beta, int depth) {
     if (depth == 0) {
         return evaluatePosition();
     }
 
-    int initialAlpha = alpha;
-    u_int32_t bestMoveOfThisLevel = 0;
-
     std::vector<u_int32_t> moves = generateAllPseudoLegalMoves();
 
     for (u_int32_t move : moves) {
-        cHalfMoveCounter++;
-
         bool hasMoved = makeMove(Move{move});
 
         if (!hasMoved) {
-            cHalfMoveCounter--;
             continue;
         }
 
-        int score =
-            -negamax_(-beta, -alpha, depth - 1, cHalfMoveCounter, cBestMove);
-
-        cHalfMoveCounter--;
+        int score = -negamax_(-beta, -alpha, depth - 1);
 
         undoMove();
 
         if (score >= beta) {
-            return beta;
+            return beta;  // node (move) fails high
         }
 
         if (score > alpha) {
             alpha = score;
-            if (cHalfMoveCounter == 0) {
-                bestMoveOfThisLevel = move;
-            }
         }
     }
 
-    if (initialAlpha != alpha) {
-        cBestMove = bestMoveOfThisLevel;
-    }
-
-    return alpha;
+    return alpha;  // node (move) fails low
 }
 
 Move Engine::negamax(int depth) {
-    int halfMoveCounter = 0;
-    u_int32_t bestMove;
+    auto moves = generateAllPseudoLegalMoves();
     int alpha = -100000;
     int beta = 100000;
+    uint32_t bestMove = 0;
 
-    negamax_(alpha, beta, depth, halfMoveCounter, bestMove);
+    for (uint32_t move : moves) {
+        if (!makeMove(Move{move})) {
+            continue;
+        }
+
+        int score = -negamax_(-beta, -alpha, depth - 1);
+
+        undoMove();
+
+        if (score > alpha) {
+            alpha = score;
+            bestMove = move;
+        }
+    }
+    assert(bestMove);
     return Move(bestMove);
 }
 

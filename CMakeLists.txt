@@ -8,9 +8,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -g -O0 -fno-strict-aliasing")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wextra -Ofast -march=native -flto -fno-strict-aliasing")
 
-# Apply optimization flags to all build types (for perft performance)
-add_compile_options(-Ofast -march=native)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)  # Enable LTO
+# Apply optimization flags only in Release builds
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(-Ofast -march=native)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)  # Enable LTO
+endif()
 
 # Set default build type to Debug if not specified
 if(NOT CMAKE_BUILD_TYPE)
