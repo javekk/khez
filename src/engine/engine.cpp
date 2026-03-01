@@ -976,23 +976,124 @@ bool Engine::makeMove(Move move) {
                                board.status.side.value());  // Side after move
 
     if (!isLegalMove) {
-        logger.warn("Not a legal move, undo!");
+        logger.debug("Not a legal move(" + move.toStringUCI() + "), undo!");
         board.undoLastMove();
     }
     return isLegalMove;
 }
 
+void Engine::undoMove() { board.undoLastMove(); }
+
 #pragma endregion
 
 #pragma region Move Search
 
-Move Engine::searchBestMove(int depth) {
-    return Move{d7, d5, PAWN_DOUBLE_PUSH};
+int Engine::negamax_(int alpha, int beta, int depth, int& cHalfMoveCounter,
+                     u_int32_t& cBestMove) {
+    if (depth == 0) {
+        return evaluatePosition();
+    }
+
+    int initialAlpha = alpha;
+    u_int32_t bestMoveOfThisLevel = 0;
+
+    std::vector<u_int32_t> moves = generateAllPseudoLegalMoves();
+
+    for (u_int32_t move : moves) {
+        cHalfMoveCounter++;
+
+        bool hasMoved = makeMove(Move{move});
+
+        if (!hasMoved) {
+            cHalfMoveCounter--;
+            continue;
+        }
+
+        int score =
+            -negamax_(-beta, -alpha, depth - 1, cHalfMoveCounter, cBestMove);
+
+        cHalfMoveCounter--;
+
+        undoMove();
+
+        if (score >= beta) {
+            return beta;
+        }
+
+        if (score > alpha) {
+            alpha = score;
+            if (cHalfMoveCounter == 0) {
+                bestMoveOfThisLevel = move;
+            }
+        }
+    }
+
+    if (initialAlpha != alpha) {
+        cBestMove = bestMoveOfThisLevel;
+    }
+
+    return alpha;
 }
 
-int Engine::evaluatePosition() { return evaluateMaterialScore(); }
+Move Engine::negamax(int depth) {
+    int halfMoveCounter = 0;
+    u_int32_t bestMove;
+    int alpha = -100000;
+    int beta = 100000;
 
-inline int Engine::evaluateMaterialScore() {
+    negamax_(alpha, beta, depth, halfMoveCounter, bestMove);
+    return Move(bestMove);
+}
+
+Move Engine::searchBestMove(int depth) { return negamax(depth); }
+
+int Engine::evaluatePosition() {
+    // PST lookup indexed by PieceBoard (0=WHITE_PAWNS .. 11=BLACK_KING)
+    static const int* middleGamePst[12] = {
+        pstPawnMg,   pstPawnMg,   pstRookMg,   pstRookMg,
+        pstKnightMg, pstKnightMg, pstBishopMg, pstBishopMg,
+        pstQueenMg,  pstQueenMg,  pstKingMg,   pstKingMg,
+    };
+    static const int* endGamePst[12] = {
+        pstPawnEg,   pstPawnEg,   pstRookEg,   pstRookEg,
+        pstKnightEg, pstKnightEg, pstBishopEg, pstBishopEg,
+        pstQueenEg,  pstQueenEg,  pstKingEg,   pstKingEg,
+    };
+    // Phase increment per piece (P=0, R=2, N=1, B=1, Q=4, K=0)
+    static const int phaseInc[12] = {0, 0, 2, 2, 1, 1, 1, 1, 4, 4, 0, 0};
+
+    int mgScore = 0;
+    int egScore = 0;
+    int phase = 0;
+
+    for (int bbIndex = 0; bbIndex < 12; bbIndex++) {
+        Bitboard bitboard = board.status.boards[bbIndex];
+        auto ps = pieceBoardToSideColorMap.at(static_cast<PieceBoard>(bbIndex));
+        Color side = ps.first;
+        Piece piece = ps.second;
+
+        int material = materialScoreMap.at(piece);
+        int sign = (side == WHITE) ? 1 : -1;
+
+        while (!bitboard.isEmpty()) {
+            int popedSquare = bitboard.leastSignificantBeatIndex();
+            int squarePosition =
+                (side == WHITE) ? popedSquare : (popedSquare ^ 56);
+
+            mgScore +=
+                sign * (material + middleGamePst[bbIndex][squarePosition]);
+            egScore += sign * (material + endGamePst[bbIndex][squarePosition]);
+            phase += phaseInc[bbIndex];
+
+            bitboard.clearBit(popedSquare);
+        }
+    }
+
+    phase = std::min(phase, 24);
+    return (mgScore * phase + egScore * (24 - phase)) / 24;
+}
+
+int Engine::evaluateMaterialScore() {
     int score = 0;
 
     for (int bbIndex = 0; bbIndex < 12; bbIndex++) {

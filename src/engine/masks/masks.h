@@ -36,3 +36,16 @@ extern const u_int64_t rookMagicNumbers[64];
 extern const int castlingRights[64];
 
 extern const std::map<Piece, int> materialScoreMap;
+
+extern const int pstPawnMg[64];
+extern const int pstPawnEg[64];
+extern const int pstKnightMg[64];
+extern const int pstKnightEg[64];
+extern const int pstBishopMg[64];
+extern const int pstBishopEg[64];
+extern const int pstRookMg[64];
+extern const int pstRookEg[64];
+extern const int pstQueenMg[64];
+extern const int pstQueenEg[64];
+extern const int pstKingMg[64];
+extern const int pstKingEg[64];

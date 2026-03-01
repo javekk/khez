@@ -54,12 +54,13 @@ class Engine {
     void __printMoves(std::vector<Move> moves);
 
     bool makeMove(Move move);
+    void undoMove();
 
     bool isSquareUnderAttackBy(Square square, Color color);
     void __printAttackedSquare(Color color);
 
     // Move search
-
+    Move negamax(int depth);
     Move searchBestMove(int depth);
     int evaluatePosition();
     int evaluateMaterialScore();
@@ -112,4 +113,7 @@ class Engine {
     void generateSliderAndLeaperMoves(Piece piece,
                                       std::vector<u_int32_t>& moves);
     Bitboard getAttacksBoard(Piece piece, Square square);
+
+    int negamax_(int alpha, int beta, int depth, int& currentHalfMoveCounter,
+                 u_int32_t& cuurentBestMove);
 };

@@ -1775,7 +1775,7 @@ void test_evaluate_position() {
 
         it("Testing initial position white to play", [&]() {
             engine.setupInitialPosition();
-            int score = engine.evaluatePosition();
+            int score = engine.evaluateMaterialScore();
             expect(score == 0);
         });
 
@@ -1783,7 +1783,7 @@ void test_evaluate_position() {
            [&]() {
                engine.parseFEN(
                    "rnbqkbnr/2pppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-               int score = engine.evaluatePosition();
+               int score = engine.evaluateMaterialScore();
                expect(score == 200);
            });
 
@@ -1791,7 +1791,7 @@ void test_evaluate_position() {
            [&]() {
                engine.parseFEN(
                    "rnbqkbnr/pppppppp/8/8/8/8/2PPPPPP/RNBQKBNR w KQkq - 0 1");
-               int score = engine.evaluatePosition();
+               int score = engine.evaluateMaterialScore();
                expect(score == -200);
            });
 
@@ -1799,16 +1799,27 @@ void test_evaluate_position() {
            [&]() {
                engine.parseFEN(
                    "rnbqkbnr/pppppppp/8/8/8/8/2PPPPPP/RNB1KBNR w KQkq - 0 1");
-               int score = engine.evaluatePosition();
+               int score = engine.evaluateMaterialScore();
                expect(score == -1200);
            });
         it("Test r2k2Q1/ppp4p/2n5/4P3/3Pp3/N1P5/PP4PP/R1B1K2R b KQ - 0 16",
            [&]() {
                engine.parseFEN(
                    "r2k2Q1/ppp4p/2n5/4P3/3Pp3/N1P5/PP4PP/R1B1K2R b KQ - 0 16");
-               int score = engine.evaluatePosition();
+               int score = engine.evaluateMaterialScore();
                expect(score == 2050);
            });
+    });
+
+    describe("Evaluate Position", [&]() {
+        Engine engine;
+        engine.init();
+
+        it("Testing initial position white to play", [&]() {
+            engine.setupInitialPosition();
+            int score = engine.evaluatePosition();
+            expect(score == 0);
+        });
     });
 }
 
