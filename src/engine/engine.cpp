@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <sstream>
 
 #include "../lib/logger/logger.h"
@@ -963,18 +964,9 @@ void Engine::__printMoves(std::vector<Move> moves) {
 }
 
 bool Engine::makeMove(Move move) {
-    Color sideBeforeMove = board.status.side.value();
-
     board.makePsuedoLegalMove(move);
 
-    int king =
-        (sideBeforeMove == WHITE)
-            ? board.status.boards[WHITE_KING].leastSignificantBeatIndex()
-            : board.status.boards[BLACK_KING].leastSignificantBeatIndex();
-
-    bool isLegalMove =
-        !isSquareUnderAttackBy(static_cast<Square>(king),
-                               board.status.side.value());  // Side after move
+    bool isLegalMove = !isKingInCheck();
 
     if (!isLegalMove) {
         logger.debug("Not a legal move(" + move.toStringUCI() + "), undo!");
@@ -985,60 +977,74 @@ bool Engine::makeMove(Move move) {
 
 void Engine::undoMove() { board.undoLastMove(); }
 
+inline bool Engine::isKingInCheck() {
+    Color otherSide = board.status.side.value() == BLACK ? WHITE : BLACK;
+
+    int king =
+        (otherSide == WHITE)
+            ? board.status.boards[WHITE_KING].leastSignificantBeatIndex()
+            : board.status.boards[BLACK_KING].leastSignificantBeatIndex();
+
+    return isSquareUnderAttackBy(static_cast<Square>(king),
+                                 board.status.side.value());
+}
+
 #pragma endregion
 
 #pragma region Move Search
 
-int Engine::negamax_(int alpha, int beta, int depth) {
+int Engine::negamax_(int alpha, int beta, int depth,
+                     uint32_t* outBestMove_pointer, int* ply_pointer) {
     if (depth == 0) {
         return evaluatePosition();
     }
 
     std::vector<u_int32_t> moves = generateAllPseudoLegalMoves();
 
+    int legalMoves = 0;
+
     for (u_int32_t move : moves) {
-        bool hasMoved = makeMove(Move{move});
-
-        if (!hasMoved) {
-            continue;
-        }
-
-        int score = -negamax_(-beta, -alpha, depth - 1);
-
-        undoMove();
-
-        if (score >= beta) {
-            return beta;  // node (move) fails high
-        }
-
-        if (score > alpha) {
-            alpha = score;
-        }
-    }
-
-    return alpha;  // node (move) fails low
-}
-
-Move Engine::negamax(int depth) {
-    auto moves = generateAllPseudoLegalMoves();
-    int alpha = -100000;
-    int beta = 100000;
-    uint32_t bestMove = 0;
-
-    for (uint32_t move : moves) {
         if (!makeMove(Move{move})) {
             continue;
         }
 
-        int score = -negamax_(-beta, -alpha, depth - 1);
+        (*ply_pointer)++;
+        legalMoves++;
 
+        int score = -negamax_(-beta, -alpha, depth - 1, nullptr,
+                              ply_pointer);  // bestMove needed only at level 1
         undoMove();
+        (*ply_pointer)--;
 
+        if (score >= beta) {
+            return beta;
+        }
         if (score > alpha) {
             alpha = score;
-            bestMove = move;
+            if (outBestMove_pointer) {
+                *outBestMove_pointer = move;
+            }
         }
     }
+
+    if (!legalMoves) {
+        if (isKingInCheck()) {
+            return -90000 + *ply_pointer;
+        } else {
+            return 0;
+        }
+    }
+
+    return alpha;
+}
+
+Move Engine::negamax(int depth) {
+    int alpha = -99999;
+    int beta = -alpha;
+    uint32_t bestMove = 0;
+    int ply = 0;
+
+    negamax_(alpha, beta, depth, &bestMove, &ply);
     assert(bestMove);
     return Move(bestMove);
 }

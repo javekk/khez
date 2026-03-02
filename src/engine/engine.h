@@ -114,5 +114,10 @@ class Engine {
                                       std::vector<u_int32_t>& moves);
     Bitboard getAttacksBoard(Piece piece, Square square);
 
-    int negamax_(int alpha, int beta, int depth);
+    bool isKingInCheck();
+
+    // Search
+
+    int negamax_(int alpha, int beta, int depth, uint32_t* outBestMove,
+                 int* ply);
 };
