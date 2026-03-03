@@ -60,8 +60,8 @@ class Engine {
     void __printAttackedSquare(Color color);
 
     // Move search
-    Move negamax(int depth);
-    Move searchBestMove(int depth);
+    std::pair<Move, int> negamax(int depth);
+    std::pair<Move, int> searchBestMove(int depth);
     int evaluatePosition();
     int evaluateMaterialScore();
 

@@ -54,6 +54,7 @@ class Move {
     Move(u_int32_t binary);
 
     std::string toString() const;
+    std::string toStringComplete() const;
     std::string toStringUCI() const;
 
     bool operator==(const Move& other) const;

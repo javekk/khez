@@ -1052,18 +1052,20 @@ int Engine::negamax_(int alpha, int beta, int depth,
     return alpha;
 }
 
-Move Engine::negamax(int depth) {
+std::pair<Move, int> Engine::negamax(int depth) {
     int alpha = -50000;
     int beta = -alpha;
     uint32_t bestMove = 0;
     int ply = 0;
 
-    negamax_(alpha, beta, depth, &bestMove, &ply);
+    int score = negamax_(alpha, beta, depth, &bestMove, &ply);
     assert(bestMove);
-    return Move(bestMove);
+    return {Move(bestMove), score};
 }
 
-Move Engine::searchBestMove(int depth) { return negamax(depth); }
+std::pair<Move, int> Engine::searchBestMove(int depth) {
+    return negamax(depth);
+}
 
 int Engine::evaluatePosition() {
     // PST lookup indexed by PieceBoard (0=WHITE_PAWNS .. 11=BLACK_KING)
@@ -1077,12 +1079,13 @@ int Engine::evaluatePosition() {
         pstKnightEg, pstKnightEg, pstBishopEg, pstBishopEg,
         pstQueenEg,  pstQueenEg,  pstKingEg,   pstKingEg,
     };
+
     // Phase increment per piece (P=0, R=2, N=1, B=1, Q=4, K=0)
-    static const int phaseInc[12] = {0, 0, 2, 2, 1, 1, 1, 1, 4, 4, 0, 0};
+    static const int pieceBoosts[12] = {0, 0, 2, 2, 1, 1, 1, 1, 4, 4, 0, 0};
 
     int mgScore = 0;
     int egScore = 0;
-    int phase = 0;
+    int pieceBoost = 0;
 
     for (int bbIndex = 0; bbIndex < 12; bbIndex++) {
         Bitboard bitboard = board.status.boards[bbIndex];
@@ -1101,14 +1104,17 @@ int Engine::evaluatePosition() {
             mgScore +=
                 sign * (material + middleGamePst[bbIndex][squarePosition]);
             egScore += sign * (material + endGamePst[bbIndex][squarePosition]);
-            phase += phaseInc[bbIndex];
+            pieceBoost += pieceBoosts[bbIndex];
 
             bitboard.clearBit(popedSquare);
         }
     }
 
-    phase = std::min(phase, 24);
-    return (mgScore * phase + egScore * (24 - phase)) / 24;
+    pieceBoost = std::min(pieceBoost, 24);
+    int result = ((mgScore * pieceBoost) + (egScore * (24 - pieceBoost))) / 24;
+
+    // return final evaluation based on side
+    return (board.status.side.value() == WHITE) ? result : -result;
 }
 
 int Engine::evaluateMaterialScore() {
@@ -1155,7 +1161,10 @@ bool Engine::parseUCIGo(std::string input) {
         depth = 6;
     }
 
-    Move bestMove = searchBestMove(depth);
+    auto searchResult = searchBestMove(depth);
+    Move bestMove = searchResult.first;
+    int score = searchResult.second;
+    std::cout << "info score cp " << score << " depth " << depth << std::endl;
     std::cout << "bestmove " << bestMove.toStringUCI() << std::endl;
     return true;
 }

@@ -204,6 +204,14 @@ Move::Move(u_int32_t binary) {
 std::string Move::toString() const {
     std::ostringstream oss;
 
+    oss << " [" + squareMap.at(from) << " -> " << squareMap.at(to) << ", "
+        << moveDescriptionMap.at(type) << "]";
+    return oss.str();
+}
+
+std::string Move::toStringComplete() const {
+    std::ostringstream oss;
+
     std::string moveStr = " [" + squareMap.at(from) + " -> " +
                           squareMap.at(to) + ", " +
                           moveDescriptionMap.at(type) + "]";

@@ -39,19 +39,24 @@ int main(int argc, char* argv[]) {
 
     // DEBUG
 
-    engine.parseFEN("4k3/Q7/4K3/8/8/8/8/8 w - - 0 1 ");
-    cout << engine.board.toStringFancy();
-    engine.__printMoves(engine.generateAllPseudoLegalMovesAsMoveList());
-    cout << engine.evaluatePosition() << endl;
-    cout << engine.searchBestMove(4).toStringUCI() << endl;
+    // engine.parseFEN("4k3/q7/4K3/8/8/8/8/8 w - - 0 1 ");
+    // cout << engine.board.toStringFancy();
+    // engine.__printMoves(engine.generateAllPseudoLegalMovesAsMoveList());
+    // cout << engine.evaluatePosition() << endl;
+    //  cout << engine.searchBestMove(4).first.toStringUCI() << endl
 
-    // while (true) {
-    //     cout << engine.board.toStringComplete();
-    //     Move bestMove = engine.searchBestMove(2);
-    //     cout << "Best move: " << bestMove.toStringUCI() << endl;
-    //
-    //    getchar();
-    //
-    //    engine.makeMove(bestMove);
-    //}
+    engine.setupInitialPosition();
+    while (true) {
+        cout << engine.board.toStringComplete();
+
+        auto searchResult = engine.searchBestMove(3);
+        Move bestMove = searchResult.first;
+        int score = searchResult.second;
+
+        cout << "score: " << score << endl;
+        cout << "Best move: " << bestMove.toString() << endl;
+        getchar();
+
+        engine.makeMove(bestMove);
+    }
 }
