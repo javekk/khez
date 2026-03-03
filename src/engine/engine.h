@@ -114,7 +114,8 @@ class Engine {
                                       std::vector<u_int32_t>& moves);
     Bitboard getAttacksBoard(Piece piece, Square square);
 
-    bool isKingInCheck();
+    bool isMyKingInCheck();
+    bool isOpponentKingInCheck();
 
     // Search
 

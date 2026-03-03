@@ -966,7 +966,10 @@ void Engine::__printMoves(std::vector<Move> moves) {
 bool Engine::makeMove(Move move) {
     board.makePsuedoLegalMove(move);
 
-    bool isLegalMove = !isKingInCheck();
+    bool isLegalMove =
+        !isOpponentKingInCheck();  // After the move is made the side is flip so
+                                   // I have to check that the opponent have
+                                   // made a legal move
 
     if (!isLegalMove) {
         logger.debug("Not a legal move(" + move.toStringUCI() + "), undo!");
@@ -977,15 +980,26 @@ bool Engine::makeMove(Move move) {
 
 void Engine::undoMove() { board.undoLastMove(); }
 
-inline bool Engine::isKingInCheck() {
+inline bool Engine::isMyKingInCheck() {
     Color otherSide = board.status.side.value() == BLACK ? WHITE : BLACK;
 
     int king =
-        (otherSide == WHITE)
+        (board.status.side.value() == WHITE)
             ? board.status.boards[WHITE_KING].leastSignificantBeatIndex()
             : board.status.boards[BLACK_KING].leastSignificantBeatIndex();
 
-    return isSquareUnderAttackBy(static_cast<Square>(king),
+    return isSquareUnderAttackBy(static_cast<Square>(king), otherSide);
+}
+
+inline bool Engine::isOpponentKingInCheck() {
+    Color opponentSide = board.status.side.value() == BLACK ? WHITE : BLACK;
+
+    int opponentKing =
+        (opponentSide == WHITE)
+            ? board.status.boards[WHITE_KING].leastSignificantBeatIndex()
+            : board.status.boards[BLACK_KING].leastSignificantBeatIndex();
+
+    return isSquareUnderAttackBy(static_cast<Square>(opponentKing),
                                  board.status.side.value());
 }
 
@@ -1028,8 +1042,8 @@ int Engine::negamax_(int alpha, int beta, int depth,
     }
 
     if (!legalMoves) {
-        if (isKingInCheck()) {
-            return -90000 + *ply_pointer;
+        if (isMyKingInCheck()) {
+            return -49000 + (*ply_pointer);
         } else {
             return 0;
         }
@@ -1039,7 +1053,7 @@ int Engine::negamax_(int alpha, int beta, int depth,
 }
 
 Move Engine::negamax(int depth) {
-    int alpha = -99999;
+    int alpha = -50000;
     int beta = -alpha;
     uint32_t bestMove = 0;
     int ply = 0;
