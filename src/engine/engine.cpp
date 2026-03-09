@@ -1007,10 +1007,50 @@ inline bool Engine::isOpponentKingInCheck() {
 
 #pragma region Move Search
 
+/**
+ * Checks chain of captures
+ */
+int Engine::quiescence_(int alpha, int beta) {
+    int evaluation = evaluatePosition();
+
+    if (evaluation >= beta) {
+        // node (move) fails high
+        return beta;
+    }
+
+    if (evaluation > alpha) {
+        // Found a better move
+        alpha = evaluation;
+    }
+
+    std::vector<Move> moves = generateAllPseudoLegalMovesAsMoveList();
+
+    for (Move move_ : moves) {
+        // Move move_ = Move{move};
+        if (!move_.isCapture || !makeMove(move_)) {
+            continue;
+        }
+
+        int score = -quiescence_(-beta, -alpha);
+
+        undoMove();
+
+        if (score >= beta) {
+            // node (move) fails high
+            return beta;
+        }
+        if (score > alpha) {
+            alpha = score;
+        }
+    }
+
+    return alpha;
+}
+
 int Engine::negamax_(int alpha, int beta, int depth,
                      uint32_t* outBestMove_pointer, int* ply_pointer) {
     if (depth == 0) {
-        return evaluatePosition();
+        return quiescence_(alpha, beta);
     }
 
     std::vector<u_int32_t> moves = generateAllPseudoLegalMoves();
@@ -1031,6 +1071,7 @@ int Engine::negamax_(int alpha, int beta, int depth,
         (*ply_pointer)--;
 
         if (score >= beta) {
+            // node (move) fails high
             return beta;
         }
         if (score > alpha) {

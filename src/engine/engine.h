@@ -121,4 +121,5 @@ class Engine {
 
     int negamax_(int alpha, int beta, int depth, uint32_t* outBestMove,
                  int* ply);
+    int quiescence_(int alpha, int beta);
 };

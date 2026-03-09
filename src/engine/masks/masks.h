@@ -49,3 +49,8 @@ extern const int pstQueenMg[64];
 extern const int pstQueenEg[64];
 extern const int pstKingMg[64];
 extern const int pstKingEg[64];
+
+// most valuable victim & less valuable attacker
+extern const std::map<std::pair<Piece, Piece>,
+                      int>
+    mvvLva;  // [attacker][victim]

@@ -263,3 +263,31 @@ const int pstKingEg[64] = {
     38,  41,  44,  45,  45,  44,  41,  38,   //
     42,  46,  48,  50,  50,  48,  46,  42,   //
 };
+
+/*
+    // most valuable victim & less valuable attacker
+    (Victims) Pawn Knight Bishop   Rook  Queen   King
+  (Attackers)
+        Pawn   105    205    305    405    505    605
+      Knight   104    204    304    404    504    604
+      Bishop   103    203    303    403    503    603
+        Rook   102    202    302    402    502    602
+       Queen   101    201    301    401    501    601
+        King   100    200    300    400    500    600
+
+*/
+
+const std::map<std::pair<Piece, Piece>, int> mvvLva = {
+    {{PAWN, PAWN}, 105},   {{PAWN, KNIGHT}, 205},   {{PAWN, BISHOP}, 305},
+    {{PAWN, ROOK}, 405},   {{PAWN, QUEEN}, 505},    {{PAWN, KING}, 605},
+    {{KNIGHT, PAWN}, 104}, {{KNIGHT, KNIGHT}, 204}, {{KNIGHT, BISHOP}, 304},
+    {{KNIGHT, ROOK}, 404}, {{KNIGHT, QUEEN}, 504},  {{KNIGHT, KING}, 604},
+    {{BISHOP, PAWN}, 103}, {{BISHOP, KNIGHT}, 203}, {{BISHOP, BISHOP}, 303},
+    {{BISHOP, ROOK}, 403}, {{BISHOP, QUEEN}, 503},  {{BISHOP, KING}, 603},
+    {{ROOK, PAWN}, 102},   {{ROOK, KNIGHT}, 202},   {{ROOK, BISHOP}, 302},
+    {{ROOK, ROOK}, 402},   {{ROOK, QUEEN}, 502},    {{ROOK, KING}, 602},
+    {{QUEEN, PAWN}, 101},  {{QUEEN, KNIGHT}, 201},  {{QUEEN, BISHOP}, 301},
+    {{QUEEN, ROOK}, 401},  {{QUEEN, QUEEN}, 501},   {{QUEEN, KING}, 601},
+    {{KING, PAWN}, 100},   {{KING, KNIGHT}, 200},   {{KING, BISHOP}, 300},
+    {{KING, ROOK}, 400},   {{KING, QUEEN}, 500},    {{KING, KING}, 600},
+};
