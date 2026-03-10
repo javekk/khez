@@ -221,22 +221,8 @@ void ChessBoard::setPieceAt(const Square square, const Piece piece,
 void ChessBoard::setPieceAt(const Square square, const char p) {
     assert(strchr(pieceNames_, p));
 
-    std::map<char, std::pair<Color, Piece>> indexMap = {{
-        {'P', {WHITE, PAWN}},
-        {'B', {WHITE, BISHOP}},
-        {'N', {WHITE, KNIGHT}},
-        {'R', {WHITE, ROOK}},
-        {'K', {WHITE, KING}},
-        {'Q', {WHITE, QUEEN}},
-        {'p', {BLACK, PAWN}},
-        {'b', {BLACK, BISHOP}},
-        {'n', {BLACK, KNIGHT}},
-        {'r', {BLACK, ROOK}},
-        {'k', {BLACK, KING}},
-        {'q', {BLACK, QUEEN}},
-    }};
-    Color color = indexMap.at(p).first;
-    Piece piece = indexMap.at(p).second;
+    Color color = charToColorPieceMap.at(p).first;
+    Piece piece = charToColorPieceMap.at(p).second;
     setPieceAt(square, piece, color);
 }
 

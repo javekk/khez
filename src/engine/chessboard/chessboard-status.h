@@ -34,6 +34,8 @@ extern const std::map<std::pair<Color, Piece>, PieceBoard>
 extern const std::map<PieceBoard, std::pair<Color, Piece>>
     pieceBoardToSideColorMap;
 
+extern const std::map<char, std::pair<Color, Piece>> charToColorPieceMap;
+
 enum Castle {
     WHITE_KINGSIDE = 0b0001,
     WHITE_QUEENSIDE = 0b0010,

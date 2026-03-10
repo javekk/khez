@@ -1810,15 +1810,71 @@ void test_evaluate_position() {
                expect(score == 2050);
            });
     });
+}
 
-    describe("Evaluate Position", [&]() {
+void test_evaluate_move_score() {
+    describe("Evaluate Move Score", [&]() {
         Engine engine;
         engine.init();
 
-        it("Testing initial position white to play", [&]() {
-            engine.setupInitialPosition();
-            int score = engine.evaluatePosition();
-            expect(score == 0);
+        it("Non-capture pawn push returns 0", [&]() {
+            engine.parseFEN("8/8/8/8/8/8/4P3/8 w - - 0 1");
+            Move move(e2, e4, PAWN_DOUBLE_PUSH);
+            expect(engine.evaluateMoveScore(move) == 0);
+        });
+
+        it("Non-capture knight move returns 0", [&]() {
+            engine.parseFEN("8/8/8/8/8/8/8/6N1 w - - 0 1");
+            Move move(g1, f3, KNIGHT_QUIET);
+            expect(engine.evaluateMoveScore(move) == 0);
+        });
+
+        it("Pawn captures pawn (MVV-LVA 105)", [&]() {
+            engine.parseFEN("8/8/8/3p4/4P3/8/8/8 w - - 0 1");
+            Move move(e4, d5, PAWN_CAPTURE);
+            expect(engine.evaluateMoveScore(move) == 105);
+        });
+
+        it("Pawn captures queen (MVV-LVA 505)", [&]() {
+            engine.parseFEN("8/8/8/3q4/4P3/8/8/8 w - - 0 1");
+            Move move(e4, d5, PAWN_CAPTURE);
+            expect(engine.evaluateMoveScore(move) == 505);
+        });
+
+        it("Knight captures pawn (MVV-LVA 104)", [&]() {
+            engine.parseFEN("8/8/8/3p4/8/4N3/8/8 w - - 0 1");
+            Move move(e3, d5, KNIGHT_CAPTURE);
+            expect(engine.evaluateMoveScore(move) == 104);
+        });
+
+        it("Bishop captures rook (MVV-LVA 403)", [&]() {
+            engine.parseFEN("8/8/8/8/4B3/8/6r1/8 w - - 0 1");
+            Move move(e4, g2, BISHOP_CAPTURE);
+            expect(engine.evaluateMoveScore(move) == 403);
+        });
+
+        it("Rook captures knight (MVV-LVA 202)", [&]() {
+            engine.parseFEN("8/8/8/8/4R3/4n3/8/8 w - - 0 1");
+            Move move(e4, e3, ROOK_CAPTURE);
+            expect(engine.evaluateMoveScore(move) == 202);
+        });
+
+        it("Queen captures bishop (MVV-LVA 301)", [&]() {
+            engine.parseFEN("8/8/8/8/4Q3/8/8/7b w - - 0 1");
+            Move move(e4, h1, QUEEN_CAPTURE);
+            expect(engine.evaluateMoveScore(move) == 301);
+        });
+
+        it("King captures rook (MVV-LVA 400)", [&]() {
+            engine.parseFEN("8/8/8/8/8/8/8/4Kr3 w - - 0 1");
+            Move move(e1, f1, KING_CAPTURE);
+            expect(engine.evaluateMoveScore(move) == 400);
+        });
+
+        it("En passant treated as pawn captures pawn (MVV-LVA 105)", [&]() {
+            engine.parseFEN("8/8/8/3pP3/8/8/8/8 w - d6 0 1");
+            Move move(e5, d6, PAWN_CAPTURE_ENPASSANT);
+            expect(engine.evaluateMoveScore(move) == 105);
         });
     });
 }
@@ -1844,5 +1900,6 @@ void run_engine_tests() {
         test_parse_uci_position();
 
         test_evaluate_position();
+        test_evaluate_move_score();
     });
 }

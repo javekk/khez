@@ -3,6 +3,8 @@
 #include <bitset>
 #include <iomanip>
 
+#include "../masks/masks.h"
+
 const std::map<std::tuple<Piece, Piece, bool, bool, bool, bool>, MoveType>
     moveTypeMap = {
 

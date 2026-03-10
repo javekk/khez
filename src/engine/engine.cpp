@@ -1108,7 +1108,7 @@ std::pair<Move, int> Engine::searchBestMove(int depth) {
     return negamax(depth);
 }
 
-int Engine::evaluatePosition() {
+int Engine::evaluatePosition() const {
     // PST lookup indexed by PieceBoard (0=WHITE_PAWNS .. 11=BLACK_KING)
     static const int* middleGamePst[12] = {
         pstPawnMg,   pstPawnMg,   pstRookMg,   pstRookMg,
@@ -1158,7 +1158,7 @@ int Engine::evaluatePosition() {
     return (board.status.side.value() == WHITE) ? result : -result;
 }
 
-int Engine::evaluateMaterialScore() {
+int Engine::evaluateMaterialScore() const {
     int score = 0;
 
     for (int bbIndex = 0; bbIndex < 12; bbIndex++) {
@@ -1175,6 +1175,19 @@ int Engine::evaluateMaterialScore() {
         }
     }
     return score;
+}
+
+int Engine::evaluateMoveScore(Move move) const {
+    if (move.isCapture) {
+        Piece to =
+            board.getPieceAt(move.to) != '.'
+                ? charToColorPieceMap.at(board.getPieceAt(move.to)).second
+                : PAWN;
+        Piece from = move.piece;
+        return mvvLva.at({from, to});
+    }
+
+    return 0;
 }
 
 #pragma endregion

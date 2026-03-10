@@ -62,8 +62,9 @@ class Engine {
     // Move search
     std::pair<Move, int> negamax(int depth);
     std::pair<Move, int> searchBestMove(int depth);
-    int evaluatePosition();
-    int evaluateMaterialScore();
+    int evaluatePosition() const;
+    int evaluateMaterialScore() const;
+    int evaluateMoveScore(Move move) const;
 
     // UCI
 
