@@ -956,7 +956,8 @@ void Engine::__printMoves(std::vector<Move> moves) {
     oss << "Moves: \n";
 
     for (auto move : moves) {
-        oss << move.toString() << std::endl;
+        oss << move.toString() << " #score: " << evaluateMoveScore(move)
+            << std::endl;
     }
 
     oss << "Total moves " << moves.size() << std::endl;
@@ -1010,7 +1011,8 @@ inline bool Engine::isOpponentKingInCheck() {
 /**
  * Checks chain of captures
  */
-int Engine::quiescence_(int alpha, int beta) {
+int Engine::quiescence_(int alpha, int beta, u_int64_t* nodes_pointer) {
+    (*nodes_pointer)++;
     int evaluation = evaluatePosition();
 
     if (evaluation >= beta) {
@@ -1023,15 +1025,15 @@ int Engine::quiescence_(int alpha, int beta) {
         alpha = evaluation;
     }
 
-    std::vector<Move> moves = generateAllPseudoLegalMovesAsMoveList();
+    std::vector<Move> moves =
+        sortMoves(generateAllPseudoLegalMovesAsMoveList());
 
     for (Move move_ : moves) {
-        // Move move_ = Move{move};
         if (!move_.isCapture || !makeMove(move_)) {
             continue;
         }
 
-        int score = -quiescence_(-beta, -alpha);
+        int score = -quiescence_(-beta, -alpha, nodes_pointer);
 
         undoMove();
 
@@ -1048,25 +1050,29 @@ int Engine::quiescence_(int alpha, int beta) {
 }
 
 int Engine::negamax_(int alpha, int beta, int depth,
-                     uint32_t* outBestMove_pointer, int* ply_pointer) {
+                     uint32_t* outBestMove_pointer, int* ply_pointer,
+                     u_int64_t* nodes_pointer) {
+    (*nodes_pointer)++;
     if (depth == 0) {
-        return quiescence_(alpha, beta);
+        return quiescence_(alpha, beta, nodes_pointer);
     }
 
-    std::vector<u_int32_t> moves = generateAllPseudoLegalMoves();
+    std::vector<Move> moves =
+        sortMoves(generateAllPseudoLegalMovesAsMoveList());
 
     int legalMoves = 0;
 
-    for (u_int32_t move : moves) {
-        if (!makeMove(Move{move})) {
+    for (Move move_ : moves) {
+        if (!makeMove(move_)) {
             continue;
         }
 
         (*ply_pointer)++;
         legalMoves++;
 
-        int score = -negamax_(-beta, -alpha, depth - 1, nullptr,
-                              ply_pointer);  // bestMove needed only at level 1
+        int score =
+            -negamax_(-beta, -alpha, depth - 1, nullptr, ply_pointer,
+                      nodes_pointer);  // bestMove needed only at level 1
         undoMove();
         (*ply_pointer)--;
 
@@ -1077,7 +1083,7 @@ int Engine::negamax_(int alpha, int beta, int depth,
         if (score > alpha) {
             alpha = score;
             if (outBestMove_pointer) {
-                *outBestMove_pointer = move;
+                *outBestMove_pointer = move_.toBinary();
             }
         }
     }
@@ -1093,20 +1099,19 @@ int Engine::negamax_(int alpha, int beta, int depth,
     return alpha;
 }
 
-std::pair<Move, int> Engine::negamax(int depth) {
+SearchResults Engine::negamax(int depth) {
     int alpha = -50000;
     int beta = -alpha;
     uint32_t bestMove = 0;
     int ply = 0;
+    u_int64_t nodes = 0;
 
-    int score = negamax_(alpha, beta, depth, &bestMove, &ply);
+    int score = negamax_(alpha, beta, depth, &bestMove, &ply, &nodes);
     assert(bestMove);
-    return {Move(bestMove), score};
+    return {Move(bestMove), score, nodes};
 }
 
-std::pair<Move, int> Engine::searchBestMove(int depth) {
-    return negamax(depth);
-}
+SearchResults Engine::searchBestMove(int depth) { return negamax(depth); }
 
 int Engine::evaluatePosition() const {
     // PST lookup indexed by PieceBoard (0=WHITE_PAWNS .. 11=BLACK_KING)
@@ -1190,6 +1195,13 @@ int Engine::evaluateMoveScore(Move move) const {
     return 0;
 }
 
+std::vector<Move> Engine::sortMoves(std::vector<Move> moves) {
+    std::sort(moves.begin(), moves.end(), [&](const Move& m1, const Move& m2) {
+        return evaluateMoveScore(m1) > evaluateMoveScore(m2);
+    });
+    return moves;
+}
+
 #pragma endregion
 
 #pragma region UCI
@@ -1216,10 +1228,10 @@ bool Engine::parseUCIGo(std::string input) {
     }
 
     auto searchResult = searchBestMove(depth);
-    Move bestMove = searchResult.first;
-    int score = searchResult.second;
-    std::cout << "info score cp " << score << " depth " << depth << std::endl;
-    std::cout << "bestmove " << bestMove.toStringUCI() << std::endl;
+    std::cout << "info score cp " << searchResult.score << " depth " << depth
+              << " nodes " << searchResult.numberOfNodes << std::endl;
+    std::cout << "bestmove " << searchResult.bestMove.toStringUCI()
+              << std::endl;
     return true;
 }
 

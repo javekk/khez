@@ -53,12 +53,14 @@ int main(int argc, char* argv[]) {
         cout << engine.board.toStringComplete();
 
         auto searchResult = engine.searchBestMove(1);
-        Move bestMove = searchResult.first;
-        int score = searchResult.second;
+        Move bestMove = searchResult.bestMove;
+        int score = searchResult.score;
+        u_int64_t nodes = searchResult.numberOfNodes;
 
         cout << "score: " << score << endl;
         cout << "Best move: " << bestMove.toStringComplete() << endl;
-        // getchar();
+        cout << "Searched Node: " << nodes << endl;
+        getchar();
 
         engine.makeMove(bestMove);
     }

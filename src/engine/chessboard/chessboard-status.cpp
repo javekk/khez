@@ -17,6 +17,7 @@ const std::map<PieceBoard, std::pair<Color, Piece>> pieceBoardToSideColorMap = {
     {BLACK_KNIGHTS, {BLACK, KNIGHT}}, {BLACK_ROOKS, {BLACK, ROOK}},
     {BLACK_KING, {BLACK, KING}},      {BLACK_QUEEN, {BLACK, QUEEN}},
 };
+
 const std::map<char, std::pair<Color, Piece>> charToColorPieceMap = {{
     {'P', {WHITE, PAWN}},
     {'B', {WHITE, BISHOP}},

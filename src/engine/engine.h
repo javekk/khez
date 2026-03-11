@@ -12,6 +12,12 @@
 #include "./chessboard/square.h"
 #include "./move/move.h"
 
+struct SearchResults {
+    Move bestMove;
+    int score;
+    u_int64_t numberOfNodes;
+};
+
 class Engine {
    public:
     ChessBoard board;
@@ -60,11 +66,13 @@ class Engine {
     void __printAttackedSquare(Color color);
 
     // Move search
-    std::pair<Move, int> negamax(int depth);
-    std::pair<Move, int> searchBestMove(int depth);
+    SearchResults negamax(int depth);
+    SearchResults searchBestMove(int depth);
     int evaluatePosition() const;
     int evaluateMaterialScore() const;
     int evaluateMoveScore(Move move) const;
+
+    std::vector<Move> sortMoves(std::vector<Move> moves);
 
     // UCI
 
@@ -121,6 +129,6 @@ class Engine {
     // Search
 
     int negamax_(int alpha, int beta, int depth, uint32_t* outBestMove,
-                 int* ply);
-    int quiescence_(int alpha, int beta);
+                 int* ply, u_int64_t* nodes);
+    int quiescence_(int alpha, int beta, u_int64_t* nodes);
 };
