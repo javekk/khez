@@ -956,7 +956,8 @@ void Engine::__printMoves(std::vector<Move> moves) {
     oss << "Moves: \n";
 
     for (auto move : moves) {
-        oss << move.toString() << " #score: " << evaluateMoveScore(move)
+        oss << move.toString()
+            << " #score: " << evaluateMoveScore(move, SearchContext{})
             << std::endl;
     }
 
@@ -1011,8 +1012,8 @@ inline bool Engine::isOpponentKingInCheck() {
 /**
  * Checks chain of captures
  */
-int Engine::quiescence_(int alpha, int beta, u_int64_t* nodes_pointer) {
-    (*nodes_pointer)++;
+int Engine::quiescence_(int alpha, int beta, SearchContext& ctx) {
+    ctx.nodes++;
     int evaluation = evaluatePosition();
 
     if (evaluation >= beta) {
@@ -1026,14 +1027,16 @@ int Engine::quiescence_(int alpha, int beta, u_int64_t* nodes_pointer) {
     }
 
     std::vector<Move> moves =
-        sortMoves(generateAllPseudoLegalMovesAsMoveList());
+        sortMoves(generateAllPseudoLegalMovesAsMoveList(), ctx);
 
     for (Move move_ : moves) {
         if (!move_.isCapture || !makeMove(move_)) {
             continue;
         }
 
-        int score = -quiescence_(-beta, -alpha, nodes_pointer);
+        ctx.ply++;
+        int score = -quiescence_(-beta, -alpha, ctx);
+        ctx.ply--;
 
         undoMove();
 
@@ -1050,15 +1053,14 @@ int Engine::quiescence_(int alpha, int beta, u_int64_t* nodes_pointer) {
 }
 
 int Engine::negamax_(int alpha, int beta, int depth,
-                     uint32_t* outBestMove_pointer, int* ply_pointer,
-                     u_int64_t* nodes_pointer) {
-    (*nodes_pointer)++;
+                     uint32_t* outBestMove_pointer, SearchContext& ctx) {
+    ctx.nodes++;
     if (depth == 0) {
-        return quiescence_(alpha, beta, nodes_pointer);
+        return quiescence_(alpha, beta, ctx);
     }
 
     std::vector<Move> moves =
-        sortMoves(generateAllPseudoLegalMovesAsMoveList());
+        sortMoves(generateAllPseudoLegalMovesAsMoveList(), ctx);
 
     int legalMoves = 0;
 
@@ -1067,17 +1069,19 @@ int Engine::negamax_(int alpha, int beta, int depth,
             continue;
         }
 
-        (*ply_pointer)++;
+        ctx.ply++;
         legalMoves++;
 
-        int score =
-            -negamax_(-beta, -alpha, depth - 1, nullptr, ply_pointer,
-                      nodes_pointer);  // bestMove needed only at level 1
+        int score = -negamax_(-beta, -alpha, depth - 1, nullptr,
+                              ctx);  // bestMove needed only at level 1
         undoMove();
-        (*ply_pointer)--;
+        ctx.ply--;
 
         if (score >= beta) {
-            // node (move) fails high
+            if (!move_.isCapture) {
+                ctx.storeKillerMove(move_);
+                ctx.updateHistoryMove(move_, depth);
+            }
             return beta;
         }
         if (score > alpha) {
@@ -1090,7 +1094,7 @@ int Engine::negamax_(int alpha, int beta, int depth,
 
     if (!legalMoves) {
         if (isMyKingInCheck()) {
-            return -49000 + (*ply_pointer);
+            return -49000 + ctx.ply;
         } else {
             return 0;
         }
@@ -1103,12 +1107,11 @@ SearchResults Engine::negamax(int depth) {
     int alpha = -50000;
     int beta = -alpha;
     uint32_t bestMove = 0;
-    int ply = 0;
-    u_int64_t nodes = 0;
+    SearchContext ctx;
 
-    int score = negamax_(alpha, beta, depth, &bestMove, &ply, &nodes);
+    int score = negamax_(alpha, beta, depth, &bestMove, ctx);
     assert(bestMove);
-    return {Move(bestMove), score, nodes};
+    return {Move(bestMove), score, ctx.nodes};
 }
 
 SearchResults Engine::searchBestMove(int depth) { return negamax(depth); }
@@ -1182,22 +1185,30 @@ int Engine::evaluateMaterialScore() const {
     return score;
 }
 
-int Engine::evaluateMoveScore(Move move) const {
+int Engine::evaluateMoveScore(Move move, const SearchContext& ctx) const {
     if (move.isCapture) {
         Piece to =
             board.getPieceAt(move.to) != '.'
                 ? charToColorPieceMap.at(board.getPieceAt(move.to)).second
                 : PAWN;
-        Piece from = move.piece;
-        return mvvLva.at({from, to});
+        return 10000 + mvvLva.at({move.piece, to});
     }
 
-    return 0;
+    // score quiet move
+    if (ctx.isKillerMove0(move)) {
+        return 9000;
+    }
+    if (ctx.isKillerMove1(move)) {
+        return 8000;
+    }
+
+    return ctx.historyMoves[static_cast<int>(move.piece)][move.to];
 }
 
-std::vector<Move> Engine::sortMoves(std::vector<Move> moves) {
+std::vector<Move> Engine::sortMoves(std::vector<Move> moves,
+                                    const SearchContext& ctx) {
     std::sort(moves.begin(), moves.end(), [&](const Move& m1, const Move& m2) {
-        return evaluateMoveScore(m1) > evaluateMoveScore(m2);
+        return evaluateMoveScore(m1, ctx) > evaluateMoveScore(m2, ctx);
     });
     return moves;
 }

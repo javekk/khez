@@ -18,6 +18,31 @@ struct SearchResults {
     u_int64_t numberOfNodes;
 };
 
+struct SearchContext {
+    static constexpr int MAX_PLY = 64;
+
+    uint32_t killerMoves[MAX_PLY][2] = {};
+    int historyMoves[6][64] = {};
+    int ply = 0;
+    u_int64_t nodes = 0;
+
+    void storeKillerMove(Move move) {
+        killerMoves[ply][1] = killerMoves[ply][0];
+        killerMoves[ply][0] = move.toBinary();
+    }
+
+    void updateHistoryMove(Move move, int depth) {
+        historyMoves[static_cast<int>(move.piece)][move.to] += depth * depth;
+    }
+
+    bool isKillerMove0(Move move) const {
+        return killerMoves[ply][0] == move.toBinary();
+    }
+    bool isKillerMove1(Move move) const {
+        return killerMoves[ply][1] == move.toBinary();
+    }
+};
+
 class Engine {
    public:
     ChessBoard board;
@@ -70,9 +95,10 @@ class Engine {
     SearchResults searchBestMove(int depth);
     int evaluatePosition() const;
     int evaluateMaterialScore() const;
-    int evaluateMoveScore(Move move) const;
+    int evaluateMoveScore(Move move, const SearchContext& ctx) const;
 
-    std::vector<Move> sortMoves(std::vector<Move> moves);
+    std::vector<Move> sortMoves(std::vector<Move> moves,
+                                const SearchContext& ctx);
 
     // UCI
 
@@ -129,6 +155,6 @@ class Engine {
     // Search
 
     int negamax_(int alpha, int beta, int depth, uint32_t* outBestMove,
-                 int* ply, u_int64_t* nodes);
-    int quiescence_(int alpha, int beta, u_int64_t* nodes);
+                 SearchContext& ctx);
+    int quiescence_(int alpha, int beta, SearchContext& ctx);
 };
