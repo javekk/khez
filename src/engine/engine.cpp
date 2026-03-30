@@ -5,6 +5,7 @@
 #include <cassert>
 #include <chrono>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <limits>
 #include <sstream>
@@ -1052,12 +1053,14 @@ int Engine::quiescence_(int alpha, int beta, SearchContext& ctx) {
     return alpha;
 }
 
-int Engine::negamax_(int alpha, int beta, int depth,
-                     uint32_t* outBestMove_pointer, SearchContext& ctx) {
-    ctx.nodes++;
+int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
+    ctx.updatePVLengthCurrentLevel();
+
     if (depth == 0) {
         return quiescence_(alpha, beta, ctx);
     }
+
+    ctx.nodes++;
 
     std::vector<Move> moves =
         sortMoves(generateAllPseudoLegalMovesAsMoveList(), ctx);
@@ -1072,8 +1075,7 @@ int Engine::negamax_(int alpha, int beta, int depth,
         ctx.ply++;
         legalMoves++;
 
-        int score = -negamax_(-beta, -alpha, depth - 1, nullptr,
-                              ctx);  // bestMove needed only at level 1
+        int score = -negamax_(-beta, -alpha, depth - 1, ctx);
         undoMove();
         ctx.ply--;
 
@@ -1086,9 +1088,8 @@ int Engine::negamax_(int alpha, int beta, int depth,
         }
         if (score > alpha) {
             alpha = score;
-            if (outBestMove_pointer) {
-                *outBestMove_pointer = move_.toBinary();
-            }
+
+            ctx.updatePVTable(move_);
         }
     }
 
@@ -1106,12 +1107,15 @@ int Engine::negamax_(int alpha, int beta, int depth,
 SearchResults Engine::negamax(int depth) {
     int alpha = -50000;
     int beta = -alpha;
-    uint32_t bestMove = 0;
     SearchContext ctx;
 
-    int score = negamax_(alpha, beta, depth, &bestMove, ctx);
+    int score = negamax_(alpha, beta, depth, ctx);
+    uint32_t bestMove = ctx.pvTable[0][0];
     assert(bestMove);
-    return {Move(bestMove), score, ctx.nodes};
+
+    SearchResults results{Move(bestMove), {}, ctx.pvLength[0], score, ctx.nodes};
+    memcpy(results.pvTable, ctx.pvTable[0], sizeof(results.pvTable));
+    return results;
 }
 
 SearchResults Engine::searchBestMove(int depth) { return negamax(depth); }
@@ -1240,7 +1244,14 @@ bool Engine::parseUCIGo(std::string input) {
 
     auto searchResult = searchBestMove(depth);
     std::cout << "info score cp " << searchResult.score << " depth " << depth
-              << " nodes " << searchResult.numberOfNodes << std::endl;
+              << " nodes " << searchResult.numberOfNodes << " pv ";
+    for (int count = 0; count < searchResult.pvLength; count++) {
+        // Print PV
+        std::cout << Move(searchResult.pvTable[count]).toStringUCI() << " ";
+    }
+
+    std::cout << std::endl;
+
     std::cout << "bestmove " << searchResult.bestMove.toStringUCI()
               << std::endl;
     return true;

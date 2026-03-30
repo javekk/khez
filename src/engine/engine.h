@@ -14,17 +14,22 @@
 
 struct SearchResults {
     Move bestMove;
+    uint32_t pvTable[64];
+    int pvLength;
     int score;
     u_int64_t numberOfNodes;
 };
 
 struct SearchContext {
     static constexpr int MAX_PLY = 64;
+    int ply = 0;
+    u_int64_t nodes = 0;
 
     uint32_t killerMoves[MAX_PLY][2] = {};
     int historyMoves[6][64] = {};
-    int ply = 0;
-    u_int64_t nodes = 0;
+
+    uint32_t pvTable[MAX_PLY][MAX_PLY] = {};
+    int pvLength[MAX_PLY] = {};
 
     void storeKillerMove(Move move) {
         killerMoves[ply][1] = killerMoves[ply][0];
@@ -40,6 +45,18 @@ struct SearchContext {
     }
     bool isKillerMove1(Move move) const {
         return killerMoves[ply][1] == move.toBinary();
+    }
+
+    void updatePVLengthCurrentLevel() { pvLength[ply] = ply; }
+
+    void updatePVTable(Move move) {
+        pvTable[ply][ply] = move.toBinary();
+
+        for (int nextPly = ply + 1; nextPly < pvLength[ply + 1]; nextPly++) {
+            pvTable[ply][nextPly] = pvTable[ply + 1][nextPly];
+        }
+
+        pvLength[ply] = pvLength[ply + 1];
     }
 };
 
@@ -154,7 +171,6 @@ class Engine {
 
     // Search
 
-    int negamax_(int alpha, int beta, int depth, uint32_t* outBestMove,
-                 SearchContext& ctx);
+    int negamax_(int alpha, int beta, int depth, SearchContext& ctx);
     int quiescence_(int alpha, int beta, SearchContext& ctx);
 };
