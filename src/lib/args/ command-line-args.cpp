@@ -15,6 +15,8 @@ void parseSingleInput(char* arg, CommandLineArgs* args) {
                 args->logEnable = false;
             } else if (strncmp(arg, "--log-level=", 12) == 0) {
                 args->logLevel = std::stoi(arg + 12);
+            } else if (strncmp(arg, "--depth=", 8) == 0) {
+                args->depthSearch = std::stoi(arg + 8);
             } else {
                 std::cout << "Unknown option: " << arg << std::endl;
             }

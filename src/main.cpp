@@ -51,8 +51,7 @@ int main(int argc, char* argv[]) {
     //     " "g4e6 h1g1 h7h6 g5e3 h8g8 b2b3 b7b6 g2g4 g7g5");
     while (true) {
         cout << engine.board.toStringFancy();
-
-        auto searchResult = engine.searchBestMove(4);
+        SearchResults searchResult = engine.searchBestMove(args.depthSearch);
         Move bestMove = searchResult.bestMove;
         int score = searchResult.score;
         u_int64_t nodes = searchResult.numberOfNodes;

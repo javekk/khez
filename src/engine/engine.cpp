@@ -1113,7 +1113,8 @@ SearchResults Engine::negamax(int depth) {
     uint32_t bestMove = ctx.pvTable[0][0];
     assert(bestMove);
 
-    SearchResults results{Move(bestMove), {}, ctx.pvLength[0], score, ctx.nodes};
+    SearchResults results{
+        Move(bestMove), {}, ctx.pvLength[0], score, ctx.nodes};
     memcpy(results.pvTable, ctx.pvTable[0], sizeof(results.pvTable));
     return results;
 }
@@ -1242,15 +1243,19 @@ bool Engine::parseUCIGo(std::string input) {
         depth = 6;
     }
 
-    auto searchResult = searchBestMove(depth);
-    std::cout << "info score cp " << searchResult.score << " depth " << depth
-              << " nodes " << searchResult.numberOfNodes << " pv ";
-    for (int count = 0; count < searchResult.pvLength; count++) {
-        // Print PV
-        std::cout << Move(searchResult.pvTable[count]).toStringUCI() << " ";
-    }
+    SearchResults searchResult = searchBestMove(1);
+    for (int depth_ = 2; depth_ <= depth; depth_++) {
+        searchResult = searchBestMove(depth_);
+        std::cout << "info score cp " << searchResult.score << " depth "
+                  << depth_ << " nodes " << searchResult.numberOfNodes
+                  << " pv ";
+        for (int count = 0; count < searchResult.pvLength; count++) {
+            // Print PV
+            std::cout << Move(searchResult.pvTable[count]).toStringUCI() << " ";
+        }
 
-    std::cout << std::endl;
+        std::cout << std::endl;
+    }
 
     std::cout << "bestmove " << searchResult.bestMove.toStringUCI()
               << std::endl;
