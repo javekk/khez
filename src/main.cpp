@@ -46,9 +46,9 @@ int main(int argc, char* argv[]) {
     //  cout << engine.searchBestMove(4).first.toStringUCI() << endl
 
     engine.setupInitialPosition();
-    // engine.parseUCIPosition(
-    //     "position startpos moves g1f3 g8f6 d2d4 d7d5 b1c3 b8c6 c1g5 c8g4 h2h3
-    //     " "g4e6 h1g1 h7h6 g5e3 h8g8 b2b3 b7b6 g2g4 g7g5");
+    engine.parseUCIPosition(
+        "position startpos moves g1f3 g8f6 d2d4 d7d5 b1c3 b8c6 c1g5 c8g4 h2h3 "
+        "g4e6 h1g1 h7h6 g5e3 h8g8 b2b3 b7b6 g2g4 g7g5");
     while (true) {
         cout << engine.board.toStringFancy();
         SearchResults searchResult = engine.searchBestMove(args.depthSearch);

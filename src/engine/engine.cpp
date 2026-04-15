@@ -5,7 +5,6 @@
 #include <cassert>
 #include <chrono>
 #include <cstdlib>
-#include <cstring>
 #include <iostream>
 #include <limits>
 #include <sstream>
@@ -957,9 +956,7 @@ void Engine::__printMoves(std::vector<Move> moves) {
     oss << "Moves: \n";
 
     for (auto move : moves) {
-        oss << move.toString()
-            << " #score: " << evaluateMoveScore(move, SearchContext{})
-            << std::endl;
+        oss << move.toString() << std::endl;
     }
 
     oss << "Total moves " << moves.size() << std::endl;
@@ -1062,8 +1059,9 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
 
     ctx.nodes++;
 
-    std::vector<Move> moves =
-        sortMoves(generateAllPseudoLegalMovesAsMoveList(), ctx);
+    std::vector<Move> rawMoves = generateAllPseudoLegalMovesAsMoveList();
+    ctx.checkEnablingPVScoring(rawMoves);
+    std::vector<Move> moves = sortMoves(rawMoves, ctx);
 
     int legalMoves = 0;
 
@@ -1104,22 +1102,33 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
     return alpha;
 }
 
-SearchResults Engine::negamax(int depth) {
+SearchResults Engine::negamax(int depth, const SearchContext* previousCtx) {
     int alpha = -50000;
     int beta = -alpha;
     SearchContext ctx;
+    ctx.initFromPreviousContenxt(previousCtx);
 
     int score = negamax_(alpha, beta, depth, ctx);
     uint32_t bestMove = ctx.pvTable[0][0];
     assert(bestMove);
 
-    SearchResults results{
-        Move(bestMove), {}, ctx.pvLength[0], score, ctx.nodes};
+    SearchResults results{Move(bestMove), {},        ctx.pvLength[0],
+                          score,          ctx.nodes, ctx};
     memcpy(results.pvTable, ctx.pvTable[0], sizeof(results.pvTable));
     return results;
 }
 
-SearchResults Engine::searchBestMove(int depth) { return negamax(depth); }
+SearchResults Engine::searchBestMove(
+    int maxDepth, std::function<void(const SearchResults&, int)> onIteration) {
+    SearchResults result = negamax(1);
+    for (int depth_ = 2; depth_ <= maxDepth; depth_++) {
+        result = negamax(depth_, &result.ctx);
+        if (onIteration) {
+            onIteration(result, depth_);
+        }
+    }
+    return result;
+}
 
 int Engine::evaluatePosition() const {
     // PST lookup indexed by PieceBoard (0=WHITE_PAWNS .. 11=BLACK_KING)
@@ -1190,7 +1199,14 @@ int Engine::evaluateMaterialScore() const {
     return score;
 }
 
-int Engine::evaluateMoveScore(Move move, const SearchContext& ctx) const {
+int Engine::evaluateMoveScore(Move move, SearchContext& ctx) const {
+    if (ctx.scoringPv) {
+        if (ctx.pvTable[0][ctx.ply] == move.toBinary()) {
+            ctx.resetScoring();
+            return 20000;
+        }
+    }
+
     if (move.isCapture) {
         Piece to =
             board.getPieceAt(move.to) != '.'
@@ -1211,7 +1227,7 @@ int Engine::evaluateMoveScore(Move move, const SearchContext& ctx) const {
 }
 
 std::vector<Move> Engine::sortMoves(std::vector<Move> moves,
-                                    const SearchContext& ctx) {
+                                    SearchContext& ctx) {
     std::sort(moves.begin(), moves.end(), [&](const Move& m1, const Move& m2) {
         return evaluateMoveScore(m1, ctx) > evaluateMoveScore(m2, ctx);
     });
@@ -1243,19 +1259,14 @@ bool Engine::parseUCIGo(std::string input) {
         depth = 6;
     }
 
-    SearchResults searchResult = searchBestMove(1);
-    for (int depth_ = 2; depth_ <= depth; depth_++) {
-        searchResult = searchBestMove(depth_);
-        std::cout << "info score cp " << searchResult.score << " depth "
-                  << depth_ << " nodes " << searchResult.numberOfNodes
-                  << " pv ";
-        for (int count = 0; count < searchResult.pvLength; count++) {
-            // Print PV
-            std::cout << Move(searchResult.pvTable[count]).toStringUCI() << " ";
-        }
-
-        std::cout << std::endl;
-    }
+    SearchResults searchResult =
+        searchBestMove(depth, [](const SearchResults& r, int d) {
+            std::cout << "info score cp " << r.score << " depth " << d
+                      << " nodes " << r.numberOfNodes << " pv ";
+            for (int i = 0; i < r.pvLength; i++)
+                std::cout << Move(r.pvTable[i]).toStringUCI() << " ";
+            std::cout << std::endl;
+        });
 
     std::cout << "bestmove " << searchResult.bestMove.toStringUCI()
               << std::endl;

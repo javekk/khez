@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstring>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -12,14 +14,6 @@
 #include "./chessboard/square.h"
 #include "./move/move.h"
 
-struct SearchResults {
-    Move bestMove;
-    uint32_t pvTable[64];
-    int pvLength;
-    int score;
-    u_int64_t numberOfNodes;
-};
-
 struct SearchContext {
     static constexpr int MAX_PLY = 64;
     int ply = 0;
@@ -30,6 +24,19 @@ struct SearchContext {
 
     uint32_t pvTable[MAX_PLY][MAX_PLY] = {};
     int pvLength[MAX_PLY] = {};
+    bool followPv =
+        true;  //  Should I bother searching for a PV move at this ply?
+    bool scoringPv = false;  // Did I find the PV move in this move list, and
+                             // should I boost its score?
+
+    void initFromPreviousContenxt(const SearchContext* previousCtx) {
+        if (previousCtx) {
+            memcpy(pvTable, previousCtx->pvTable, sizeof(pvTable));
+            memcpy(historyMoves, previousCtx->historyMoves,
+                   sizeof(historyMoves));
+            memcpy(killerMoves, previousCtx->killerMoves, sizeof(killerMoves));
+        }
+    }
 
     void storeKillerMove(Move move) {
         killerMoves[ply][1] = killerMoves[ply][0];
@@ -58,6 +65,29 @@ struct SearchContext {
 
         pvLength[ply] = pvLength[ply + 1];
     }
+
+    void resetScoring() { scoringPv = false; }
+
+    void checkEnablingPVScoring(std::vector<Move> moves) {
+        if (followPv) {
+            followPv = false;
+            for (Move move : moves) {
+                if (pvTable[0][ply] == move.toBinary()) {
+                    scoringPv = true;
+                    followPv = true;
+                }
+            }
+        }
+    }
+};
+
+struct SearchResults {
+    Move bestMove;
+    uint32_t pvTable[64];
+    int pvLength;
+    int score;
+    u_int64_t numberOfNodes;
+    SearchContext ctx;
 };
 
 class Engine {
@@ -108,14 +138,16 @@ class Engine {
     void __printAttackedSquare(Color color);
 
     // Move search
-    SearchResults negamax(int depth);
-    SearchResults searchBestMove(int depth);
+    SearchResults negamax(int depth,
+                          const SearchContext* previousCtx = nullptr);
+    SearchResults searchBestMove(
+        int depth,
+        std::function<void(const SearchResults&, int)> onIteration = nullptr);
     int evaluatePosition() const;
     int evaluateMaterialScore() const;
-    int evaluateMoveScore(Move move, const SearchContext& ctx) const;
+    int evaluateMoveScore(Move move, SearchContext& ctx) const;
 
-    std::vector<Move> sortMoves(std::vector<Move> moves,
-                                const SearchContext& ctx);
+    std::vector<Move> sortMoves(std::vector<Move> moves, SearchContext& ctx);
 
     // UCI
 
