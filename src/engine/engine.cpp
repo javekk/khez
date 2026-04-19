@@ -1060,7 +1060,7 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
     ctx.nodes++;
 
     std::vector<Move> rawMoves = generateAllPseudoLegalMovesAsMoveList();
-    ctx.checkEnablingPVScoring(rawMoves);
+    ctx.togglePVScoring(rawMoves);
     std::vector<Move> moves = sortMoves(rawMoves, ctx);
 
     int legalMoves = 0;
@@ -1073,7 +1073,16 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
         ctx.ply++;
         legalMoves++;
 
-        int score = -negamax_(-beta, -alpha, depth - 1, ctx);
+        int score;
+        if (ctx.foundPv) {
+            score = -negamax_(-alpha - 1, -alpha, depth - 1, ctx);
+            if ((score > alpha) && (score < beta)) {
+                score = -negamax_(-beta, -alpha, depth - 1, ctx);
+            }
+        } else {
+            score = -negamax_(-beta, -alpha, depth - 1, ctx);
+        }
+
         undoMove();
         ctx.ply--;
 
@@ -1087,6 +1096,7 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
         if (score > alpha) {
             alpha = score;
 
+            ctx.foundPv = true;
             ctx.updatePVTable(move_);
         }
     }

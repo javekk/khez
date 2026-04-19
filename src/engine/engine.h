@@ -24,6 +24,8 @@ struct SearchContext {
 
     uint32_t pvTable[MAX_PLY][MAX_PLY] = {};
     int pvLength[MAX_PLY] = {};
+
+    bool foundPv = false;  // Found at least one good move
     bool followPv =
         true;  //  Should I bother searching for a PV move at this ply?
     bool scoringPv = false;  // Did I find the PV move in this move list, and
@@ -31,6 +33,7 @@ struct SearchContext {
 
     void initFromPreviousContenxt(const SearchContext* previousCtx) {
         if (previousCtx) {
+            nodes = previousCtx->nodes;
             memcpy(pvTable, previousCtx->pvTable, sizeof(pvTable));
             memcpy(historyMoves, previousCtx->historyMoves,
                    sizeof(historyMoves));
@@ -68,7 +71,7 @@ struct SearchContext {
 
     void resetScoring() { scoringPv = false; }
 
-    void checkEnablingPVScoring(std::vector<Move> moves) {
+    void togglePVScoring(std::vector<Move> moves) {
         if (followPv) {
             followPv = false;
             for (Move move : moves) {
