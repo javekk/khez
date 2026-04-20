@@ -5,46 +5,50 @@
 
 #include "../masks/masks.h"
 
-const std::map<std::tuple<Piece, Piece, bool, bool, bool, bool>, MoveType>
-    moveTypeMap = {
+static MoveType deriveMoveType(Piece piece, Piece promoted, bool isCapture,
+                               bool isDoublePush, bool isEnpassant,
+                               bool isCastling, Square to) {
+    if (isCastling) {
+        return (to == c1 || to == c8) ? CASTLE_QUEENSIDE : CASTLE_KINGSIDE;
+    }
 
-        {{KING, EMPTY, false, false, false, true},
-         CASTLE_KINGSIDE},  // only king because key would be the same
-
-        {{PAWN, EMPTY, false, false, false, false}, PAWN_PUSH},
-        {{PAWN, EMPTY, false, true, false, false}, PAWN_DOUBLE_PUSH},
-        {{PAWN, EMPTY, true, false, false, false}, PAWN_CAPTURE},
-        {{PAWN, EMPTY, true, false, true, false}, PAWN_CAPTURE_ENPASSANT},
-
-        {{PAWN, QUEEN, false, false, false, false}, PAWN_PROMOTION_TO_QUEEN},
-        {{PAWN, KNIGHT, false, false, false, false}, PAWN_PROMOTION_TO_KNIGHT},
-        {{PAWN, ROOK, false, false, false, false}, PAWN_PROMOTION_TO_ROOK},
-        {{PAWN, BISHOP, false, false, false, false}, PAWN_PROMOTION_TO_BISHOP},
-
-        {{PAWN, QUEEN, true, false, false, false},
-         PAWN_CAPTURE_PROMOTION_TO_QUEEN},
-        {{PAWN, KNIGHT, true, false, false, false},
-         PAWN_CAPTURE_PROMOTION_TO_KNIGHT},
-        {{PAWN, ROOK, true, false, false, false},
-         PAWN_CAPTURE_PROMOTION_TO_ROOK},
-        {{PAWN, BISHOP, true, false, false, false},
-         PAWN_CAPTURE_PROMOTION_TO_BISHOP},
-
-        {{KNIGHT, EMPTY, false, false, false, false}, KNIGHT_QUIET},
-        {{KNIGHT, EMPTY, true, false, false, false}, KNIGHT_CAPTURE},
-
-        {{BISHOP, EMPTY, false, false, false, false}, BISHOP_QUIET},
-        {{BISHOP, EMPTY, true, false, false, false}, BISHOP_CAPTURE},
-
-        {{ROOK, EMPTY, false, false, false, false}, ROOK_QUIET},
-        {{ROOK, EMPTY, true, false, false, false}, ROOK_CAPTURE},
-
-        {{QUEEN, EMPTY, false, false, false, false}, QUEEN_QUIET},
-        {{QUEEN, EMPTY, true, false, false, false}, QUEEN_CAPTURE},
-
-        {{KING, EMPTY, false, false, false, false}, KING_QUIET},
-        {{KING, EMPTY, true, false, false, false}, KING_CAPTURE},
-};
+    switch (piece) {
+        case PAWN:
+            if (isEnpassant) return PAWN_CAPTURE_ENPASSANT;
+            if (promoted != EMPTY) {
+                switch (promoted) {
+                    case QUEEN:
+                        return isCapture ? PAWN_CAPTURE_PROMOTION_TO_QUEEN
+                                         : PAWN_PROMOTION_TO_QUEEN;
+                    case KNIGHT:
+                        return isCapture ? PAWN_CAPTURE_PROMOTION_TO_KNIGHT
+                                         : PAWN_PROMOTION_TO_KNIGHT;
+                    case ROOK:
+                        return isCapture ? PAWN_CAPTURE_PROMOTION_TO_ROOK
+                                         : PAWN_PROMOTION_TO_ROOK;
+                    case BISHOP:
+                        return isCapture ? PAWN_CAPTURE_PROMOTION_TO_BISHOP
+                                         : PAWN_PROMOTION_TO_BISHOP;
+                    default:
+                        break;
+                }
+            }
+            if (isDoublePush) return PAWN_DOUBLE_PUSH;
+            return isCapture ? PAWN_CAPTURE : PAWN_PUSH;
+        case KNIGHT:
+            return isCapture ? KNIGHT_CAPTURE : KNIGHT_QUIET;
+        case BISHOP:
+            return isCapture ? BISHOP_CAPTURE : BISHOP_QUIET;
+        case ROOK:
+            return isCapture ? ROOK_CAPTURE : ROOK_QUIET;
+        case QUEEN:
+            return isCapture ? QUEEN_CAPTURE : QUEEN_QUIET;
+        case KING:
+            return isCapture ? KING_CAPTURE : KING_QUIET;
+        default:
+            return PAWN_PUSH;
+    }
+}
 
 std::map<MoveType, std::string> moveDescriptionMap = {
     {PAWN_PUSH, "PAWN_PUSH"},
@@ -192,15 +196,8 @@ Move::Move(u_int32_t binary) {
     isEnpassant = (binary >> 22) & 1;                     // bit 22
     isCastling = (binary >> 23) & 1;                      // bit 23
 
-    auto key = std::make_tuple(piece, promoted, isCapture, isDoublePush,
-                               isEnpassant, isCastling);
-
-    auto _moveType = moveTypeMap.find(key);
-    type = (_moveType != moveTypeMap.end()) ? _moveType->second : PAWN_PUSH;
-
-    if (isCastling && (to == c8 || to == c1)) {
-        type = CASTLE_QUEENSIDE;
-    }
+    type = deriveMoveType(piece, promoted, isCapture, isDoublePush, isEnpassant,
+                          isCastling, to);
 }
 
 std::string Move::toString() const {

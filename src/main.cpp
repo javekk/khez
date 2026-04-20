@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
     // engine.parseUCIPosition(
     //     "position startpos moves g1f3 g8f6 d2d4 d7d5 b1c3 b8c6 c1g5 c8g4 h2h3
     //     " "g4e6 h1g1 h7h6 g5e3 h8g8 b2b3 b7b6 g2g4 g7g5");
-    int totalMoves = 0;
+    int totalHalfMoves = 0;
     int totalTime = 0;
     while (true) {
         cout << "┏━━━ RUN " << endl;
@@ -74,10 +74,10 @@ int main(int argc, char* argv[]) {
         cout << "┃ Time(ms): " << searchResult.time_ms << endl;
         cout << "┗━━ " << endl;
 
-        totalMoves++;
+        totalHalfMoves++;
         totalTime += searchResult.time_ms;
         cout << "┏━━━ Total " << endl;
-        cout << "┃ Moves: " << totalMoves << endl;
+        cout << "┃ Half Moves: " << totalHalfMoves << endl;
         cout << "┃ Time(ms): " << totalTime << endl;
         cout << "┃ Time(s): " << totalTime / 1000 << endl;
         cout << "┗━━ " << endl;
