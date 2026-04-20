@@ -1117,19 +1117,26 @@ SearchResults Engine::negamax(int depth, const SearchContext* previousCtx) {
     int beta = -alpha;
     SearchContext ctx;
     ctx.initFromPreviousContenxt(previousCtx);
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     int score = negamax_(alpha, beta, depth, ctx);
     uint32_t bestMove = ctx.pvTable[0][0];
     assert(bestMove);
 
-    SearchResults results{Move(bestMove), {},        ctx.pvLength[0],
-                          score,          ctx.nodes, ctx};
+    auto endTime = std::chrono::high_resolution_clock::now();
+    int64_t time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                       endTime - startTime)
+                       .count();
+
+    SearchResults results{
+        Move(bestMove), {}, ctx.pvLength[0], score, ctx.nodes, ctx, time};
     memcpy(results.pvTable, ctx.pvTable[0], sizeof(results.pvTable));
     return results;
 }
 
 SearchResults Engine::searchBestMove(
     int maxDepth, std::function<void(const SearchResults&, int)> onIteration) {
+    auto startTime = std::chrono::high_resolution_clock::now();
     SearchResults result = negamax(1);
     for (int depth_ = 2; depth_ <= maxDepth; depth_++) {
         result = negamax(depth_, &result.ctx);
@@ -1137,6 +1144,12 @@ SearchResults Engine::searchBestMove(
             onIteration(result, depth_);
         }
     }
+
+    auto endTime = std::chrono::high_resolution_clock::now();
+    int64_t time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                       endTime - startTime)
+                       .count();
+    result.time_ms = time;
     return result;
 }
 
@@ -1272,7 +1285,8 @@ bool Engine::parseUCIGo(std::string input) {
     SearchResults searchResult =
         searchBestMove(depth, [](const SearchResults& r, int d) {
             std::cout << "info score cp " << r.score << " depth " << d
-                      << " nodes " << r.numberOfNodes << " pv ";
+                      << " nodes " << r.numberOfNodes << " time(ms) "
+                      << r.time_ms << " pv ";
             for (int i = 0; i < r.pvLength; i++)
                 std::cout << Move(r.pvTable[i]).toStringUCI() << " ";
             std::cout << std::endl;
@@ -1280,6 +1294,7 @@ bool Engine::parseUCIGo(std::string input) {
 
     std::cout << "bestmove " << searchResult.bestMove.toStringUCI()
               << std::endl;
+    std::cout << "time(ms) " << searchResult.time_ms << std::endl;
     return true;
 }
 

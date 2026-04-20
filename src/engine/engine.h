@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <cstring>
 #include <functional>
 #include <string>
@@ -91,6 +92,7 @@ struct SearchResults {
     int score;
     u_int64_t numberOfNodes;
     SearchContext ctx;
+    int64_t time_ms;
 };
 
 class Engine {
