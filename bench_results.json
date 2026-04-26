@@ -1,4 +1,5 @@
 [
-  {"name": "perft_total_time_ms", "unit": "ms", "value": 2881},
-  {"name": "perft_nps", "unit": "nodes/sec", "value": 2853424}
+  {"name": "search_total_time_ms", "unit": "ms", "value": 43937},
+  {"name": "search_total_nodes", "unit": "nodes", "value": 9949160},
+  {"name": "search_nps", "unit": "nodes/sec", "value": 226441}
 ]

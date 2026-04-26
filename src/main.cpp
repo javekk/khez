@@ -63,16 +63,12 @@ int main(int argc, char* argv[]) {
             Engine e;
             e.init();
             e.parseFEN(p.fen);
-            auto t0 = std::chrono::high_resolution_clock::now();
-            long long int nodes = e.perftDriver(args.benchDepth);
-            auto t1 = std::chrono::high_resolution_clock::now();
-            long long int ms =
-                std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0)
-                    .count();
-            totalNodes += nodes;
-            totalMs += ms;
+            SearchResults r = e.searchBestMove(args.benchDepth);
+            totalNodes += r.numberOfNodes;
+            totalMs += r.time_ms;
             cout << p.name << " depth=" << args.benchDepth
-                 << " nodes=" << nodes << " time_ms=" << ms << endl;
+                 << " nodes=" << r.numberOfNodes << " time_ms=" << r.time_ms
+                 << endl;
         }
 
         long long int nps =
@@ -84,10 +80,13 @@ int main(int argc, char* argv[]) {
 
         std::ofstream out("bench_results.json");
         out << "[\n";
-        out << "  {\"name\": \"perft_total_time_ms\", \"unit\": \"ms\", "
+        out << "  {\"name\": \"search_total_time_ms\", \"unit\": \"ms\", "
                "\"value\": "
             << totalMs << "},\n";
-        out << "  {\"name\": \"perft_nps\", \"unit\": \"nodes/sec\", "
+        out << "  {\"name\": \"search_total_nodes\", \"unit\": \"nodes\", "
+               "\"value\": "
+            << totalNodes << "},\n";
+        out << "  {\"name\": \"search_nps\", \"unit\": \"nodes/sec\", "
                "\"value\": "
             << nps << "}\n";
         out << "]\n";

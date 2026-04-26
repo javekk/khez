@@ -27,7 +27,7 @@ jobs:
 
       - name: Run bench
         run: |
-          ./build/khez --bench --bench-depth=5
+          ./build/khez --bench --bench-depth=7
           mv bench_results.json "$RUNNER_TEMP/bench_results.json"
 
       - name: Store benchmark result

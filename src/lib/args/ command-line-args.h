@@ -9,7 +9,7 @@ struct CommandLineArgs {
     int logLevel = 0;
     bool logEnable = true;
     int depthSearch = 4;
-    int benchDepth = 5;
+    int benchDepth = 7;
 };
 
 class CommandLineParser {
