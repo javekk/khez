@@ -26,14 +26,16 @@ jobs:
         run: cmake --build build --target khez -j
 
       - name: Run bench
-        run: ./build/khez --bench --bench-depth=5
+        run: |
+          ./build/khez --bench --bench-depth=5
+          mv bench_results.json "$RUNNER_TEMP/bench_results.json"
 
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         with:
           name: Khez perft bench
           tool: customSmallerIsBetter
-          output-file-path: bench_results.json
+          output-file-path: ${{ runner.temp }}/bench_results.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: ${{ github.event_name == 'push' }}
           comment-on-alert: true
