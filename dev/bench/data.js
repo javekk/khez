@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1777216620984,
+  "lastUpdate": 1777231479491,
   "repoUrl": "https://github.com/javekk/khez",
   "entries": {
     "Khez perft bench": [
@@ -38,6 +38,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "search_nps",
             "value": 324298,
+            "unit": "nodes/sec"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "periniraffaele@gmail.com",
+            "name": "javekk",
+            "username": "javekk"
+          },
+          "committer": {
+            "email": "periniraffaele@gmail.com",
+            "name": "javekk",
+            "username": "javekk"
+          },
+          "distinct": true,
+          "id": "a8acbf02dbda4f44ea0430d0d369c7bc012b3758",
+          "message": "feat: add Late move reduction",
+          "timestamp": "2026-04-26T21:23:55+02:00",
+          "tree_id": "9a3b02024c76232ffa4add46bb53fb790fe01b2d",
+          "url": "https://github.com/javekk/khez/commit/a8acbf02dbda4f44ea0430d0d369c7bc012b3758"
+        },
+        "date": 1777231479227,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "search_total_time_ms",
+            "value": 1706,
+            "unit": "ms"
+          },
+          {
+            "name": "search_total_nodes",
+            "value": 433925,
+            "unit": "nodes"
+          },
+          {
+            "name": "search_nps",
+            "value": 254352,
             "unit": "nodes/sec"
           }
         ]
