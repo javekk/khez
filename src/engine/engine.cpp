@@ -1024,8 +1024,8 @@ int Engine::quiescence_(int alpha, int beta, SearchContext& ctx) {
         alpha = evaluation;
     }
 
-    std::vector<Move> moves =
-        sortMoves(generateAllPseudoLegalMovesAsMoveList(), ctx);
+    std::vector<Move> moves = generateAllPseudoLegalMovesAsMoveList();
+    sortMoves(moves, ctx);
 
     for (Move move_ : moves) {
         if (!move_.isCapture || !makeMove(move_)) {
@@ -1059,9 +1059,9 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
 
     ctx.nodes++;
 
-    std::vector<Move> rawMoves = generateAllPseudoLegalMovesAsMoveList();
-    ctx.togglePVScoring(rawMoves);
-    std::vector<Move> moves = sortMoves(rawMoves, ctx);
+    std::vector<Move> moves = generateAllPseudoLegalMovesAsMoveList();
+    ctx.togglePVScoring(moves);
+    sortMoves(moves, ctx);
 
     int legalMoves = 0;
 
@@ -1249,12 +1249,10 @@ int Engine::evaluateMoveScore(Move move, SearchContext& ctx) const {
     return ctx.historyMoves[static_cast<int>(move.piece)][move.to];
 }
 
-std::vector<Move> Engine::sortMoves(std::vector<Move> moves,
-                                    SearchContext& ctx) {
+void Engine::sortMoves(std::vector<Move>& moves, SearchContext& ctx) {
     std::sort(moves.begin(), moves.end(), [&](const Move& m1, const Move& m2) {
         return evaluateMoveScore(m1, ctx) > evaluateMoveScore(m2, ctx);
     });
-    return moves;
 }
 
 #pragma endregion

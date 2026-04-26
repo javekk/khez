@@ -152,7 +152,7 @@ class Engine {
     int evaluateMaterialScore() const;
     int evaluateMoveScore(Move move, SearchContext& ctx) const;
 
-    std::vector<Move> sortMoves(std::vector<Move> moves, SearchContext& ctx);
+    void sortMoves(std::vector<Move>& moves, SearchContext& ctx);
 
     // UCI
 
