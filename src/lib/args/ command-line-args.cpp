@@ -9,6 +9,13 @@ void parseSingleInput(char* arg, CommandLineArgs* args) {
         case '-':
             if (strcmp(arg, "--uci") == 0) {
                 args->uciMode = true;
+            } else if (strcmp(arg, "--bench") == 0) {
+                args->benchMode = true;
+                args->logEnable = false;
+            } else if (strncmp(arg, "--bench-depth=", 14) == 0) {
+                args->benchMode = true;
+                args->logEnable = false;
+                args->benchDepth = std::stoi(arg + 14);
             } else if (strcmp(arg, "--log") == 0) {
                 args->logEnable = true;
             } else if (strcmp(arg, "--no-log") == 0) {

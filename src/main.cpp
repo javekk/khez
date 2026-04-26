@@ -3,7 +3,9 @@ using namespace std;
 #include <bitset>
 #include <chrono>
 #include <cstring>
+#include <fstream>
 #include <iostream>
+#include <vector>
 
 #include "bitboard/bitboard.h"
 #include "engine/chessboard/chessboard.h"
@@ -36,6 +38,61 @@ int main(int argc, char* argv[]) {
         logger.info("Starint in UCI mode");
         engine.setupInitialPosition();
         engine.UCI();
+    }
+
+    if (args.benchMode) {
+        struct BenchPos {
+            const char* name;
+            const char* fen;
+        };
+        const std::vector<BenchPos> positions = {
+            {"startpos",
+             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},
+            {"kiwipete",
+             "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq "
+             "- 0 1"},
+            {"endgame", "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1"},
+            {"midgame",
+             "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/"
+             "R4RK1 w - - 0 10"},
+        };
+
+        long long int totalNodes = 0;
+        long long int totalMs = 0;
+        for (const auto& p : positions) {
+            Engine e;
+            e.init();
+            e.parseFEN(p.fen);
+            auto t0 = std::chrono::high_resolution_clock::now();
+            long long int nodes = e.perftDriver(args.benchDepth);
+            auto t1 = std::chrono::high_resolution_clock::now();
+            long long int ms =
+                std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0)
+                    .count();
+            totalNodes += nodes;
+            totalMs += ms;
+            cout << p.name << " depth=" << args.benchDepth
+                 << " nodes=" << nodes << " time_ms=" << ms << endl;
+        }
+
+        long long int nps =
+            totalMs > 0 ? (totalNodes * 1000) / totalMs : 0;
+        cout << "===" << endl;
+        cout << "total_nodes=" << totalNodes << endl;
+        cout << "total_time_ms=" << totalMs << endl;
+        cout << "nps=" << nps << endl;
+
+        std::ofstream out("bench_results.json");
+        out << "[\n";
+        out << "  {\"name\": \"perft_total_time_ms\", \"unit\": \"ms\", "
+               "\"value\": "
+            << totalMs << "},\n";
+        out << "  {\"name\": \"perft_nps\", \"unit\": \"nodes/sec\", "
+               "\"value\": "
+            << nps << "}\n";
+        out << "]\n";
+        out.close();
+        return 0;
     }
 
     // DEBUG

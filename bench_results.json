@@ -1,0 +1,4 @@
+[
+  {"name": "perft_total_time_ms", "unit": "ms", "value": 2881},
+  {"name": "perft_nps", "unit": "nodes/sec", "value": 2853424}
+]
