@@ -1014,6 +1014,10 @@ int Engine::quiescence_(int alpha, int beta, SearchContext& ctx) {
     ctx.nodes++;
     int evaluation = evaluatePosition();
 
+    if (ctx.ply >= SearchContext::MAX_PLY - 1) {
+        return evaluation;
+    }
+
     if (evaluation >= beta) {
         // node (move) fails high
         return beta;
@@ -1057,7 +1061,13 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
         return quiescence_(alpha, beta, ctx);
     }
 
+    if (ctx.ply >= SearchContext::MAX_PLY - 1) {
+        return evaluatePosition();
+    }
+
     ctx.nodes++;
+
+    bool isInCheck = isMyKingInCheck();
 
     std::vector<Move> moves = generateAllPseudoLegalMovesAsMoveList();
     ctx.togglePVScoring(moves);
@@ -1075,7 +1085,23 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
 
         int score;
         if (ctx.foundPv) {
-            score = -negamax_(-alpha - 1, -alpha, depth - 1, ctx);
+            // LMR
+            bool canReduce = depth >= ctx.REDUCTION_LIMIT &&
+                             legalMoves >= ctx.FULL_DEPTH_MOVE &&
+                             !move_.isCapture && !move_.isPromotion() &&
+                             !isInCheck && !ctx.isKillerMove(move_);
+            int reduction = canReduce ? (legalMoves >= 6 ? 2 : 1) : 0;
+
+            // null-window probe, possibly reduced
+            score = -negamax_(-alpha - 1, -alpha, depth - 1 - reduction, ctx);
+
+            // if reduced search beat alpha, re-search at full depth (still null
+            // window)
+            if (reduction && score > alpha) {
+                score = -negamax_(-alpha - 1, -alpha, depth - 1, ctx);
+            }
+
+            // full-window re-search if it's a real PV candidate
             if ((score > alpha) && (score < beta)) {
                 score = -negamax_(-beta, -alpha, depth - 1, ctx);
             }
@@ -1102,7 +1128,7 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
     }
 
     if (!legalMoves) {
-        if (isMyKingInCheck()) {
+        if (isInCheck) {
             return -49000 + ctx.ply;
         } else {
             return 0;
@@ -1222,10 +1248,9 @@ int Engine::evaluateMaterialScore() const {
     return score;
 }
 
-int Engine::evaluateMoveScore(Move move, SearchContext& ctx) const {
+int Engine::evaluateMoveScore(const Move move, const SearchContext& ctx) const {
     if (ctx.scoringPv) {
         if (ctx.pvTable[0][ctx.ply] == move.toBinary()) {
-            ctx.resetScoring();
             return 20000;
         }
     }
@@ -1250,9 +1275,19 @@ int Engine::evaluateMoveScore(Move move, SearchContext& ctx) const {
 }
 
 void Engine::sortMoves(std::vector<Move>& moves, SearchContext& ctx) {
-    std::sort(moves.begin(), moves.end(), [&](const Move& m1, const Move& m2) {
-        return evaluateMoveScore(m1, ctx) > evaluateMoveScore(m2, ctx);
-    });
+    std::vector<std::pair<int, Move>> scored;
+    scored.reserve(moves.size());
+    for (const Move& m : moves) {
+        scored.emplace_back(evaluateMoveScore(m, ctx), m);
+    }
+    std::sort(scored.begin(), scored.end(),
+              [](const std::pair<int, Move>& a, const std::pair<int, Move>& b) {
+                  return a.first > b.first;
+              });
+    for (size_t i = 0; i < moves.size(); i++) {
+        moves[i] = scored[i].second;
+    }
+    ctx.resetScoring();
 }
 
 #pragma endregion

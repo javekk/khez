@@ -61,4 +61,6 @@ class Move {
     u_int32_t toBinary() const;
 
     static u_int32_t createBinary(Square from, Square to, MoveType type);
+
+    bool isPromotion() const;
 };

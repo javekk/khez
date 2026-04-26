@@ -17,6 +17,10 @@
 
 struct SearchContext {
     static constexpr int MAX_PLY = 64;
+
+    static constexpr int REDUCTION_LIMIT = 3;
+    static constexpr int FULL_DEPTH_MOVE = 4;
+
     int ply = 0;
     u_int64_t nodes = 0;
 
@@ -56,6 +60,10 @@ struct SearchContext {
     }
     bool isKillerMove1(Move move) const {
         return killerMoves[ply][1] == move.toBinary();
+    }
+
+    bool isKillerMove(Move move) const {
+        return isKillerMove0(move) || isKillerMove1(move);
     }
 
     void updatePVLengthCurrentLevel() { pvLength[ply] = ply; }
@@ -150,7 +158,7 @@ class Engine {
         std::function<void(const SearchResults&, int)> onIteration = nullptr);
     int evaluatePosition() const;
     int evaluateMaterialScore() const;
-    int evaluateMoveScore(Move move, SearchContext& ctx) const;
+    int evaluateMoveScore(const Move move, const SearchContext& ctx) const;
 
     void sortMoves(std::vector<Move>& moves, SearchContext& ctx);
 

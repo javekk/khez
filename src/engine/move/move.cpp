@@ -186,6 +186,8 @@ u_int32_t Move::createBinary(Square from, Square to, MoveType type) {
            (isDoublePush << 21) | (isEnpassant << 22) | (isCastling << 23);
 }
 
+bool Move::isPromotion() const { return promoted && promoted != EMPTY; }
+
 Move::Move(u_int32_t binary) {
     from = static_cast<Square>(binary & 0x3f);            // bit 0-5
     to = static_cast<Square>((binary >> 6) & 0x3f);       // bit 6-11

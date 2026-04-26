@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
         logger.info("Starint in UCI mode");
         engine.setupInitialPosition();
         engine.UCI();
+        return 0;
     }
 
     if (args.benchMode) {
@@ -71,8 +72,7 @@ int main(int argc, char* argv[]) {
                  << endl;
         }
 
-        long long int nps =
-            totalMs > 0 ? (totalNodes * 1000) / totalMs : 0;
+        long long int nps = totalMs > 0 ? (totalNodes * 1000) / totalMs : 0;
         cout << "===" << endl;
         cout << "total_nodes=" << totalNodes << endl;
         cout << "total_time_ms=" << totalMs << endl;
@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
     int totalHalfMoves = 0;
     int totalTime = 0;
     while (true) {
-        cout << "┏━━━ RUN " << endl;
+        cout << "┏━━━ RUN ━━━━━━━━━━━━" << endl;
         cout << engine.board.toStringFancy();
         SearchResults searchResult = engine.searchBestMove(
             args.depthSearch, [](const SearchResults& r, int d) {
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
         cout << "┃ Half Moves: " << totalHalfMoves << endl;
         cout << "┃ Time(ms): " << totalTime << endl;
         cout << "┃ Time(s): " << totalTime / 1000 << endl;
-        cout << "┗━━ " << endl;
+        cout << "┗━━━━━━━━━━━━━ " << endl;
 
         // getchar();
 
