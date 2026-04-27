@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1777231479491,
+  "lastUpdate": 1777326613417,
   "repoUrl": "https://github.com/javekk/khez",
   "entries": {
     "Khez perft bench": [
@@ -77,6 +77,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "search_nps",
             "value": 254352,
+            "unit": "nodes/sec"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "periniraffaele@gmail.com",
+            "name": "javekk",
+            "username": "javekk"
+          },
+          "committer": {
+            "email": "periniraffaele@gmail.com",
+            "name": "javekk",
+            "username": "javekk"
+          },
+          "distinct": true,
+          "id": "ac3b7454b0b6ab6d010ce5da1950e2d0be6a5b1d",
+          "message": "chore: generae comments for better internal documentation",
+          "timestamp": "2026-04-27T23:49:33+02:00",
+          "tree_id": "f793e5fc59ba9f930775c35c0e896a6918e66648",
+          "url": "https://github.com/javekk/khez/commit/ac3b7454b0b6ab6d010ce5da1950e2d0be6a5b1d"
+        },
+        "date": 1777326612615,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "search_total_time_ms",
+            "value": 1534,
+            "unit": "ms"
+          },
+          {
+            "name": "search_total_nodes",
+            "value": 433925,
+            "unit": "nodes"
+          },
+          {
+            "name": "search_nps",
+            "value": 282871,
             "unit": "nodes/sec"
           }
         ]
