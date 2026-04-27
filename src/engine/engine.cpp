@@ -1008,7 +1008,30 @@ inline bool Engine::isOpponentKingInCheck() {
 #pragma region Move Search
 
 /**
- * Checks chain of captures
+ * Quiescence search: extends the main search past depth 0 over captures
+ * only, until the position is "quiet".
+ *
+ * Mitigates the horizon effect: stopping at a fixed depth can leave the
+ * side to move in the middle of an exchange, badly mis-evaluating the
+ * static position. Example: depth ends right after we capture a queen
+ * with a pawn; static eval shows +9 but the opponent recaptures the
+ * pawn next ply for a real result of -1. Quiescence keeps searching
+ * captures so the eval reflects the settled material.
+ *
+ * Uses the "stand pat" idea: the static evaluation is treated as a lower
+ * bound, since the side to move can choose not to capture (assuming no
+ * zugzwang). So:
+ *   - if stand-pat already >= beta, fail-high immediately;
+ *   - otherwise raise alpha to stand-pat and search captures only;
+ *   - non-capture moves are skipped (loop continues).
+ *
+ * No depth parameter: recursion ends naturally when no capture beats
+ * alpha, or at MAX_PLY safety bound.
+ *
+ * @param alpha  Lower bound (will be raised by stand-pat if eval > alpha).
+ * @param beta   Upper bound; stand-pat or any capture score >= beta cuts off.
+ * @param ctx    Mutable search state (ply, nodes; PV not updated here).
+ * @return Score from the side-to-move's perspective.
  */
 int Engine::quiescence_(int alpha, int beta, SearchContext& ctx) {
     ctx.nodes++;
@@ -1054,6 +1077,35 @@ int Engine::quiescence_(int alpha, int beta, SearchContext& ctx) {
     return alpha;
 }
 
+/**
+ * Recursive negamax search with alpha-beta pruning, PVS and LMR.
+ *
+ * Generates pseudo-legal moves, sorts them (PV move, captures by MVV/LVA,
+ * killers, history), then for each legal move recurses with negated and
+ * swapped window. On non-PV nodes does a full-window search; once a PV
+ * has been found at this ply (`ctx.foundPv`), uses Principal Variation
+ * Search (a null window is `[alpha, alpha+1]`: it only answers "score
+ * beats alpha? yes/no", far cheaper than a full window):
+ *   - null-window probe, optionally reduced via LMR for quiet, non-check,
+ *     non-killer moves late in the move list;
+ *   - if the reduced probe beat alpha (LMR may have under-searched a
+ *     real candidate), re-search at full depth, still null window: we
+ *     only need to confirm "really beats alpha?", not the exact score;
+ *   - if the score lies inside (alpha, beta), full-window re-search to
+ *     get the exact score for the new PV.
+ *
+ * Other behaviors:
+ *   - beta cutoff: store killer move and bump history (quiet moves only);
+ *   - no legal moves: mate (-49000 + ply, so shorter mates score higher)
+ *     or stalemate (0);
+ *   - depth 0: hand off to quiescence_ to avoid the horizon effect.
+ *
+ * @param alpha  Lower bound of the search window (best score found so far).
+ * @param beta   Upper bound; score >= beta triggers a fail-high cutoff.
+ * @param depth  Remaining depth in plies.
+ * @param ctx    Mutable search state: ply, nodes, PV table, killers, history.
+ * @return Score from the side-to-move's perspective, clamped to [alpha, beta].
+ */
 int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
     ctx.updatePVLengthCurrentLevel();
 
@@ -1138,6 +1190,21 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
     return alpha;
 }
 
+/**
+ * Root entry point for a single fixed-depth search.
+ *
+ * Initializes a fresh SearchContext (optionally seeded from the previous
+ * iteration's context to carry over PV, killers and history), launches
+ * negamax_ with the alpha-beta window [-50000, +50000] (bounds chosen
+ * wider than any reachable mate score so they act as ±infinity), then
+ * extracts the best move and PV from pvTable and times the search.
+ *
+ * @param depth        Search depth in plies.
+ * @param previousCtx  Context from the previous iterative-deepening pass,
+ *                     used to seed move ordering. May be null on depth 1.
+ * @return SearchResults containing best move, PV, score (from side-to-move's
+ *         perspective), node count and elapsed time.
+ */
 SearchResults Engine::negamax(int depth, const SearchContext* previousCtx) {
     int alpha = -50000;
     int beta = -alpha;
@@ -1160,6 +1227,19 @@ SearchResults Engine::negamax(int depth, const SearchContext* previousCtx) {
     return results;
 }
 
+/**
+ * Iterative deepening driver.
+ *
+ * Runs negamax at depths 1..maxDepth, reusing the SearchContext between
+ * iterations so PV, killers and history from shallower searches order
+ * moves at deeper plies, producing stronger alpha-beta cutoffs.
+ *
+ * @param maxDepth     Maximum search depth in plies.
+ * @param onIteration  Callback fired after each completed depth
+ *                     (e.g. for UCI "info depth N ..." output). May be null.
+ * @return Search result from the deepest completed iteration, with total
+ *         elapsed time in `time_ms`.
+ */
 SearchResults Engine::searchBestMove(
     int maxDepth, std::function<void(const SearchResults&, int)> onIteration) {
     auto startTime = std::chrono::high_resolution_clock::now();
@@ -1179,6 +1259,30 @@ SearchResults Engine::searchBestMove(
     return result;
 }
 
+/**
+ * Static evaluation of the current position, with tapered middlegame /
+ * endgame scoring.
+ *
+ * For each piece on each square sums two values:
+ *   - material (queen=900, rook=500, etc.);
+ *   - PST bonus (Piece-Square Table): a per-piece, per-square offset
+ *     encoding positional preferences. E.g. knights score higher in the
+ *     center, kings prefer their starting corner in the middlegame and
+ *     the center in the endgame. Black squares are mirrored via XOR 56
+ *     (flips the rank, keeps the file) so a single white-oriented table
+ *     serves both colors.
+ *
+ * Two parallel scores are accumulated, mgScore and egScore, using the
+ * middlegame and endgame PSTs. They are blended by a phase value
+ * `pieceBoost` (Q=4, R=2, B=N=1, P=K=0; clamped to 24 for the start
+ * position). Full board: result = mgScore. Bare kings: result = egScore.
+ * In between: linear interpolation. This avoids a hard middlegame /
+ * endgame switch and lets, e.g., the king walk toward the center as
+ * pieces come off.
+ *
+ * @return Score in centipawns from the side-to-move's perspective
+ *         (positive = good for side to move).
+ */
 int Engine::evaluatePosition() const {
     // PST lookup indexed by PieceBoard (0=WHITE_PAWNS .. 11=BLACK_KING)
     static const int* middleGamePst[12] = {
@@ -1229,6 +1333,18 @@ int Engine::evaluatePosition() const {
     return (board.status.side.value() == WHITE) ? result : -result;
 }
 
+/**
+ * Sum of pure material on the board, ignoring position.
+ *
+ * Iterates every piece bitboard and adds the side-signed material value
+ * (white positive, black negative). No PST, no tapering, no king safety.
+ * Used where a cheap, position-independent material count is enough
+ * (e.g. tests, quick heuristics); the search itself uses
+ * evaluatePosition.
+ *
+ * @return Material balance in centipawns from white's perspective
+ *         (positive = white ahead), regardless of side to move.
+ */
 int Engine::evaluateMaterialScore() const {
     int score = 0;
 
@@ -1248,6 +1364,26 @@ int Engine::evaluateMaterialScore() const {
     return score;
 }
 
+/**
+ * Score a move for ordering: higher score = searched first.
+ *
+ * Good move ordering is the biggest lever for alpha-beta: best move first
+ * maximizes cutoffs.
+ *
+ * Priority tiers (descending):
+ *   - 20000: PV move from the previous iterative-deepening pass (when
+ *     `ctx.scoringPv` is on).
+ *   - 10000 + MVV/LVA: captures (see mvvLva table). The PAWN fallback
+ *     handles en-passant, where the captured pawn isn't on `move.to`.
+ *   - 9000 / 8000: killer moves, quiet moves that caused a beta cutoff
+ *     at this ply in a sibling node, likely strong refutations here too.
+ *   - history score: piece x to-square table bumped by depth^2 on
+ *     quiet-move beta cutoffs.
+ *
+ * @param move  Move to score.
+ * @param ctx   Search context (PV table, killers, history).
+ * @return Ordering score; only relative magnitude matters.
+ */
 int Engine::evaluateMoveScore(const Move move, const SearchContext& ctx) const {
     if (ctx.scoringPv) {
         if (ctx.pvTable[0][ctx.ply] == move.toBinary()) {
@@ -1274,6 +1410,20 @@ int Engine::evaluateMoveScore(const Move move, const SearchContext& ctx) const {
     return ctx.historyMoves[static_cast<int>(move.piece)][move.to];
 }
 
+/**
+ * Sort moves in-place by descending ordering score.
+ *
+ * Scores each move via evaluateMoveScore (PV / captures-MVV-LVA / killers
+ * / history), then sorts highest first so the search tries the most
+ * promising moves before the rest. Good ordering is what makes alpha-beta
+ * effective in practice.
+ *
+ * Resets per-ply scoring flags on `ctx` (e.g. `scoringPv`) once the
+ * sort is done, so they don't leak into deeper plies.
+ *
+ * @param moves  Move list to reorder in place.
+ * @param ctx    Search context; read for scoring, mutated by resetScoring().
+ */
 void Engine::sortMoves(std::vector<Move>& moves, SearchContext& ctx) {
     std::vector<std::pair<int, Move>> scored;
     scored.reserve(moves.size());

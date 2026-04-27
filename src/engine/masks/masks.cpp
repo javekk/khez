@@ -13,22 +13,6 @@ const Bitboard blackQueen = Bitboard(0x0000000000000010);
 const Bitboard whiteKing = Bitboard(0x0800000000000000);
 const Bitboard blackKing = Bitboard(0x0000000000000008);
 
-/*
-  To generate file bitboards you can use this simple script,
-  this one in the example is for generate the mask for notAFile
-
-    Bitboard not_a_file;
-    for (int rank = 0; rank < 8; rank++) {
-        for (int file = 0; file < 8; file++) {
-            if (file > 0) {
-                not_a_file.setBit(file + (8 * rank));
-            }
-        }
-    }
-    std::cout << not_a_file.toString() << std::endl;
-    std::cout << std::hex << not_a_file.getValue() << std::endl;
-*/
-
 const Bitboard notAFile = Bitboard(0x7f7f7f7f7f7f7f7f);
 const Bitboard notHFile = Bitboard(0xfefefefefefefefe);
 
@@ -38,23 +22,6 @@ const Bitboard notGHFile = Bitboard(0xfcfcfcfcfcfcfcfc);
 const Bitboard firstRank = Bitboard(0xFF00000000000000);
 const Bitboard eighthRank = Bitboard(0x00000000000000FF);
 
-/*
-  To generate file bitboards you can use this simple script,
-  this one in the example is for Rook Relevant Occupancies count per square
-
-    int rook_relevant_occupancies_counts[64];
-    for (int rank = 0; rank < 8; rank++) {
-        for (int file = 0; file < 8; file++) {
-            int square = file + (8 * rank);
-            rook_relevant_occupancies_counts[square] =
-                engine.generateSingleRookRelevantOccupanciesMask(square)
-                    .popCount();
-        }
-    }
-    for (int i = 0; i < 64; i++) {
-        std::cout << rook_relevant_occupancies_counts[i] << ", ";
-    }
-*/
 const int rookRelevantOccupanciesCounts[64] = {
     12, 11, 11, 11, 11, 11, 11, 12, 11, 10, 10, 10, 10, 10, 10, 11,
     11, 10, 10, 10, 10, 10, 10, 11, 11, 10, 10, 10, 10, 10, 10, 11,
@@ -66,10 +33,6 @@ const int bishopRelevantOccupanciesCounts[64] = {
     5, 5, 5, 5, 7, 9, 9, 7, 5, 5, 5, 5, 7, 9, 9, 7, 5, 5, 5, 5, 7, 7,
     7, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 6};
 
-/*
-  The logic to generate this numbers is inside the magic.h class
-  Those random number were generate using this seed = 1804289383
-*/
 const u_int64_t bishopMagicNumbers[64] = {
     0x40040822862081,   0xa168041010224880, 0x8010141024304420,
     0x850000c804208209, 0x2400115284c20a00, 0x100420c021080800,
@@ -263,19 +226,6 @@ const int pstKingEg[64] = {
     38,  41,  44,  45,  45,  44,  41,  38,   //
     42,  46,  48,  50,  50,  48,  46,  42,   //
 };
-
-/*
-    // most valuable victim & less valuable attacker
-    (Victims) Pawn Knight Bishop   Rook  Queen   King
-  (Attackers)
-        Pawn   105    205    305    405    505    605
-      Knight   104    204    304    404    504    604
-      Bishop   103    203    303    403    503    603
-        Rook   102    202    302    402    502    602
-       Queen   101    201    301    401    501    601
-        King   100    200    300    400    500    600
-
-*/
 
 const std::map<std::pair<Piece, Piece>, int> mvvLva = {
     {{PAWN, PAWN}, 105},   {{PAWN, KNIGHT}, 205},   {{PAWN, BISHOP}, 305},
