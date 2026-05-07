@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1777326613417,
+  "lastUpdate": 1778188855034,
   "repoUrl": "https://github.com/javekk/khez",
   "entries": {
     "Khez perft bench": [
@@ -116,6 +116,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "search_nps",
             "value": 282871,
+            "unit": "nodes/sec"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "periniraffaele@gmail.com",
+            "name": "javekk",
+            "username": "javekk"
+          },
+          "committer": {
+            "email": "periniraffaele@gmail.com",
+            "name": "javekk",
+            "username": "javekk"
+          },
+          "distinct": true,
+          "id": "577004fee296408d7e3a790cafb37e03447b61fa",
+          "message": "feat(engine): Add Null move reduction + better comments on search",
+          "timestamp": "2026-05-07T23:20:11+02:00",
+          "tree_id": "549e91cd3ecf7c3836a04fd5519c8bdd7abfc519",
+          "url": "https://github.com/javekk/khez/commit/577004fee296408d7e3a790cafb37e03447b61fa"
+        },
+        "date": 1778188854136,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "search_total_time_ms",
+            "value": 1942,
+            "unit": "ms"
+          },
+          {
+            "name": "search_total_nodes",
+            "value": 529470,
+            "unit": "nodes"
+          },
+          {
+            "name": "search_nps",
+            "value": 272641,
             "unit": "nodes/sec"
           }
         ]
