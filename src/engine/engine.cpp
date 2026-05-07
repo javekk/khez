@@ -980,6 +980,16 @@ bool Engine::makeMove(Move move) {
 
 void Engine::undoMove() { board.undoLastMove(); }
 
+bool Engine::makeNullMove() {
+    if (isMyKingInCheck()) {
+        return false;
+    }
+    board.makeNullMove();
+    return true;
+}
+
+void Engine::undoNullMove() { board.undoNullMove(); }
+
 inline bool Engine::isMyKingInCheck() {
     Color otherSide = board.status.side.value() == BLACK ? WHITE : BLACK;
 
@@ -1121,6 +1131,30 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
 
     bool isInCheck = isMyKingInCheck();
 
+    // Null Move Pruning: "if I pass my turn and let the opponent move twice,
+    // am I still doing well enough to fail high?" If yes, the position is so
+    // good that any real move would also fail high, so prune.
+    // Skipped when in check (illegal pass) and at the root (need a best
+    // move). Reduced null-window probe: we only need a yes/no answer.
+    // Caveat: zugzwang positions (e.g. pawn endgames) can fool NMP since
+    // passing is actually bad there.
+    bool canDoNMP = depth >= ctx.DEPTH_FOR_STARTING_NULL_PRUNING &&
+                    !isInCheck && ctx.ply && ctx.nmrAllowed;
+    if (canDoNMP) {
+        ctx.nmrAllowed = false;
+        makeNullMove();
+        int score = -negamax_(-beta, -beta + 1,
+                              depth - 1 - ctx.NMP_REDUCTION_FACTOR, ctx);
+        undoNullMove();
+
+        // Even after giving the opponent a free move, we still fail high:
+        // prune the subtree.
+        ctx.nmrAllowed = true;
+        if (score >= beta) {
+            return beta;
+        }
+    }
+
     std::vector<Move> moves = generateAllPseudoLegalMovesAsMoveList();
     ctx.togglePVScoring(moves);
     sortMoves(moves, ctx);
@@ -1137,23 +1171,29 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
 
         int score;
         if (ctx.foundPv) {
-            // LMR
+            // Late Move Reductions: once we have a PV, later moves in the
+            // ordered list are unlikely to beat it. Search them shallower
+            // with a null window first; only spend full depth if they
+            // surprise us. Skipped for tactical/forcing moves (captures,
+            // promotions, checks, killers) where reductions misjudge.
             bool canReduce = depth >= ctx.REDUCTION_LIMIT &&
                              legalMoves >= ctx.FULL_DEPTH_MOVE &&
                              !move_.isCapture && !move_.isPromotion() &&
                              !isInCheck && !ctx.isKillerMove(move_);
             int reduction = canReduce ? (legalMoves >= 6 ? 2 : 1) : 0;
 
-            // null-window probe, possibly reduced
+            // Null-window probe, possibly reduced: just asks "does this beat
+            // alpha?", cheaper than computing an exact score.
             score = -negamax_(-alpha - 1, -alpha, depth - 1 - reduction, ctx);
 
-            // if reduced search beat alpha, re-search at full depth (still null
-            // window)
+            // The reduced probe beat alpha: maybe LMR under-searched a real
+            // candidate. Re-verify at full depth, still null-window.
             if (reduction && score > alpha) {
                 score = -negamax_(-alpha - 1, -alpha, depth - 1, ctx);
             }
 
-            // full-window re-search if it's a real PV candidate
+            // Score landed inside (alpha, beta): genuine PV candidate, do a
+            // full-window re-search to get the exact score.
             if ((score > alpha) && (score < beta)) {
                 score = -negamax_(-beta, -alpha, depth - 1, ctx);
             }
@@ -1164,6 +1204,12 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
         undoMove();
         ctx.ply--;
 
+        // Fail-high (beta cutoff): this move is too good. The opponent at the
+        // parent node already has a reply scoring <= alpha-from-their-side
+        // (our beta), so they would never let us reach this position. No need
+        // to search the remaining moves: returning beta as a lower bound is
+        // enough. Store killer/history so this refutation is tried first in
+        // sibling nodes.
         if (score >= beta) {
             if (!move_.isCapture) {
                 ctx.storeKillerMove(move_);
@@ -1171,6 +1217,8 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
             }
             return beta;
         }
+        // New PV move: score is inside (alpha, beta), so it's the new best
+        // line found here. Tighten alpha and record it in the PV table.
         if (score > alpha) {
             alpha = score;
 
@@ -1187,6 +1235,9 @@ int Engine::negamax_(int alpha, int beta, int depth, SearchContext& ctx) {
         }
     }
 
+    // Fail-low: alpha was never raised, meaning every move here scores <=
+    // alpha. The side-to-move has something better elsewhere in the tree, so
+    // the parent can safely discard this branch.
     return alpha;
 }
 

@@ -10,31 +10,32 @@ C++ chess engine based on bitboards.
 
 ## Building
 
+Debug build (default):
+
 ```bash
-mkdir build
-cd build
-cmake ..
-make
+cmake -S . -B build
+cmake --build build -j
+```
+
+Release build (optimized, use this for matches/benchmarks):
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
+```
+
+Build the previous commit alongside the current code (for self-play):
+
+```bash
+./scripts/build-head.sh   # produces build/khez-head
 ```
 
 ## Running
 
-### Main executable
-
 ```bash
-./khez
-```
-
-### Tests
-
-```bash
-./khez_tests
-```
-
-Or using CTest:
-
-```bash
-ctest
+./build/khez            # main executable
+./build/khez_tests      # tests
+ctest --test-dir build  # tests via CTest
 ```
 
 ### References and Credits

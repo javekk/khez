@@ -6,7 +6,7 @@
 struct CommandLineArgs {
     bool uciMode = false;
     bool benchMode = false;
-    int logLevel = 0;
+    int logLevel = 4;
     bool logEnable = true;
     int depthSearch = 4;
     int benchDepth = 7;

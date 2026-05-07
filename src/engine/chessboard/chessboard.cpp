@@ -210,6 +210,20 @@ void ChessBoard::undoLastMove() {
     moveHistory.pop_back();
 }
 
+void ChessBoard::makeNullMove() {
+    statusHistory.push_back(status);
+
+    status.enpassant.reset();
+    status.side = ((status.side.value() == WHITE) ? BLACK : WHITE);
+}
+
+void ChessBoard::undoNullMove() {
+    ChessboardStatus previuousStatus = statusHistory.back();
+    status = previuousStatus;
+
+    statusHistory.pop_back();
+}
+
 void ChessBoard::setPieceAt(const Square square, const Piece piece,
                             const Color color) {
     assert(square >= 0 && square < 64);

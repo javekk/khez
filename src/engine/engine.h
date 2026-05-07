@@ -36,6 +36,15 @@ struct SearchContext {
     /// moves at each node are always searched at full depth.
     static constexpr int FULL_DEPTH_MOVE = 4;
 
+    /// Minimum remaining depth for NMP. Below this the reduced probe is
+    /// either useless or risks missing tactics, so we skip it.
+    static constexpr int DEPTH_FOR_STARTING_NULL_PRUNING = 3;
+
+    /// Plies shaved off the depth in the NMP probe. We only need a yes/no
+    /// "still fails high?" answer, not an exact score, so a shallower
+    /// search is enough.
+    static constexpr int NMP_REDUCTION_FACTOR = 2;
+
     /// Distance from the root, in plies.
     int ply = 0;
 
@@ -80,6 +89,11 @@ struct SearchContext {
     bool foundPv = false;
     bool followPv = true;
     bool scoringPv = false;
+
+    /// Gate to forbid recursive null moves: once we've already done a null
+    /// move on the current line, doing a second one would be equivalent to
+    /// skipping two of our own turns, which is meaningless.
+    bool nmrAllowed = true;
 
     void initFromPreviousContenxt(const SearchContext* previousCtx) {
         if (previousCtx) {
@@ -208,6 +222,9 @@ class Engine {
 
     bool makeMove(Move move);
     void undoMove();
+
+    bool makeNullMove();
+    void undoNullMove();
 
     bool isSquareUnderAttackBy(Square square, Color color);
 

@@ -28,6 +28,9 @@ class ChessBoard {
     void makePsuedoLegalMove(Move move);
     void undoLastMove();
 
+    void makeNullMove();
+    void undoNullMove();
+
     void setPieceAt(const Square square, const Piece piece, const Color color);
     void setPieceAt(const Square square, const char piece);
     void clearPieceAt(const Square square);
